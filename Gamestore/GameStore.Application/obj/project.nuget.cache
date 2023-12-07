@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "CKmiwQFqLEd2vVUEdtdyQJrP4jyNHIxGCROmrPP/jU8rQTF8BNFTsW1H9CszioDL9ySZLhreQpcgmjvfqWSqIA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Gamestore\\GameStore.Application\\GameStore.Application.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mateu\\.nuget\\packages\\stylecop.analyzers.unstable\\1.2.0.435\\stylecop.analyzers.unstable.1.2.0.435.nupkg.sha512"
+  ],
+  "logs": []
+}

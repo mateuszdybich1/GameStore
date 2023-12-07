@@ -1,0 +1,5 @@
+C:\Users\mateu\Desktop\EPAM_PROJECT\Gamestore\GameStore.Application\obj\Debug\net7.0\GameStore.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mateu\Desktop\EPAM_PROJECT\Gamestore\GameStore.Application\obj\Debug\net7.0\GameStore.Application.AssemblyInfoInputs.cache
+C:\Users\mateu\Desktop\EPAM_PROJECT\Gamestore\GameStore.Application\obj\Debug\net7.0\GameStore.Application.AssemblyInfo.cs
+C:\Users\mateu\Desktop\EPAM_PROJECT\Gamestore\GameStore.Application\obj\Debug\net7.0\GameStore.Application.csproj.CoreCompileInputs.cache
+C:\Users\mateu\Desktop\EPAM_PROJECT\Gamestore\GameStore.Application\obj\Debug\net7.0\GameStore.Application.xml
