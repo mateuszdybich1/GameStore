@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gxUf0UK0VVtQ/Q/j81YKwEy9BYQNFpLM3sZs/BDXRssI444jbIW6abBnUzS9V9jAmc6z13pfrh8Yz8iTVHausQ==",
+  "dgSpecHash": "C8Xv1pyBxx39azevKTZJMOCWjHeHp8YeSsFkjajmVn6rRyBgPCibaVmh9/uh2gGEMzf5kB9KYyXxNo9u7EMo3Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Gamestore\\GameStore.Infrastructure\\GameStore.Infrastructure.csproj",
+  "projectFilePath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Infrastructure\\GameStore.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mateu\\.nuget\\packages\\stylecop.analyzers.unstable\\1.2.0.435\\stylecop.analyzers.unstable.1.2.0.435.nupkg.sha512"
   ],

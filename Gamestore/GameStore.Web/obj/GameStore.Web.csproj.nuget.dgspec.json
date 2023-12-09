@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Gamestore\\GameStore.Web\\GameStore.Web.csproj": {}
+    "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Gamestore\\GameStore.Web\\GameStore.Web.csproj": {
+    "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Gamestore\\GameStore.Web\\GameStore.Web.csproj",
+        "projectUniqueName": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web.csproj",
         "projectName": "GameStore.Web",
-        "projectPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Gamestore\\GameStore.Web\\GameStore.Web.csproj",
+        "projectPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web.csproj",
         "packagesPath": "C:\\Users\\mateu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Gamestore\\GameStore.Web\\obj\\",
+        "outputPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
