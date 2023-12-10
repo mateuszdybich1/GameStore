@@ -7,9 +7,9 @@ namespace GameStore.Web.Controllers;
 [ApiController]
 public class PlatformsController : ControllerBase
 {
-    private readonly IGamesService _gamesService;
+    private readonly IGameService _gamesService;
 
-    public PlatformsController(IGamesService gamesService)
+    public PlatformsController(IGameService gamesService)
     {
         _gamesService = gamesService;
     }

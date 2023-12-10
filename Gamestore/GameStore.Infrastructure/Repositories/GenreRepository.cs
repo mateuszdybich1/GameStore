@@ -17,6 +17,11 @@ public class GenreRepository : IGenreRepository
         _appDbContext.SaveChanges();
     }
 
+    public List<Genre> GetAllGenre()
+    {
+        return _appDbContext.Genres.ToList();
+    }
+
     public Genre GetGenre(Guid genreId)
     {
         return _appDbContext.Genres.SingleOrDefault(x => x.Id == genreId);

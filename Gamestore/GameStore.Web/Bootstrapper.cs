@@ -14,8 +14,11 @@ internal static class Bootstrapper
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IPlatformRepository, PlatformRepository>();
-        services.AddScoped<IGamesSearchCriteria, GamesSearchCirteria>();
 
-        services.AddScoped<IGamesService, GameService>();
+        services.AddScoped<IGamesSearchCriteria, GamesSearchCirteria>();
+        services.AddScoped<IGenresSearchCriteria, GenresSearchCriteria>();
+
+        services.AddScoped<IGameService, GameService>();
+        services.AddScoped<IGenreService, GenreService>();
     }
 }

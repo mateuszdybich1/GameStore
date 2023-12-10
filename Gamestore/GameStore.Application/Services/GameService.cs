@@ -6,7 +6,7 @@ using GameStore.Infrastructure.IRepositories;
 using GameStore.Infrastructure.ISearchCriterias;
 
 namespace GameStore.Application.Services;
-public class GameService : IGamesService
+public class GameService : IGameService
 {
     private readonly IGameRepository _gameRepository;
     private readonly IGamesSearchCriteria _gamesSearchCriteria;

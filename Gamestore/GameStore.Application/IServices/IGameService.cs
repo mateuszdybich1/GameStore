@@ -1,7 +1,7 @@
 ﻿using GameStore.Application.Dtos;
 
 namespace GameStore.Application.IServices;
-public interface IGamesService
+public interface IGameService
 {
     public Guid AddGame(GameDto gameDto);
 

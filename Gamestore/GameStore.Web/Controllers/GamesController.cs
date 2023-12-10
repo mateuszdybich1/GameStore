@@ -9,11 +9,13 @@ namespace GameStore.Web.Controllers;
 [ApiController]
 public class GamesController : ControllerBase
 {
-    private readonly IGamesService _gamesService;
+    private readonly IGameService _gamesService;
+    private readonly IGenreService _genreService;
 
-    public GamesController(IGamesService gamesService)
+    public GamesController(IGameService gamesService, IGenreService genreService)
     {
         _gamesService = gamesService;
+        _genreService = genreService;
     }
 
     [HttpPost]
@@ -105,6 +107,19 @@ public class GamesController : ControllerBase
         try
         {
             return Ok(_gamesService.GetGames());
+        }
+        catch (EntityNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("{key}/genres")]
+    public IActionResult GetGamesGenres([FromRoute] string key)
+    {
+        try
+        {
+            return Ok(_genreService.GetGamesGenres(key));
         }
         catch (EntityNotFoundException ex)
         {

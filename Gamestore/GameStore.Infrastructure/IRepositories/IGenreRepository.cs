@@ -10,4 +10,6 @@ public interface IGenreRepository
     public void UpdateGenre(Genre genre);
 
     public void RemoveGenre(Genre genre);
+
+    public List<Genre> GetAllGenre();
 }
