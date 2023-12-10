@@ -4,12 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+var services = builder.Services;
+
+services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer("Data Source = localhost, 1433; Initial Catalog = PROJECT; Integrated Security = True; TrustServerCertificate=True;");
 });
 
-builder.Services.AddControllersWithViews();
+services.AddControllersWithViews();
+
+Bootstrapper.RegisterServices(services);
 
 var app = builder.Build();
 
