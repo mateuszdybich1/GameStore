@@ -140,3 +140,6 @@ C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Web\bin\Debug\ne
 C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Web\bin\Debug\net7.0\Microsoft.Extensions.DependencyModel.dll
 C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Web\bin\Debug\net7.0\Mono.TextTemplating.dll
 C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Web\bin\Debug\net7.0\System.CodeDom.dll
+C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Web\bin\Debug\net7.0\GameStore.Application.dll
+C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Web\bin\Debug\net7.0\GameStore.Application.pdb
+C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Web\bin\Debug\net7.0\GameStore.Application.xml

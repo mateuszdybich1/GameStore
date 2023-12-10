@@ -13,7 +13,7 @@ services.AddDbContext<AppDbContext>(options =>
 
 services.AddControllersWithViews();
 
-Bootstrapper.RegisterServices(services);
+services.RegisterServices();
 
 var app = builder.Build();
 

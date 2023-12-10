@@ -5,7 +5,7 @@ public interface IGamesSearchCriteria
 {
     public Game GetByKey(string key);
 
-    public List<Game> GetByGenre(string genre);
+    public List<Game> GetByGenreId(Guid genreId);
 
-    public List<Game> GetByPlatform(string platform);
+    public List<Game> GetByPlatformId(Guid platformId);
 }

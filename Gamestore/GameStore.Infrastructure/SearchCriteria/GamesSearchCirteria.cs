@@ -12,9 +12,14 @@ public class GamesSearchCirteria : IGamesSearchCriteria
         _appDbContext = appDbContext;
     }
 
-    public List<Game> GetByGenre(string genre)
+    public List<Game> GetByGenreId(Guid genreId)
     {
-        return _appDbContext.Games.Include(x => x.Genres.Where(y => y.Name == genre)).ToList();
+        List<Game> games = _appDbContext.Games
+        .Include(x => x.Genres)
+        .Where(x => x.Genres.Any(y => y.Id == genreId))
+        .ToList();
+
+        return games;
     }
 
     public Game GetByKey(string key)
@@ -22,8 +27,13 @@ public class GamesSearchCirteria : IGamesSearchCriteria
         return _appDbContext.Games.SingleOrDefault(x => x.Key == key);
     }
 
-    public List<Game> GetByPlatform(string platform)
+    public List<Game> GetByPlatformId(Guid platformId)
     {
-        return _appDbContext.Games.Include(x => x.Platforms.Where(y => y.Type == platform)).ToList();
+        List<Game> games = _appDbContext.Games
+        .Include(x => x.Platforms)
+        .Where(x => x.Platforms.Any(y => y.Id == platformId))
+        .ToList();
+
+        return games;
     }
 }

@@ -1045,6 +1045,19 @@
           }
         }
       },
+      "GameStore.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v7.0",
+        "dependencies": {
+          "GameStore.Infrastructure": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/GameStore.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GameStore.Application.dll": {}
+        }
+      },
       "GameStore.Infrastructure/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v7.0",
@@ -2882,6 +2895,11 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "GameStore.Application/1.0.0": {
+      "type": "project",
+      "path": "../GameStore.Application/GameStore.Application.csproj",
+      "msbuildProject": "../GameStore.Application/GameStore.Application.csproj"
+    },
     "GameStore.Infrastructure/1.0.0": {
       "type": "project",
       "path": "../GameStore.Infrastructure/GameStore.Infrastructure.csproj",
@@ -2890,6 +2908,7 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
+      "GameStore.Application >= 1.0.0",
       "GameStore.Infrastructure >= 1.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 7.0.14",
       "StyleCop.Analyzers.Unstable >= 1.2.0.435"
@@ -2927,6 +2946,9 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
+            "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Application\\GameStore.Application.csproj": {
+              "projectPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Application\\GameStore.Application.csproj"
+            },
             "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Infrastructure\\GameStore.Infrastructure.csproj": {
               "projectPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Infrastructure\\GameStore.Infrastructure.csproj"
             }

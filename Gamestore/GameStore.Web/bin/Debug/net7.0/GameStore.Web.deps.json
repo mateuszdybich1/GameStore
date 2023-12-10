@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v7.0": {
       "GameStore.Web/1.0.0": {
         "dependencies": {
+          "GameStore.Application": "1.0.0",
           "GameStore.Infrastructure": "1.0.0",
           "Microsoft.EntityFrameworkCore.Design": "7.0.14",
           "StyleCop.Analyzers.Unstable": "1.2.0.435"
@@ -549,6 +550,14 @@
           }
         }
       },
+      "GameStore.Application/1.0.0": {
+        "dependencies": {
+          "GameStore.Infrastructure": "1.0.0"
+        },
+        "runtime": {
+          "GameStore.Application.dll": {}
+        }
+      },
       "GameStore.Infrastructure/1.0.0": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "7.0.14",
@@ -985,6 +994,11 @@
       "sha512": "sha512-IXoJOXIqc39AIe+CIR7koBtRGMiCt/LPM3lI+PELtDIy9XdyeSrwXFdWV9dzJ2Awl0paLWUaknLxFQ5HpHZUog==",
       "path": "system.windows.extensions/6.0.0",
       "hashPath": "system.windows.extensions.6.0.0.nupkg.sha512"
+    },
+    "GameStore.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     },
     "GameStore.Infrastructure/1.0.0": {
       "type": "project",

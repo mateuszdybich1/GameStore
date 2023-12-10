@@ -1,4 +1,6 @@
-﻿using GameStore.Infrastructure.IRepositories;
+﻿using GameStore.Application.IServices;
+using GameStore.Application.Services;
+using GameStore.Infrastructure.IRepositories;
 using GameStore.Infrastructure.ISearchCriterias;
 using GameStore.Infrastructure.Repositories;
 using GameStore.Infrastructure.SearchCriteria;
@@ -13,5 +15,7 @@ internal static class Bootstrapper
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IPlatformRepository, PlatformRepository>();
         services.AddScoped<IGamesSearchCriteria, GamesSearchCirteria>();
+
+        services.AddScoped<IGamesService, GameService>();
     }
 }

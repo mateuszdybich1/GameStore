@@ -6,26 +6,30 @@ public class Game
     {
     }
 
-    public Game(Guid id, string name, string key)
+    public Game(Guid id, string name, string key, List<Genre> genres, List<Platform> platforms)
     {
         Id = id;
         Name = name;
         Key = key;
+        Genres = genres;
+        Platforms = platforms;
     }
 
-    public Game(Guid id, string name, string key, string description)
+    public Game(Guid id, string name, string key, string description, List<Genre> genres, List<Platform> platforms)
     {
         Id = id;
         Name = name;
         Key = key;
         Description = description;
+        Genres = genres;
+        Platforms = platforms;
     }
 
     public Guid Id { get; private set; }
 
-    public string Name { get; private set; }
+    public string Name { get; set; }
 
-    public string Key { get; private set; }
+    public string Key { get; set; }
 
     public string Description { get; set; }
 
