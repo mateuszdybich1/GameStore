@@ -9,5 +9,7 @@ public interface IPlatformRepository
 
     public void UpdatePlatform(Platform platform);
 
-    public void RemoveGenre(Platform platform);
+    public void RemovePlatform(Platform platform);
+
+    public List<Platform> GetAllPlatforms();
 }

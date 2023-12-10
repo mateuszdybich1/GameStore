@@ -11,11 +11,13 @@ public class GamesController : ControllerBase
 {
     private readonly IGameService _gamesService;
     private readonly IGenreService _genreService;
+    private readonly IPlatformService _platformService;
 
-    public GamesController(IGameService gamesService, IGenreService genreService)
+    public GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService)
     {
         _gamesService = gamesService;
         _genreService = genreService;
+        _platformService = platformService;
     }
 
     [HttpPost]
@@ -104,14 +106,7 @@ public class GamesController : ControllerBase
     [HttpGet]
     public IActionResult GetAllGames()
     {
-        try
-        {
-            return Ok(_gamesService.GetGames());
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_gamesService.GetGames());
     }
 
     [HttpGet("{key}/genres")]
@@ -120,6 +115,19 @@ public class GamesController : ControllerBase
         try
         {
             return Ok(_genreService.GetGamesGenres(key));
+        }
+        catch (EntityNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("{key}/platforms")]
+    public IActionResult GetGamesPlatforms([FromRoute] string key)
+    {
+        try
+        {
+            return Ok(_platformService.GetGamesPlatforms(key));
         }
         catch (EntityNotFoundException ex)
         {

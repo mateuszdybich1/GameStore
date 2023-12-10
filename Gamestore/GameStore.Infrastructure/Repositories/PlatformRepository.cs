@@ -17,12 +17,17 @@ public class PlatformRepository : IPlatformRepository
         _appDbContext.SaveChanges();
     }
 
+    public List<Platform> GetAllPlatforms()
+    {
+        return _appDbContext.Platforms.ToList();
+    }
+
     public Platform GetPlatform(Guid platformId)
     {
         return _appDbContext.Platforms.SingleOrDefault(x => x.Id == platformId);
     }
 
-    public void RemoveGenre(Platform platform)
+    public void RemovePlatform(Platform platform)
     {
         _appDbContext.Platforms.Remove(platform);
         _appDbContext.SaveChanges();

@@ -81,14 +81,7 @@ public class GenresController : ControllerBase
     [HttpGet]
     public IActionResult GetGenres()
     {
-        try
-        {
-            return Ok(_genreService.GetAll());
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_genreService.GetAll());
     }
 
     [HttpGet("{id}/genres")]

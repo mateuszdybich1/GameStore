@@ -17,8 +17,10 @@ internal static class Bootstrapper
 
         services.AddScoped<IGamesSearchCriteria, GamesSearchCirteria>();
         services.AddScoped<IGenresSearchCriteria, GenresSearchCriteria>();
+        services.AddScoped<IPlatformsSearchCriteria, PlatformsSearchCriteria>();
 
         services.AddScoped<IGameService, GameService>();
         services.AddScoped<IGenreService, GenreService>();
+        services.AddScoped<IPlatformService, PlatformService>();
     }
 }
