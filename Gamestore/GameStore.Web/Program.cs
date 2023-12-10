@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer("Data Source = localhost, 1433; Initial Catalog = PROJECT; Integrated Security = True; TrustServerCertificate=True;");
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

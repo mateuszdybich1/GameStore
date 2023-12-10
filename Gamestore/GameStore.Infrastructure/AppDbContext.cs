@@ -16,11 +16,6 @@ public class AppDbContext : DbContext
 
     public DbSet<Platform> Platforms { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer("Data Source=localhost,1433;Initial Catalog=EPAM;User Id=sa;Password=^foP#EaRh3NfD8;");
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -44,7 +39,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Platform>().Property(e => e.Type).IsRequired(true);
         modelBuilder.Entity<Platform>().HasIndex(e => e.Type).IsUnique(true);
 
-        modelBuilder.Entity<Game>().HasMany(x => x.Genres).WithMany(x => x.Games).UsingEntity<GameGenre>();
-        modelBuilder.Entity<Game>().HasMany(x => x.Platforms).WithMany(x => x.Games).UsingEntity<GamePlatform>();
+        modelBuilder.Entity<Game>().HasMany(x => x.Genres).WithMany(x => x.Games);
+        modelBuilder.Entity<Game>().HasMany(x => x.Platforms).WithMany(x => x.Games);
     }
 }
