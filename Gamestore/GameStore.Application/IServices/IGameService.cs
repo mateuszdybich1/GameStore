@@ -13,6 +13,8 @@ public interface IGameService
 
     public GameDto GetGameByKey(string gameKey);
 
+    public object GetGameByKeyWithRelations(string gameKey);
+
     public GameDto GetGameById(Guid gameId);
 
     public List<GameDto> GetGames();

@@ -12,19 +12,22 @@ public class GameService : IGameService
     private readonly IGamesSearchCriteria _gamesSearchCriteria;
     private readonly IPlatformRepository _platformRepository;
     private readonly IGenreRepository _genreRepository;
+    private readonly IPlatformsSearchCriteria _platformsSearchCriteria;
+    private readonly IGenresSearchCriteria _genresSearchCriteria;
 
-    public GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository)
+    public GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository, IGenresSearchCriteria genresSearchCriteria, IPlatformsSearchCriteria platformsSearchCriteria)
     {
         _gameRepository = gameRepository;
         _gamesSearchCriteria = gamesSearchCriteria;
         _platformRepository = platformRepository;
         _genreRepository = genreRepository;
+        _genresSearchCriteria = genresSearchCriteria;
+        _platformsSearchCriteria = platformsSearchCriteria;
     }
 
     public Guid AddGame(GameDto gameDto)
     {
         Guid gameId = Guid.NewGuid();
-
         List<Genre> genres = gameDto.GenresIds.Select(_genreRepository.GetGenre).ToList();
 
         if (!genres.Any())
@@ -46,7 +49,6 @@ public class GameService : IGameService
             : new Game(gameId, gameDto.Name, gameDto.Key, description, genres, platforms);
 
         _gameRepository.AddGame(game);
-
         return game.Id;
     }
 
@@ -71,6 +73,30 @@ public class GameService : IGameService
         Game game = _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
 
         return new(game);
+    }
+
+    public object GetGameByKeyWithRelations(string gameKey)
+    {
+        Game game = _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+
+        DateTime currentTime = DateTime.UtcNow;
+        long unixTime = ((DateTimeOffset)currentTime).ToUnixTimeSeconds();
+
+        game.Name = game.Name.Replace(' ', '_');
+
+        string filePath = $"{game.Name}_{unixTime}.txt";
+
+        object newObj = new
+        {
+            FilePath = filePath,
+            Name = game.Name,
+            Key = game.Key,
+            Description = game.Description,
+            Genres = _genresSearchCriteria.GetByGameKey(gameKey).Select(x => x.Name).ToList(),
+            Platforms = _platformsSearchCriteria.GetByGameKey(gameKey).Select(x => x.Type).ToList(),
+        };
+
+        return newObj;
     }
 
     public List<GameDto> GetGames()

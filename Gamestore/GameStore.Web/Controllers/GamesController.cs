@@ -109,6 +109,19 @@ public class GamesController : ControllerBase
         return Ok(_gamesService.GetGames());
     }
 
+    [HttpGet("{key}/file")]
+    public IActionResult GetGamesFile([FromRoute] string key)
+    {
+        try
+        {
+            return Ok(_gamesService.GetGameByKeyWithRelations(key));
+        }
+        catch (EntityNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpGet("{key}/genres")]
     public IActionResult GetGamesGenres([FromRoute] string key)
     {
