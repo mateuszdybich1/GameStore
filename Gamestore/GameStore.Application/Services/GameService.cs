@@ -78,13 +78,11 @@ public class GameService : IGameService
     public object GetGameByKeyWithRelations(string gameKey)
     {
         Game game = _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
-
-        DateTime currentTime = DateTime.UtcNow;
-        long unixTime = ((DateTimeOffset)currentTime).ToUnixTimeSeconds();
+        long unixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         game.Name = game.Name.Replace(' ', '_');
 
-        string filePath = $"{game.Name}_{unixTime}.txt";
+        string filePath = $"{game.Name}_{unixTime}000.txt";
 
         object newObj = new
         {
