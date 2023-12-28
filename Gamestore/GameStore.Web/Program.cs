@@ -1,5 +1,6 @@
 using GameStore.Infrastructure;
 using GameStore.Web;
+using GameStore.Web.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseMiddleware<TotalGamesMiddleware>();
 
 app.UseRouting();
 

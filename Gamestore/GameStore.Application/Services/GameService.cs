@@ -28,14 +28,14 @@ public class GameService : IGameService
     public Guid AddGame(GameDto gameDto)
     {
         Guid gameId = Guid.NewGuid();
-        List<Genre> genres = gameDto.GenresIds.Select(_genreRepository.GetGenre).ToList();
+        List<Genre> genres = gameDto.GenresIds == null ? new List<Genre>() : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
         if (!genres.Any())
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        List<Platform> platforms = gameDto.PlatformsIds.Select(_platformRepository.GetPlatform).ToList();
+        List<Platform> platforms = gameDto.PlatformsIds == null ? new List<Platform>() : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
 
         if (!platforms.Any())
         {
@@ -49,6 +49,7 @@ public class GameService : IGameService
             : new Game(gameId, gameDto.Name, gameDto.Key, description, genres, platforms);
 
         _gameRepository.AddGame(game);
+
         return game.Id;
     }
 

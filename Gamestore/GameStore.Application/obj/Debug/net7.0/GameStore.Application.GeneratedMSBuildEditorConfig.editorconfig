@@ -9,3 +9,5 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = GameStore.Application
 build_property.ProjectDir = C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Application\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
