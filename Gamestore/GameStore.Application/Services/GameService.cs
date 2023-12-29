@@ -12,17 +12,13 @@ public class GameService : IGameService
     private readonly IGamesSearchCriteria _gamesSearchCriteria;
     private readonly IPlatformRepository _platformRepository;
     private readonly IGenreRepository _genreRepository;
-    private readonly IPlatformsSearchCriteria _platformsSearchCriteria;
-    private readonly IGenresSearchCriteria _genresSearchCriteria;
 
-    public GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository, IGenresSearchCriteria genresSearchCriteria, IPlatformsSearchCriteria platformsSearchCriteria)
+    public GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository)
     {
         _gameRepository = gameRepository;
         _gamesSearchCriteria = gamesSearchCriteria;
         _platformRepository = platformRepository;
         _genreRepository = genreRepository;
-        _genresSearchCriteria = genresSearchCriteria;
-        _platformsSearchCriteria = platformsSearchCriteria;
     }
 
     public Guid AddGame(GameDto gameDto)
@@ -78,7 +74,7 @@ public class GameService : IGameService
 
     public object GetGameByKeyWithRelations(string gameKey)
     {
-        Game game = _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        Game game = _gamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
         long unixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         game.Name = game.Name.Replace(' ', '_');
@@ -91,8 +87,8 @@ public class GameService : IGameService
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
-            Genres = _genresSearchCriteria.GetByGameKey(gameKey).Select(x => x.Name).ToList(),
-            Platforms = _platformsSearchCriteria.GetByGameKey(gameKey).Select(x => x.Type).ToList(),
+            Genres = game.Genres.Select(x => x.Name).ToList(),
+            Platforms = game.Platforms.Select(x => x.Type).ToList(),
         };
 
         return newObj;
@@ -115,28 +111,28 @@ public class GameService : IGameService
 
     public Guid UpdateGame(GameDto gameDto)
     {
-        Game game = _gameRepository.GetGameWithRelations(gameDto.GameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.GameId}");
-
-        game.Name = gameDto.Name;
-        game.Key = gameDto.Key;
-        game.Description = gameDto.Description;
-
-        List<Genre> genres = gameDto.GenresIds.Select(_genreRepository.GetGenre).ToList();
+        List<Genre> genres = gameDto.GenresIds == null ? new List<Genre>() : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
         if (!genres.Any())
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        game.Genres.Clear();
-        game.Genres = genres;
-
-        List<Platform> platforms = gameDto.PlatformsIds.Select(_platformRepository.GetPlatform).ToList();
+        List<Platform> platforms = gameDto.PlatformsIds == null ? new List<Platform>() : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
 
         if (!platforms.Any())
         {
             throw new EntityNotFoundException("You must provide at least one platform");
         }
+
+        Game game = _gameRepository.GetGameWithRelations(gameDto.GameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.GameId}");
+
+        game.Name = gameDto.Name;
+        game.Key = gameDto.Key;
+        game.Description = gameDto.Description;
+
+        game.Genres.Clear();
+        game.Genres = genres;
 
         game.Platforms.Clear();
         game.Platforms = platforms;

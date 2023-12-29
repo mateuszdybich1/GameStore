@@ -29,7 +29,7 @@ public class GamesSearchCirteria : IGamesSearchCriteria
 
     public Game GetByKeyWithRelations(string key)
     {
-        return _appDbContext.Games.Where(x => x.Key == key).Include(x => x.Genres).Include(x => x.Platforms).Single();
+        return _appDbContext.Games.Where(x => x.Key == key).Include(x => x.Genres).Include(x => x.Platforms).SingleOrDefault();
     }
 
     public List<Game> GetByPlatformId(Guid platformId)
