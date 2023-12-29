@@ -15,7 +15,7 @@ public class GenreDto
         ParentGerneId = genre.ParentGerneId;
     }
 
-    public Guid Id { get; private set; }
+    public Guid Id { get; set; }
 
     [Required]
     public string Name { get; set; }

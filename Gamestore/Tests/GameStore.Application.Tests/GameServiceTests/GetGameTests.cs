@@ -27,7 +27,7 @@ public class GetGameTests
     }
 
     [Fact]
-    public void GetbyGameKeyShouldReturnGameDto()
+    public void GetByGameKeyShouldReturnGameDto()
     {
         // Arrange
         string gameKey = "TestKey";
@@ -47,7 +47,7 @@ public class GetGameTests
     }
 
     [Fact]
-    public void GetbyGameKeyIncorrectKeyProvidedShouldThrowException()
+    public void GetByGameKeyIncorrectKeyProvidedShouldThrowException()
     {
         // Arrange
         string gameKey = "TestKey";
@@ -58,7 +58,7 @@ public class GetGameTests
     }
 
     [Fact]
-    public void GetbyGameIdShouldReturnGameDto()
+    public void GetByGameIdShouldReturnGameDto()
     {
         // Arrange
         Guid gameId = Guid.NewGuid();
@@ -78,7 +78,7 @@ public class GetGameTests
     }
 
     [Fact]
-    public void GetbyGameIdIncorrectKeyProvidedShouldThrowException()
+    public void GetByGameIdIncorrectKeyProvidedShouldThrowException()
     {
         // Arrange
         Guid gameId = Guid.NewGuid();
