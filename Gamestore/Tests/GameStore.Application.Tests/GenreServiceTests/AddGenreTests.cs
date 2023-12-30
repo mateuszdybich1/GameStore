@@ -37,8 +37,8 @@ public class AddGenreTests
         var genreId = _genreService.AddGenre(genreDto);
 
         // Assert
-        _genreRepositoryMock.Verify(x => x.AddGenre(It.IsNotNull<Genre>()), Times.Once());
         Assert.True(genreId != Guid.Empty);
+        _genreRepositoryMock.Verify(x => x.AddGenre(It.Is<Genre>(x => x.Id == genreId && x.Name == genreDto.Name)), Times.Once());
     }
 
     [Fact]
@@ -63,6 +63,7 @@ public class AddGenreTests
         _genreService.AddGenre(genreDto);
 
         // Assert
+        _genreRepositoryMock.Verify(x => x.GetGenre(parentGenreId), Times.Once);
         _genreRepositoryMock.Verify(x => x.AddGenre(It.Is<Genre>(g => g.Name == genreName && g.ParentGerneId == parentGenreId)), Times.Once);
     }
 

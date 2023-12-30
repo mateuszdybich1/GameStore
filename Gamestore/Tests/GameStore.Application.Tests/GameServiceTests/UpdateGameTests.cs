@@ -66,10 +66,10 @@ public class UpdateGameTests
         _gameService.UpdateGame(gameDto);
 
         // Assert
-        _gameRepositoryMock.Verify(x => x.UpdateGame(It.Is<Game>(g => g.Id == gameId && g.Name == updatedName && g.Key == updatedKey && g.Genres.Select(genre => genre.Id).SequenceEqual(new List<Guid> { genre.Id }) && g.Platforms.Select(platform => platform.Id).SequenceEqual(new List<Guid> { platform.Id }))), Times.Once);
         _gameRepositoryMock.Verify(x => x.GetGameWithRelations(gameId), Times.Once);
         _genreRepositoryMock.Verify(x => x.GetGenre(genre.Id), Times.Once);
         _platformRepositoryMock.Verify(x => x.GetPlatform(platform.Id), Times.Once);
+        _gameRepositoryMock.Verify(x => x.UpdateGame(It.Is<Game>(g => g.Id == gameId && g.Name == updatedName && g.Key == updatedKey && g.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.GenresIds) && g.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.PlatformsIds))), Times.Once);
     }
 
     [Fact]
@@ -152,8 +152,8 @@ public class UpdateGameTests
         _gameService.UpdateGameDescr(gameId, updatedDescription);
 
         // Assert
-        _gameRepositoryMock.Verify(x => x.UpdateGame(It.Is<Game>(g => g.Id == gameId && g.Name == gameName && g.Key == gameKey && g.Description == updatedDescription)), Times.Once);
         _gameRepositoryMock.Verify(x => x.GetGame(game.Id), Times.Once);
+        _gameRepositoryMock.Verify(x => x.UpdateGame(It.Is<Game>(g => g.Id == gameId && g.Name == gameName && g.Key == gameKey && g.Description == updatedDescription)), Times.Once);
     }
 
     [Fact]

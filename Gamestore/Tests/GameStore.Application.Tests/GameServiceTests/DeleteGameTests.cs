@@ -38,6 +38,7 @@ public class DeleteGameTests
         _gameService.DeleteGame(gameKey);
 
         // Assert
+        _gamesSearchCriteriaMock.Verify(x => x.GetByKey(gameKey), Times.Once);
         _gameRepositoryMock.Verify(x => x.RemoveGame(It.Is<Game>(g => g == game)), Times.Once);
     }
 

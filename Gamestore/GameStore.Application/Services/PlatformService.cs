@@ -50,7 +50,7 @@ public class PlatformService : IPlatformService
 
     public PlatformDto GetPlatform(Guid platformId)
     {
-        Platform platform = _platformRepository.GetPlatform(platformId);
+        Platform platform = _platformRepository.GetPlatform(platformId) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformId}");
         return new(platform);
     }
 

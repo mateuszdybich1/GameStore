@@ -56,8 +56,8 @@ public class AddGameTests
         var gameReturnedId = _gameService.AddGame(gameDto);
 
         // Assert
-        _gameRepositoryMock.Verify(x => x.AddGame(It.IsNotNull<Game>()), Times.Once());
         Assert.True(gameReturnedId != Guid.Empty);
+        _gameRepositoryMock.Verify(x => x.AddGame(It.Is<Game>(x => x.Id == gameReturnedId && x.Name == gameDto.Name && x.Key == gameDto.Key && x.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.PlatformsIds) && x.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.GenresIds))), Times.Once());
     }
 
     [Fact]

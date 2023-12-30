@@ -44,6 +44,7 @@ public class GetGameTests
         // Assert
         Assert.NotNull(gameDto);
         Assert.Equal(gameKey, gameDto.Key);
+        _gamesSearchCriteriaMock.Verify(x => x.GetByKey(gameKey), Times.Once);
     }
 
     [Fact]
@@ -75,6 +76,7 @@ public class GetGameTests
         // Assert
         Assert.NotNull(gameDto);
         Assert.Equal(gameId, gameDto.GameId);
+        _gameRepositoryMock.Verify(x => x.GetGame(gameId), Times.Once);
     }
 
     [Fact]
@@ -105,5 +107,6 @@ public class GetGameTests
 
         // Assert
         Assert.NotNull(result);
+        _gamesSearchCriteriaMock.Verify(x => x.GetByKeyWithRelations(gameKey), Times.Once);
     }
 }

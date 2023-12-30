@@ -22,7 +22,7 @@ public class GetGenresListTests
     }
 
     [Fact]
-    public void GetAllShouldReturGenreDtosList()
+    public void GetAllShouldReturnGenreDtosList()
     {
         // Arrange
         var genres = new List<Genre>();

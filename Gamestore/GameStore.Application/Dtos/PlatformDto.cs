@@ -14,7 +14,7 @@ public class PlatformDto
         Type = platform.Type;
     }
 
-    public Guid Id { get; private set; }
+    public Guid Id { get; set; }
 
     [Required]
     public string Type { get; set; }

@@ -36,6 +36,7 @@ public class GetGenreTests
 
         // Assert
         Assert.NotNull(genreDto);
+        _genreRepositoryMock.Verify(x => x.GetGenre(genreId), Times.Once);
         Assert.True(genreDto.Id == genreId && genreDto.Name == genreName);
     }
 

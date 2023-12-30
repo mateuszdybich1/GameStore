@@ -41,6 +41,7 @@ public class UpdateGenreTests
         _genreService.UpdateGenre(genreDto);
 
         // Assert
+        _genreRepositoryMock.Verify(x => x.GetGenre(genreId), Times.Once);
         _genreRepositoryMock.Verify(x => x.UpdateGenre(It.Is<Genre>(g => g.Id == genreId && g.Name == updatedName)), Times.Once);
     }
 
@@ -66,6 +67,8 @@ public class UpdateGenreTests
         _genreService.UpdateGenre(genreDto);
 
         // Assert
+        _genreRepositoryMock.Verify(x => x.GetGenre(genreDto.Id), Times.Once);
+        _genreRepositoryMock.Verify(x => x.GetGenre(parentGenreId), Times.Once);
         _genreRepositoryMock.Verify(x => x.UpdateGenre(It.Is<Genre>(g => g.Id == genreDto.Id && g.Name == updatedName && g.ParentGerneId == parentGenreId)), Times.Once);
     }
 

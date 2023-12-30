@@ -35,6 +35,7 @@ public class DeleteGenreTests
         _genreService.DeleteGenre(genreId);
 
         // Assert
+        _genreRepositoryMock.Verify(x => x.GetGenre(genreId), Times.Once);
         _genreRepositoryMock.Verify(x => x.RemoveGenre(It.Is<Genre>(g => g == genre)), Times.Once);
     }
 
