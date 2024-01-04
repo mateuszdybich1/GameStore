@@ -3,14 +3,9 @@ using GameStore.Infrastructure.Entities;
 
 namespace GameStore.Web;
 
-internal class PredefinedObjects
+internal class PredefinedObjects(AppDbContext appDbContext)
 {
-    private readonly AppDbContext _appDbContext;
-
-    public PredefinedObjects(AppDbContext appDbContext)
-    {
-        _appDbContext = appDbContext;
-    }
+    private readonly AppDbContext _appDbContext = appDbContext;
 
     internal void AddPlatforms()
     {
@@ -26,7 +21,7 @@ internal class PredefinedObjects
 
     internal void AddGenres()
     {
-        string[] parentGenres = { "Strategy", "RPG", "Sports", "Races", "Action", "Adventure", "Puzzle & Skill" };
+        var parentGenres = new[] { "Strategy", "RPG", "Sports", "Races", "Action", "Adventure", "Puzzle & Skill" };
 
         List<string> missingParents = parentGenres.Except(_appDbContext.Genres.Select(x => x.Name)).ToList();
 
@@ -38,27 +33,27 @@ internal class PredefinedObjects
             switch (parentGenre)
             {
                 case "Strategy":
-                    List<string> strategyChilds = _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name).ToList();
+                    List<string> strategyChilds = new([.. _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name)]);
 
-                    string[] predefinedStrategyChilds = { "RTS", "TBS" };
+                    var predefinedStrategyChilds = new[] { "RTS", "TBS" };
 
                     AddMissingChilds(genre.Id, strategyChilds, predefinedStrategyChilds);
 
                     break;
 
                 case "Races":
-                    List<string> raceChilds = _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name).ToList();
+                    List<string> raceChilds = new([.. _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name)]);
 
-                    string[] predefinedRaceChilds = { "Rally", "Arcade", "Formula", "Off-road" };
+                    var predefinedRaceChilds = new[] { "Rally", "Arcade", "Formula", "Off-road" };
 
                     AddMissingChilds(genre.Id, raceChilds, predefinedRaceChilds);
 
                     break;
 
                 case "Action":
-                    List<string> actionChilds = _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name).ToList();
+                    List<string> actionChilds = new([.. _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name)]);
 
-                    string[] predefinedActionChilds = { "FPS", "TPS" };
+                    var predefinedActionChilds = new[] { "FPS", "TPS" };
 
                     AddMissingChilds(genre.Id, actionChilds, predefinedActionChilds);
 

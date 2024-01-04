@@ -2,21 +2,16 @@
 
 namespace GameStore.Web.Middlewares;
 
-public class TotalGamesMiddleware
+public class TotalGamesMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public TotalGamesMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    private readonly RequestDelegate _next = next;
 
     public async Task InvokeAsync(HttpContext context, IGameRepository gameRepository)
     {
         int totalGames = gameRepository.GetAllGames().Count;
         context.Response.OnStarting(() =>
         {
-            context.Response.Headers.Add("x-total-numbers-of-games", totalGames.ToString());
+            context.Response.Headers.Append("x-total-numbers-of-games", totalGames.ToString());
             return Task.CompletedTask;
         });
 

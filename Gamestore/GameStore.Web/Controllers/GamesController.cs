@@ -4,21 +4,14 @@ using GameStore.Application.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace GameStore.Web2.Controllers;
+namespace GameStore.Web.Controllers;
 [Route("api/games")]
 [ApiController]
-public class GamesController : ControllerBase
+public class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService) : ControllerBase
 {
-    private readonly IGameService _gamesService;
-    private readonly IGenreService _genreService;
-    private readonly IPlatformService _platformService;
-
-    public GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService)
-    {
-        _gamesService = gamesService;
-        _genreService = genreService;
-        _platformService = platformService;
-    }
+    private readonly IGameService _gamesService = gamesService;
+    private readonly IGenreService _genreService = genreService;
+    private readonly IPlatformService _platformService = platformService;
 
     [HttpPost]
     public IActionResult AddGame(GameDto gameDto)
@@ -46,10 +39,10 @@ public class GamesController : ControllerBase
 
             var responseDto = new
             {
-                GameId = gamedto.GameId,
-                Name = gamedto.Name,
-                Description = gamedto.Description,
-                Key = gamedto.Key,
+                gamedto.GameId,
+                gamedto.Name,
+                gamedto.Description,
+                gamedto.Key,
             };
 
             return Ok(responseDto);

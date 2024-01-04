@@ -7,16 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace GameStore.Web.Controllers;
 [Route("api/platforms")]
 [ApiController]
-public class PlatformsController : ControllerBase
+public class PlatformsController(IPlatformService platformService, IGameService gameService) : ControllerBase
 {
-    private readonly IPlatformService _platformService;
-    private readonly IGameService _gameService;
-
-    public PlatformsController(IPlatformService platformService, IGameService gameService)
-    {
-        _platformService = platformService;
-        _gameService = gameService;
-    }
+    private readonly IPlatformService _platformService = platformService;
+    private readonly IGameService _gameService = gameService;
 
     [HttpPost]
     public IActionResult AddPlatform(PlatformDto platformDto)

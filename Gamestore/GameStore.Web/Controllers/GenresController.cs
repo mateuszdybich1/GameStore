@@ -7,16 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace GameStore.Web.Controllers;
 [Route("api/genres")]
 [ApiController]
-public class GenresController : ControllerBase
+public class GenresController(IGenreService genreService, IGameService gameService) : ControllerBase
 {
-    private readonly IGenreService _genreService;
-    private readonly IGameService _gameService;
-
-    public GenresController(IGenreService genreService, IGameService gameService)
-    {
-        _genreService = genreService;
-        _gameService = gameService;
-    }
+    private readonly IGenreService _genreService = genreService;
+    private readonly IGameService _gameService = gameService;
 
     [HttpPost]
     public IActionResult AddGenre(GenreDto genreDto)

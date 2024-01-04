@@ -12,17 +12,17 @@ services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer("Data Source = localhost, 1433; Initial Catalog = PROJECT; Integrated Security = True; TrustServerCertificate=True;");
 });
 
-services.AddControllersWithViews();
-
-services.RegisterServices();
+services.AddControllers();
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-
-    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 using (var scope = app.Services.CreateScope())
@@ -35,17 +35,12 @@ using (var scope = app.Services.CreateScope())
     predefined.AddPlatforms();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
 app.UseMiddleware<TotalGamesMiddleware>();
 
-app.UseRouting();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllers();
 
 app.Run();
