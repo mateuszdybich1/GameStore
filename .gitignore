@@ -257,3 +257,12 @@ pub/
 
 #Ignore marker-file used to know which docker files we have.
 .eshopdocker_*
+/Gamestore/GameStore.Web/obj/project.nuget.cache
+/Gamestore/GameStore.Web/obj/project.assets.json
+/Gamestore/GameStore.Web/obj/GameStore.Web.csproj.nuget.dgspec.json
+/Gamestore/GameStore.Infrastructure/obj/project.nuget.cache
+/Gamestore/GameStore.Infrastructure/obj/project.assets.json
+/Gamestore/GameStore.Infrastructure/obj/GameStore.Infrastructure.csproj.nuget.dgspec.json
+/Gamestore/GameStore.Application/obj/project.nuget.cache
+/Gamestore/GameStore.Application/obj/project.assets.json
+/Gamestore/GameStore.Application/obj/GameStore.Application.csproj.nuget.dgspec.json
