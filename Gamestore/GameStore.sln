@@ -13,8 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3D2D1966
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Application.Tests", "Tests\GameStore.Application.Tests\GameStore.Application.Tests.csproj", "{EEEC1954-86D5-4F16-8696-DCCA03E743F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameStore.Web.Tests", "Tests\GameStore.Web.Tests\GameStore.Web.Tests.csproj", "{CF623DB6-56C9-4C8A-9550-41FE21FD9DEB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,17 +35,12 @@ Global
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CF623DB6-56C9-4C8A-9550-41FE21FD9DEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CF623DB6-56C9-4C8A-9550-41FE21FD9DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CF623DB6-56C9-4C8A-9550-41FE21FD9DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CF623DB6-56C9-4C8A-9550-41FE21FD9DEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6} = {3D2D1966-586D-4E39-B31F-106FB8C39AB6}
-		{CF623DB6-56C9-4C8A-9550-41FE21FD9DEB} = {3D2D1966-586D-4E39-B31F-106FB8C39AB6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F471D2E5-2874-4A85-94F9-B51760FC4934}
