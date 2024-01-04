@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "CqRKzM2rqIm5AS1LZn0zxIeB+izI5G8iRocbNubV2wS6jSBySPVM6BsxAjWH8aUcEnOmROimybnHIAjLjS8MAg==",
+  "dgSpecHash": "7538NOx2aCBZy6tgvKvdW2l/w/ifQBSvkkS5r0PF4OYraAZVATasYkP4cD1yLLt15UDxXtE+aOBvXtR2DRguKw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Application\\GameStore.Application.csproj",
+  "projectFilePath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\GIT\\Gamestore\\GameStore.Application\\GameStore.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mateu\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

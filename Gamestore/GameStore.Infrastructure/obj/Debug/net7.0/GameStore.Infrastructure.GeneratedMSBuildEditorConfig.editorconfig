@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = GameStore.Infrastructure
-build_property.ProjectDir = C:\Users\mateu\Desktop\EPAM_PROJECT\Project\Gamestore\GameStore.Infrastructure\
+build_property.ProjectDir = C:\Users\mateu\Desktop\EPAM_PROJECT\GIT\Gamestore\GameStore.Infrastructure\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

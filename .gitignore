@@ -257,3 +257,30 @@ pub/
 
 #Ignore marker-file used to know which docker files we have.
 .eshopdocker_*
+/Gamestore/GameStore.Web/obj/project.nuget.cache
+/Gamestore/GameStore.Web/obj/project.assets.json
+/Gamestore/GameStore.Web/obj/GameStore.Web.csproj.nuget.dgspec.json
+/Gamestore/.vs/GameStore/DesignTimeBuild/.dtbcache.v2
+/Gamestore/.vs/GameStore/v17/.futdcache.v2
+/Gamestore/.vs/GameStore/v17/.suo
+/Gamestore/GameStore.Application/obj/GameStore.Application.csproj.nuget.dgspec.json
+/Gamestore/GameStore.Application/obj/project.assets.json
+/Gamestore/GameStore.Application/obj/project.nuget.cache
+/Gamestore/GameStore.Infrastructure/obj/Debug/net7.0/GameStore.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Gamestore/GameStore.Infrastructure/obj/GameStore.Infrastructure.csproj.nuget.dgspec.json
+/Gamestore/GameStore.Infrastructure/obj/project.assets.json
+/Gamestore/GameStore.Infrastructure/obj/project.nuget.cache
+/Gamestore/.vs/GameStore/DesignTimeBuild/.dtbcache.v2
+/Gamestore/.vs/GameStore/v17/.futdcache.v2
+/Gamestore/.vs/GameStore/v17/.suo
+/Gamestore/GameStore.Application/obj/GameStore.Application.csproj.nuget.dgspec.json
+/Gamestore/GameStore.Application/obj/project.assets.json
+/Gamestore/GameStore.Application/obj/project.nuget.cache
+/Gamestore/GameStore.Infrastructure/obj/Debug/net7.0/GameStore.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Gamestore/GameStore.Infrastructure/obj/GameStore.Infrastructure.csproj.nuget.dgspec.json
+/Gamestore/GameStore.Infrastructure/obj/project.assets.json
+/Gamestore/GameStore.Infrastructure/obj/project.nuget.cache
+/Gamestore/GameStore.Web/obj/GameStore.Web.csproj.nuget.dgspec.json
+/Gamestore/GameStore.Web/obj/project.assets.json
+/Gamestore/GameStore.Web/obj/project.nuget.cache
+/Gamestore/GameStore.Web/obj/project.nuget.cache
