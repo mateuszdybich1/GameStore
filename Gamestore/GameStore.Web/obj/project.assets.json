@@ -2921,9 +2921,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web.csproj",
-      "projectName": "GameStore.Web",
-      "projectPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web.csproj",
+      "projectUniqueName": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web2.csproj",
+      "projectName": "GameStore.Web2",
+      "projectPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\GameStore.Web2.csproj",
       "packagesPath": "C:\\Users\\mateu\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\Project\\Gamestore\\GameStore.Web\\obj\\",
       "projectStyle": "PackageReference",

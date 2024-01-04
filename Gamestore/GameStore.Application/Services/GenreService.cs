@@ -6,16 +6,11 @@ using GameStore.Infrastructure.IRepositories;
 using GameStore.Infrastructure.ISearchCriterias;
 
 namespace GameStore.Application.Services;
-public class GenreService : IGenreService
-{
-    private readonly IGenreRepository _genreRepository;
-    private readonly IGenresSearchCriteria _genresSearchCriteria;
 
-    public GenreService(IGenreRepository genreRepository, IGenresSearchCriteria genresSearchCriteria)
-    {
-        _genreRepository = genreRepository;
-        _genresSearchCriteria = genresSearchCriteria;
-    }
+public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteria genresSearchCriteria) : IGenreService
+{
+    private readonly IGenreRepository _genreRepository = genreRepository;
+    private readonly IGenresSearchCriteria _genresSearchCriteria = genresSearchCriteria;
 
     public Guid AddGenre(GenreDto genreDto)
     {

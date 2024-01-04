@@ -1,6 +1,7 @@
 ﻿using GameStore.Application.Dtos;
 
 namespace GameStore.Application.IServices;
+
 public interface IPlatformService
 {
     public Guid AddPlatform(PlatformDto platformDto);

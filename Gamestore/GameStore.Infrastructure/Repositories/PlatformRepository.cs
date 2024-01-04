@@ -2,14 +2,10 @@
 using GameStore.Infrastructure.IRepositories;
 
 namespace GameStore.Infrastructure.Repositories;
-public class PlatformRepository : IPlatformRepository
-{
-    private readonly AppDbContext _appDbContext;
 
-    public PlatformRepository(AppDbContext appDbContext)
-    {
-        _appDbContext = appDbContext;
-    }
+public class PlatformRepository(AppDbContext appDbContext) : IPlatformRepository
+{
+    private readonly AppDbContext _appDbContext = appDbContext;
 
     public void AddPlatform(Platform platform)
     {
@@ -19,7 +15,7 @@ public class PlatformRepository : IPlatformRepository
 
     public List<Platform> GetAllPlatforms()
     {
-        return _appDbContext.Platforms.ToList();
+        return [.. _appDbContext.Platforms];
     }
 
     public Platform GetPlatform(Guid platformId)

@@ -6,16 +6,11 @@ using GameStore.Infrastructure.IRepositories;
 using GameStore.Infrastructure.ISearchCriterias;
 
 namespace GameStore.Application.Services;
-public class PlatformService : IPlatformService
-{
-    private readonly IPlatformRepository _platformRepository;
-    private readonly IPlatformsSearchCriteria _platformsSearchCriteria;
 
-    public PlatformService(IPlatformRepository platformRepository, IPlatformsSearchCriteria platformsSearchCriteria)
-    {
-        _platformRepository = platformRepository;
-        _platformsSearchCriteria = platformsSearchCriteria;
-    }
+public class PlatformService(IPlatformRepository platformRepository, IPlatformsSearchCriteria platformsSearchCriteria) : IPlatformService
+{
+    private readonly IPlatformRepository _platformRepository = platformRepository;
+    private readonly IPlatformsSearchCriteria _platformsSearchCriteria = platformsSearchCriteria;
 
     public Guid AddPlatform(PlatformDto platformDto)
     {

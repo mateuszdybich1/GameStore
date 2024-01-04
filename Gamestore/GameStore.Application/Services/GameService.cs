@@ -6,34 +6,27 @@ using GameStore.Infrastructure.IRepositories;
 using GameStore.Infrastructure.ISearchCriterias;
 
 namespace GameStore.Application.Services;
-public class GameService : IGameService
-{
-    private readonly IGameRepository _gameRepository;
-    private readonly IGamesSearchCriteria _gamesSearchCriteria;
-    private readonly IPlatformRepository _platformRepository;
-    private readonly IGenreRepository _genreRepository;
 
-    public GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository)
-    {
-        _gameRepository = gameRepository;
-        _gamesSearchCriteria = gamesSearchCriteria;
-        _platformRepository = platformRepository;
-        _genreRepository = genreRepository;
-    }
+public class GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository) : IGameService
+{
+    private readonly IGameRepository _gameRepository = gameRepository;
+    private readonly IGamesSearchCriteria _gamesSearchCriteria = gamesSearchCriteria;
+    private readonly IPlatformRepository _platformRepository = platformRepository;
+    private readonly IGenreRepository _genreRepository = genreRepository;
 
     public Guid AddGame(GameDto gameDto)
     {
         Guid gameId = Guid.NewGuid();
-        List<Genre> genres = gameDto.GenresIds == null ? new List<Genre>() : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
+        List<Genre> genres = gameDto.GenresIds == null ? [] : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
-        if (!genres.Any())
+        if (genres.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        List<Platform> platforms = gameDto.PlatformsIds == null ? new List<Platform>() : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
+        List<Platform> platforms = gameDto.PlatformsIds == null ? [] : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
 
-        if (!platforms.Any())
+        if (platforms.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one platform");
         }
@@ -111,16 +104,16 @@ public class GameService : IGameService
 
     public Guid UpdateGame(GameDto gameDto)
     {
-        List<Genre> genres = gameDto.GenresIds == null ? new List<Genre>() : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
+        List<Genre> genres = gameDto.GenresIds == null ? [] : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
-        if (!genres.Any())
+        if (genres.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        List<Platform> platforms = gameDto.PlatformsIds == null ? new List<Platform>() : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
+        List<Platform> platforms = gameDto.PlatformsIds == null ? [] : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
 
-        if (!platforms.Any())
+        if (platforms.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one platform");
         }

@@ -3,14 +3,10 @@ using GameStore.Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Infrastructure.Repositories;
-public class GameRepository : IGameRepository
-{
-    private readonly AppDbContext _appDbContext;
 
-    public GameRepository(AppDbContext appDbContext)
-    {
-        _appDbContext = appDbContext;
-    }
+public class GameRepository(AppDbContext appDbContext) : IGameRepository
+{
+    private readonly AppDbContext _appDbContext = appDbContext;
 
     public void AddGame(Game game)
     {
@@ -20,7 +16,7 @@ public class GameRepository : IGameRepository
 
     public List<Game> GetAllGames()
     {
-        return _appDbContext.Games.ToList();
+        return [.. _appDbContext.Games];
     }
 
     public Game GetGame(Guid gameId)

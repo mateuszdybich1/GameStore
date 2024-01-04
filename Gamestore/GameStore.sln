@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Application", "Ga
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Infrastructure", "GameStore.Infrastructure\GameStore.Infrastructure.csproj", "{00403819-8065-44EB-89F3-2AF2AF1E480A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Web", "GameStore.Web\GameStore.Web.csproj", "{969EE215-A013-4FFD-B51B-09B31BC5E909}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3D2D1966-586D-4E39-B31F-106FB8C39AB6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Application.Tests", "Tests\GameStore.Application.Tests\GameStore.Application.Tests.csproj", "{EEEC1954-86D5-4F16-8696-DCCA03E743F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Web", "GameStore.Web1\GameStore.Web.csproj", "{65327DDD-F778-4125-9ADB-9C464DFDB339}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,14 +27,14 @@ Global
 		{00403819-8065-44EB-89F3-2AF2AF1E480A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00403819-8065-44EB-89F3-2AF2AF1E480A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00403819-8065-44EB-89F3-2AF2AF1E480A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{969EE215-A013-4FFD-B51B-09B31BC5E909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{969EE215-A013-4FFD-B51B-09B31BC5E909}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{969EE215-A013-4FFD-B51B-09B31BC5E909}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{969EE215-A013-4FFD-B51B-09B31BC5E909}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEEC1954-86D5-4F16-8696-DCCA03E743F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65327DDD-F778-4125-9ADB-9C464DFDB339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65327DDD-F778-4125-9ADB-9C464DFDB339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65327DDD-F778-4125-9ADB-9C464DFDB339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65327DDD-F778-4125-9ADB-9C464DFDB339}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

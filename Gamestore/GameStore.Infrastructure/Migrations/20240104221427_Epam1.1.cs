@@ -5,7 +5,7 @@
 namespace GameStore.Infrastructure.Migrations;
 
 /// <inheritdoc />
-public partial class Migration1 : Migration
+public partial class Epam11 : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)

@@ -1,6 +1,7 @@
 ﻿using GameStore.Application.Dtos;
 
 namespace GameStore.Application.IServices;
+
 public interface IGenreService
 {
     public Guid AddGenre(GenreDto genreDto);

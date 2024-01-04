@@ -4,7 +4,7 @@ using GameStore.Application.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace GameStore.Web.Controllers;
+namespace GameStore.Web2.Controllers;
 [Route("api/games")]
 [ApiController]
 public class GamesController : ControllerBase

@@ -2,6 +2,7 @@
 using GameStore.Infrastructure.Entities;
 
 namespace GameStore.Application.Dtos;
+
 public class GenreDto
 {
     public GenreDto()

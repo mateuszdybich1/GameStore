@@ -1,6 +1,7 @@
 ﻿using GameStore.Infrastructure.Entities;
 
 namespace GameStore.Infrastructure.ISearchCriterias;
+
 public interface IGamesSearchCriteria
 {
     public Game GetByKey(string key);

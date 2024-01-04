@@ -1,6 +1,7 @@
 ﻿using GameStore.Infrastructure.Entities;
 
 namespace GameStore.Infrastructure.IRepositories;
+
 public interface IGenreRepository
 {
     public void AddGenre(Genre genre);

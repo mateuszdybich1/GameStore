@@ -2,14 +2,10 @@
 using GameStore.Infrastructure.IRepositories;
 
 namespace GameStore.Infrastructure.Repositories;
-public class GenreRepository : IGenreRepository
-{
-    private readonly AppDbContext _appDbContext;
 
-    public GenreRepository(AppDbContext appDbContext)
-    {
-        _appDbContext = appDbContext;
-    }
+public class GenreRepository(AppDbContext appDbContext) : IGenreRepository
+{
+    private readonly AppDbContext _appDbContext = appDbContext;
 
     public void AddGenre(Genre genre)
     {
@@ -19,7 +15,7 @@ public class GenreRepository : IGenreRepository
 
     public List<Genre> GetAllGenre()
     {
-        return _appDbContext.Genres.ToList();
+        return [.. _appDbContext.Genres];
     }
 
     public Genre GetGenre(Guid genreId)
