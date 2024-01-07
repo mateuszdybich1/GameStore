@@ -9,8 +9,10 @@ var services = builder.Services;
 
 services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer("Data Source = localhost, 1433; Initial Catalog = PROJECT; Integrated Security = True; TrustServerCertificate=True;");
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreDatabase"));
 });
+
+services.RegisterServices();
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
