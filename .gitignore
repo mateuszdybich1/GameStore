@@ -289,3 +289,5 @@ pub/
 /Gamestore/.vs/GameStore/v17/.futdcache.v2
 /Gamestore/.vs/GameStore/v17/.suo
 /Gamestore/.vs/GameStore/DesignTimeBuild/.dtbcache.v2
+/GameStore.Web/Logs/ErrorLogs.txt
+/GameStore.Web/Logs/InfoLogs.txt
