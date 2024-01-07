@@ -4,6 +4,7 @@ using GameStore.Application.IServices;
 using GameStore.Infrastructure.Entities;
 using GameStore.Infrastructure.IRepositories;
 using GameStore.Infrastructure.ISearchCriterias;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Application.Services;
 
@@ -37,7 +38,14 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
             ? new Game(gameId, gameDto.Name, gameDto.Key, genres, platforms)
             : new Game(gameId, gameDto.Name, gameDto.Key, description, genres, platforms);
 
-        _gameRepository.AddGame(game);
+        try
+        {
+            _gameRepository.AddGame(game);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ExistingFieldException("Please provide unique game key");
+        }
 
         return game.Id;
     }
@@ -130,7 +138,14 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         game.Platforms.Clear();
         game.Platforms = platforms;
 
-        _gameRepository.UpdateGame(game);
+        try
+        {
+            _gameRepository.UpdateGame(game);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ExistingFieldException("Please provide unique game key");
+        }
 
         return game.Id;
     }

@@ -9,8 +9,10 @@ var services = builder.Services;
 
 services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer("Data Source = localhost, 1433; Initial Catalog = PROJECT; Integrated Security = True; TrustServerCertificate=True;");
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreDatabase"));
 });
+
+services.RegisterServices();
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
@@ -34,6 +36,13 @@ using (var scope = app.Services.CreateScope())
     predefined.AddGenres();
     predefined.AddPlatforms();
 }
+
+app.UseDeveloperExceptionPage();
+
+string infoLogsPath = builder.Configuration.GetValue("FilePaths:InfoLogs", "default/path.log");
+string errorLogsPath = builder.Configuration.GetValue("FilePaths:ErrorLogs", "default/error.log");
+
+app.UseMiddleware<LoggingMiddleware>(infoLogsPath, errorLogsPath);
 
 app.UseMiddleware<TotalGamesMiddleware>();
 
