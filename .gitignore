@@ -266,3 +266,8 @@ pub/
 /Gamestore/GameStore.Application/obj/project.nuget.cache
 /Gamestore/GameStore.Application/obj/project.assets.json
 /Gamestore/GameStore.Application/obj/GameStore.Application.csproj.nuget.dgspec.json
+/Gamestore/.vs/ProjectEvaluation/gamestore.projects.v7.bin
+/Gamestore/.vs/ProjectEvaluation/gamestore.metadata.v7.bin
+/Gamestore/.vs/GameStore/v17/.suo
+/Gamestore/.vs/GameStore/v17/.futdcache.v2
+/Gamestore/.vs/GameStore/DesignTimeBuild/.dtbcache.v2
