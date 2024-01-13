@@ -1,6 +1,6 @@
-﻿using GameStore.Infrastructure.Entities;
+﻿using GameStore.Domain.Entities;
 
-namespace GameStore.Infrastructure.IRepositories;
+namespace GameStore.Domain.IRepositories;
 
 public interface IGameRepository
 {

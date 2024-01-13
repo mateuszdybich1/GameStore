@@ -1,5 +1,5 @@
-﻿using GameStore.Infrastructure;
-using GameStore.Infrastructure.Entities;
+﻿using GameStore.Domain.Entities;
+using GameStore.Infrastructure;
 
 namespace GameStore.Web;
 

@@ -1,8 +1,8 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.Services;
-using GameStore.Infrastructure.Entities;
-using GameStore.Infrastructure.IRepositories;
-using GameStore.Infrastructure.ISearchCriterias;
+using GameStore.Domain.Entities;
+using GameStore.Domain.IRepositories;
+using GameStore.Domain.ISearchCriterias;
 using Moq;
 using Xunit;
 

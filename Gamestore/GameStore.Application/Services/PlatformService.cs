@@ -1,10 +1,9 @@
 ﻿using GameStore.Application.Dtos;
-using GameStore.Application.Exceptions;
 using GameStore.Application.IServices;
-using GameStore.Infrastructure.Entities;
-using GameStore.Infrastructure.IRepositories;
-using GameStore.Infrastructure.ISearchCriterias;
-using Microsoft.EntityFrameworkCore;
+using GameStore.Domain.Entities;
+using GameStore.Domain.Exceptions;
+using GameStore.Domain.IRepositories;
+using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
@@ -23,7 +22,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
         {
             _platformRepository.AddPlatform(platform);
         }
-        catch (DbUpdateException)
+        catch (Exception)
         {
             throw new ExistingFieldException("Please provide unique platform type");
         }
@@ -68,7 +67,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
         {
             _platformRepository.UpdatePlatform(platform);
         }
-        catch (DbUpdateException)
+        catch (Exception)
         {
             throw new ExistingFieldException("Please provide unique platform type");
         }

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using GameStore.Infrastructure.Entities;
+using GameStore.Domain.Entities;
 
 namespace GameStore.Application.Dtos;
 

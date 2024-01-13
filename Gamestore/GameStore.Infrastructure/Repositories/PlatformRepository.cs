@@ -1,5 +1,5 @@
-﻿using GameStore.Infrastructure.Entities;
-using GameStore.Infrastructure.IRepositories;
+﻿using GameStore.Domain.Entities;
+using GameStore.Domain.IRepositories;
 
 namespace GameStore.Infrastructure.Repositories;
 

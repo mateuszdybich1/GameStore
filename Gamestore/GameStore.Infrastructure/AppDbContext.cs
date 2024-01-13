@@ -1,4 +1,4 @@
-﻿using GameStore.Infrastructure.Entities;
+﻿using GameStore.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Infrastructure;

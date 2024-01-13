@@ -1,4 +1,4 @@
-﻿namespace GameStore.Infrastructure.Entities;
+﻿namespace GameStore.Domain.Entities;
 
 public class Genre
 {

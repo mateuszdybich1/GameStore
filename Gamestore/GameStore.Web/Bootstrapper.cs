@@ -1,7 +1,7 @@
 ﻿using GameStore.Application.IServices;
 using GameStore.Application.Services;
-using GameStore.Infrastructure.IRepositories;
-using GameStore.Infrastructure.ISearchCriterias;
+using GameStore.Domain.IRepositories;
+using GameStore.Domain.ISearchCriterias;
 using GameStore.Infrastructure.Repositories;
 using GameStore.Infrastructure.SearchCriteria;
 

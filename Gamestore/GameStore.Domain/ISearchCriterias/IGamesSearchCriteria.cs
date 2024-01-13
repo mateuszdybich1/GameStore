@@ -1,6 +1,6 @@
-﻿using GameStore.Infrastructure.Entities;
+﻿using GameStore.Domain.Entities;
 
-namespace GameStore.Infrastructure.ISearchCriterias;
+namespace GameStore.Domain.ISearchCriterias;
 
 public interface IGamesSearchCriteria
 {

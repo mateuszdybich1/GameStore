@@ -1,5 +1,5 @@
-﻿using GameStore.Infrastructure.Entities;
-using GameStore.Infrastructure.ISearchCriterias;
+﻿using GameStore.Domain.Entities;
+using GameStore.Domain.ISearchCriterias;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Infrastructure.SearchCriteria;
