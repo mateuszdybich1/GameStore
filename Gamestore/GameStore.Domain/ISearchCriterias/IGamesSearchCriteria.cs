@@ -11,4 +11,6 @@ public interface IGamesSearchCriteria
     public List<Game> GetByGenreId(Guid genreId);
 
     public List<Game> GetByPlatformId(Guid platformId);
+
+    public List<Game> GetByPublisherName(string companyName);
 }

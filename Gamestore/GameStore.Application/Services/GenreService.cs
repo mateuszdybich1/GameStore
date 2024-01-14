@@ -14,7 +14,7 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
     public Guid AddGenre(GenreDto genreDto)
     {
-        Guid genreId = Guid.NewGuid();
+        Guid genreId = genreDto.Id == Guid.Empty ? Guid.NewGuid() : genreDto.Id;
 
         Genre genre = new(genreId, genreDto.Name);
 

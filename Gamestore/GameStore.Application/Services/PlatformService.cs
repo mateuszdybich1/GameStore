@@ -14,7 +14,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
 
     public Guid AddPlatform(PlatformDto platformDto)
     {
-        Guid platformId = Guid.NewGuid();
+        Guid platformId = platformDto.Id == Guid.Empty ? Guid.NewGuid() : platformDto.Id;
 
         Platform platform = new(platformId, platformDto.Type);
 

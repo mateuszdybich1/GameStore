@@ -15,6 +15,7 @@ public class GetGameTests
     private readonly Mock<IGamesSearchCriteria> _gamesSearchCriteriaMock;
     private readonly Mock<IPlatformRepository> _platformRepositoryMock;
     private readonly Mock<IGenreRepository> _genreRepositoryMock;
+    private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
 
     public GetGameTests()
     {
@@ -22,8 +23,9 @@ public class GetGameTests
         _gamesSearchCriteriaMock = new();
         _platformRepositoryMock = new();
         _genreRepositoryMock = new();
+        _publisherRepositoryMock = new();
 
-        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object);
+        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object, _publisherRepositoryMock.Object);
     }
 
     [Fact]
@@ -35,7 +37,7 @@ public class GetGameTests
         var platforms = new List<Platform>();
         var genres = new List<Genre>();
 
-        var game = new Game(Guid.NewGuid(), "TestName", gameKey, genres, platforms);
+        var game = new Game(Guid.NewGuid(), "TestName", gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
         _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(game);
 
         // Act
@@ -67,7 +69,7 @@ public class GetGameTests
         var platforms = new List<Platform>();
         var genres = new List<Genre>();
 
-        var game = new Game(gameId, "TestName", "TestKey", genres, platforms);
+        var game = new Game(gameId, "TestName", "TestKey", 5, 5, 5, Guid.NewGuid(), genres, platforms);
         _gameRepositoryMock.Setup(x => x.GetGame(gameId)).Returns(game);
 
         // Act
@@ -98,7 +100,9 @@ public class GetGameTests
 
         var genres = new List<Genre> { new(Guid.NewGuid(), "Genre1"), new(Guid.NewGuid(), "Genre2") };
         var platforms = new List<Platform> { new(Guid.NewGuid(), "type1"), new(Guid.NewGuid(), "type2") };
-        var game = new Game(Guid.NewGuid(), "Test Name", gameKey, genres, platforms);
+        var publisher = new Publisher(Guid.NewGuid(), "TestCompany", string.Empty, string.Empty);
+
+        var game = new Game(Guid.NewGuid(), "Test Name", gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
 
         _gamesSearchCriteriaMock.Setup(x => x.GetByKeyWithRelations(gameKey)).Returns(game);
 

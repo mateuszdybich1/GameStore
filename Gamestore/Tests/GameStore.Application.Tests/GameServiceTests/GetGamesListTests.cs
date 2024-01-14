@@ -14,6 +14,7 @@ public class GetGamesListTests
     private readonly Mock<IGamesSearchCriteria> _gamesSearchCriteriaMock;
     private readonly Mock<IPlatformRepository> _platformRepositoryMock;
     private readonly Mock<IGenreRepository> _genreRepositoryMock;
+    private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
 
     public GetGamesListTests()
     {
@@ -21,8 +22,9 @@ public class GetGamesListTests
         _gamesSearchCriteriaMock = new();
         _platformRepositoryMock = new();
         _genreRepositoryMock = new();
+        _publisherRepositoryMock = new();
 
-        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object);
+        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object, _publisherRepositoryMock.Object);
     }
 
     [Fact]
@@ -35,7 +37,7 @@ public class GetGamesListTests
         {
             var genres = new List<Genre>();
             var platforms = new List<Platform>();
-            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", genres, platforms));
+            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms));
         }
 
         _gameRepositoryMock.Setup(x => x.GetAllGames()).Returns(games);
@@ -63,7 +65,7 @@ public class GetGamesListTests
         {
             var genres = new List<Genre>();
             var platforms = new List<Platform>();
-            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", genres, platforms));
+            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms));
         }
 
         _gamesSearchCriteriaMock.Setup(x => x.GetByPlatformId(platformId)).Returns(games);
@@ -91,7 +93,7 @@ public class GetGamesListTests
         {
             var genres = new List<Genre>();
             var platforms = new List<Platform>();
-            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", genres, platforms));
+            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms));
         }
 
         _gamesSearchCriteriaMock.Setup(x => x.GetByGenreId(genreId)).Returns(games);

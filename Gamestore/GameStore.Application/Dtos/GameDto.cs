@@ -13,8 +13,12 @@ public class GameDto
     {
         GameId = game.Id;
         Name = game.Name;
-        Description = game.Description;
         Key = game.Key;
+        Description = game.Description;
+        Price = game.Price;
+        UnitInStock = game.UnitInStock;
+        Discount = game.Discount;
+        PublisherId = game.PublisherId;
     }
 
     public Guid GameId { get; set; }
@@ -26,6 +30,18 @@ public class GameDto
     public string Key { get; set; }
 
     public string Description { get; set; }
+
+    [Required]
+    public double Price { get; set; }
+
+    [Required]
+    public int UnitInStock { get; set; }
+
+    [Required]
+    public int Discount { get; set; }
+
+    [Required]
+    public Guid PublisherId { get; set; }
 
     [Required]
     public List<Guid> GenresIds { get; set; }

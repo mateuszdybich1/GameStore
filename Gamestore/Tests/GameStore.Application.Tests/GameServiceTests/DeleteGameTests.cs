@@ -14,6 +14,7 @@ public class DeleteGameTests
     private readonly Mock<IGamesSearchCriteria> _gamesSearchCriteriaMock;
     private readonly Mock<IPlatformRepository> _platformRepositoryMock;
     private readonly Mock<IGenreRepository> _genreRepositoryMock;
+    private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
 
     public DeleteGameTests()
     {
@@ -21,8 +22,9 @@ public class DeleteGameTests
         _gamesSearchCriteriaMock = new();
         _platformRepositoryMock = new();
         _genreRepositoryMock = new();
+        _publisherRepositoryMock = new();
 
-        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object);
+        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object, _publisherRepositoryMock.Object);
     }
 
     [Fact]
@@ -31,7 +33,7 @@ public class DeleteGameTests
         // Arrange
         string gameKey = "GameKey";
 
-        Game game = new(Guid.NewGuid(), "Name", gameKey, new([new()]), new([new()]));
+        Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 5, Guid.NewGuid(), new([new()]), new([new()]));
         _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(game);
 
         // Act

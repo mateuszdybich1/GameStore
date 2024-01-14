@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace GameStore.Web.Controllers;
 [Route("api/games")]
 [ApiController]
-public class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService) : ControllerBase
+public class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService) : ControllerBase
 {
     private readonly IGameService _gamesService = gamesService;
     private readonly IGenreService _genreService = genreService;
     private readonly IPlatformService _platformService = platformService;
+    private readonly IPublisherService _publisherService = publisherService;
 
     [HttpPost]
     public IActionResult AddGame(GameDto gameDto)
@@ -61,6 +62,12 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     public IActionResult GetGamesFile([FromRoute] string key)
     {
         return Ok(_gamesService.GetGameByKeyWithRelations(key));
+    }
+
+    [HttpGet("{key}/publisher")]
+    public IActionResult GetGamePublisher([FromRoute] string key)
+    {
+        return Ok(_publisherService.GetPublisherByGameKey(key));
     }
 
     [HttpGet("{key}/genres")]

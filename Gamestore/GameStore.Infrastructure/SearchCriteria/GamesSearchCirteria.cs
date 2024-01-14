@@ -27,7 +27,7 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
 
     public Game GetByKeyWithRelations(string key)
     {
-        return _appDbContext.Games.Where(x => x.Key == key).Include(x => x.Genres).Include(x => x.Platforms).SingleOrDefault();
+        return _appDbContext.Games.Where(x => x.Key == key).Include(x => x.Genres).Include(x => x.Platforms).Include(x => x.Publisher).SingleOrDefault();
     }
 
     public List<Game> GetByPlatformId(Guid platformId)
@@ -37,6 +37,18 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
             .. _appDbContext.Games
                     .Include(x => x.Platforms)
                     .Where(x => x.Platforms.Any(y => y.Id == platformId)),
+        ];
+
+        return games;
+    }
+
+    public List<Game> GetByPublisherName(string companyName)
+    {
+        List<Game> games =
+        [
+            .. _appDbContext.Games
+                    .Include(x => x.Publisher)
+                    .Where(x => x.Publisher.CompanyName == companyName),
         ];
 
         return games;

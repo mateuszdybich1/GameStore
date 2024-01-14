@@ -5,25 +5,11 @@
 namespace GameStore.Infrastructure.Migrations;
 
 /// <inheritdoc />
-public partial class Epam11 : Migration
+public partial class Epic2 : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.CreateTable(
-            name: "Games",
-            columns: table => new
-            {
-                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Games", x => x.Id);
-            });
-
         migrationBuilder.CreateTable(
             name: "Genres",
             columns: table => new
@@ -47,6 +33,44 @@ public partial class Epam11 : Migration
             constraints: table =>
             {
                 table.PrimaryKey("PK_Platforms", x => x.Id);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "Publishers",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                CompanyName = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                HomePage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Publishers", x => x.Id);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "Games",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Price = table.Column<double>(type: "float", nullable: false),
+                UnitInStock = table.Column<int>(type: "int", nullable: false),
+                Discount = table.Column<int>(type: "int", nullable: false),
+                PublisherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Games", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_Games_Publishers_PublisherId",
+                    column: x => x.PublisherId,
+                    principalTable: "Publishers",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
             });
 
         migrationBuilder.CreateTable(
@@ -120,6 +144,11 @@ public partial class Epam11 : Migration
             unique: true);
 
         migrationBuilder.CreateIndex(
+            name: "IX_Games_PublisherId",
+            table: "Games",
+            column: "PublisherId");
+
+        migrationBuilder.CreateIndex(
             name: "IX_Genres_Id",
             table: "Genres",
             column: "Id",
@@ -142,6 +171,18 @@ public partial class Epam11 : Migration
             table: "Platforms",
             column: "Type",
             unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Publishers_CompanyName",
+            table: "Publishers",
+            column: "CompanyName",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Publishers_Id",
+            table: "Publishers",
+            column: "Id",
+            unique: true);
     }
 
     /// <inheritdoc />
@@ -161,5 +202,8 @@ public partial class Epam11 : Migration
 
         migrationBuilder.DropTable(
             name: "Platforms");
+
+        migrationBuilder.DropTable(
+            name: "Publishers");
     }
 }

@@ -11,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Platform> Platforms { get; set; }
 
+    public DbSet<Publisher> Publishers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -21,6 +23,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Game>().Property(e => e.Name).IsRequired(true);
         modelBuilder.Entity<Game>().HasIndex(x => x.Key).IsUnique(true);
         modelBuilder.Entity<Game>().Property(e => e.Key).IsRequired(true);
+        modelBuilder.Entity<Game>().Property(e => e.Price).IsRequired(true);
+        modelBuilder.Entity<Game>().Property(e => e.UnitInStock).IsRequired(true);
+        modelBuilder.Entity<Game>().Property(e => e.Discount).IsRequired(true);
 
         modelBuilder.Entity<Genre>().HasKey(e => e.Id);
         modelBuilder.Entity<Genre>().HasIndex(e => e.Id).IsUnique(true);
@@ -34,7 +39,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Platform>().Property(e => e.Type).IsRequired(true);
         modelBuilder.Entity<Platform>().HasIndex(e => e.Type).IsUnique(true);
 
+        modelBuilder.Entity<Publisher>().HasKey(e => e.Id);
+        modelBuilder.Entity<Publisher>().HasIndex(e => e.Id).IsUnique(true);
+        modelBuilder.Entity<Publisher>().Property(e => e.Id).IsRequired(true);
+        modelBuilder.Entity<Publisher>().Property(e => e.CompanyName).IsRequired(true);
+        modelBuilder.Entity<Publisher>().HasIndex(e => e.CompanyName).IsUnique(true);
+
         modelBuilder.Entity<Game>().HasMany(x => x.Genres).WithMany(x => x.Games);
         modelBuilder.Entity<Game>().HasMany(x => x.Platforms).WithMany(x => x.Games);
+        modelBuilder.Entity<Publisher>().HasMany(x => x.Games).WithOne(x => x.Publisher).HasForeignKey(x => x.PublisherId).IsRequired(true);
     }
 }

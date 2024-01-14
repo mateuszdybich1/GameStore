@@ -7,16 +7,20 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository) : IGameService
+public class GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository, IPublisherRepository publisherRepository) : IGameService
 {
     private readonly IGameRepository _gameRepository = gameRepository;
     private readonly IGamesSearchCriteria _gamesSearchCriteria = gamesSearchCriteria;
     private readonly IPlatformRepository _platformRepository = platformRepository;
     private readonly IGenreRepository _genreRepository = genreRepository;
+    private readonly IPublisherRepository _publisherRepository = publisherRepository;
 
     public Guid AddGame(GameDto gameDto)
     {
-        Guid gameId = Guid.NewGuid();
+        Guid gameId = gameDto.GameId == Guid.Empty ? Guid.NewGuid() : gameDto.GameId;
+
+        Publisher publisher = _publisherRepository.GetPublisher(gameDto.PublisherId) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.PublisherId} does not exists");
+
         List<Genre> genres = gameDto.GenresIds == null ? [] : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
         if (genres.Count == 0)
@@ -34,8 +38,8 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         string description = string.IsNullOrWhiteSpace(gameDto.Description) ? null : gameDto.Description;
 
         Game game = string.IsNullOrWhiteSpace(description)
-            ? new Game(gameId, gameDto.Name, gameDto.Key, genres, platforms)
-            : new Game(gameId, gameDto.Name, gameDto.Key, description, genres, platforms);
+            ? new Game(gameId, gameDto.Name, gameDto.Key, gameDto.Price, gameDto.UnitInStock, gameDto.Discount, publisher.Id, genres, platforms)
+            : new Game(gameId, gameDto.Name, gameDto.Key, gameDto.Price, gameDto.UnitInStock, gameDto.Discount, description, publisher.Id, genres, platforms);
 
         try
         {
@@ -87,8 +91,12 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            UnitInStock = game.UnitInStock,
+            Discount = game.Discount,
             Genres = game.Genres.Select(x => x.Name).ToList(),
             Platforms = game.Platforms.Select(x => x.Type).ToList(),
+            Publisher = game.Publisher,
         };
 
         return newObj;
@@ -109,8 +117,15 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         return _gamesSearchCriteria.GetByPlatformId(platformId).Select(x => new GameDto(x)).ToList();
     }
 
+    public List<GameDto> GetGamesByPublisherName(string companyName)
+    {
+        return _gamesSearchCriteria.GetByPublisherName(companyName).Select(x => new GameDto(x)).ToList();
+    }
+
     public Guid UpdateGame(GameDto gameDto)
     {
+        Publisher publisher = _publisherRepository.GetPublisher(gameDto.PublisherId) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.PublisherId} does not exists");
+
         List<Genre> genres = gameDto.GenresIds == null ? [] : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
         if (genres.Count == 0)
@@ -136,6 +151,8 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
         game.Platforms.Clear();
         game.Platforms = platforms;
+
+        game.PublisherId = publisher.Id;
 
         try
         {

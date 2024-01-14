@@ -23,4 +23,6 @@ public interface IGameService
     public List<GameDto> GetGamesByPlatformId(Guid platformId);
 
     public List<GameDto> GetGamesByGenreId(Guid genreId);
+
+    public List<GameDto> GetGamesByPublisherName(string companyName);
 }

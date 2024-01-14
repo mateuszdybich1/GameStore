@@ -15,6 +15,7 @@ public class UpdateGameTests
     private readonly Mock<IGamesSearchCriteria> _gamesSearchCriteriaMock;
     private readonly Mock<IPlatformRepository> _platformRepositoryMock;
     private readonly Mock<IGenreRepository> _genreRepositoryMock;
+    private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
 
     public UpdateGameTests()
     {
@@ -22,14 +23,17 @@ public class UpdateGameTests
         _gamesSearchCriteriaMock = new();
         _platformRepositoryMock = new();
         _genreRepositoryMock = new();
+        _publisherRepositoryMock = new();
 
-        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object);
+        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object, _publisherRepositoryMock.Object);
     }
 
     [Fact]
     public void UpdateGameShouldUpdateGameOnce()
     {
         // Arrange
+        Publisher publisher = new(Guid.NewGuid(), "TestCompany", "HomePage", "Description");
+
         string genreName = "TestGenre";
         Genre genre = new(Guid.NewGuid(), genreName);
 
@@ -44,8 +48,9 @@ public class UpdateGameTests
         string gameName = "TestName";
         string gameKey = "GameKey";
 
-        Game game = new(gameId, gameName, gameKey, genres, platforms);
+        Game game = new(gameId, gameName, gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
 
+        _publisherRepositoryMock.Setup(x => x.GetPublisher(publisher.Id)).Returns(publisher);
         _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
         _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
         _gameRepositoryMock.Setup(x => x.GetGameWithRelations(gameId)).Returns(game);
@@ -60,6 +65,7 @@ public class UpdateGameTests
             Key = updatedKey,
             GenresIds = new([genre.Id]),
             PlatformsIds = new([platform.Id]),
+            PublisherId = publisher.Id,
         };
 
         // Act
@@ -67,9 +73,42 @@ public class UpdateGameTests
 
         // Assert
         _gameRepositoryMock.Verify(x => x.GetGameWithRelations(gameId), Times.Once);
+        _publisherRepositoryMock.Verify(x => x.GetPublisher(publisher.Id), Times.Once);
         _genreRepositoryMock.Verify(x => x.GetGenre(genre.Id), Times.Once);
         _platformRepositoryMock.Verify(x => x.GetPlatform(platform.Id), Times.Once);
         _gameRepositoryMock.Verify(x => x.UpdateGame(It.Is<Game>(g => g.Id == gameId && g.Name == updatedName && g.Key == updatedKey && g.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.GenresIds) && g.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.PlatformsIds))), Times.Once);
+    }
+
+    [Fact]
+    public void UpdateGameIncorrectPublisherIdProvidedShouldThrowException()
+    {
+        // Arrange
+        Publisher publisher = new(Guid.NewGuid(), "TestCompany", "HomePage", "Description");
+
+        string platformName = "TestPlatform";
+        Platform platform = new(Guid.NewGuid(), platformName);
+
+        string genreName = "TestGenre";
+        Genre genre = new(Guid.NewGuid(), genreName);
+
+        string gameName = "TestGame";
+        string gameKey = "TestKey";
+
+        GameDto gameDto = new()
+        {
+            Name = gameName,
+            Key = gameKey,
+            PlatformsIds = new([platform.Id]),
+            GenresIds = new([genre.Id]),
+            PublisherId = publisher.Id,
+        };
+
+        _publisherRepositoryMock.Setup(x => x.GetPublisher(gameDto.PublisherId)).Returns((Publisher)null);
+        _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
+        _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
+
+        // Act and Assert
+        Assert.Throws<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
     }
 
     [Fact]
@@ -142,7 +181,7 @@ public class UpdateGameTests
         string gameName = "TestName";
         string gameKey = "GameKey";
 
-        Game game = new(gameId, gameName, gameKey, genres, platforms);
+        Game game = new(gameId, gameName, gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
 
         string updatedDescription = "Updated description";
 
