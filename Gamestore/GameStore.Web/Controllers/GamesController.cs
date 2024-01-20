@@ -1,8 +1,6 @@
 ﻿using GameStore.Application.Dtos;
-using GameStore.Application.Exceptions;
 using GameStore.Application.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Web.Controllers;
 [Route("api/games")]
@@ -16,84 +14,41 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     [HttpPost]
     public IActionResult AddGame(GameDto gameDto)
     {
-        try
-        {
-            return Ok(_gamesService.AddGame(gameDto));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Please provide unique game key");
-        }
+        return Ok(_gamesService.AddGame(gameDto));
     }
 
     [HttpGet("{key}")]
     public IActionResult GetGameByKey([FromRoute] string key)
     {
-        try
-        {
-            GameDto gamedto = _gamesService.GetGameByKey(key);
+        GameDto gamedto = _gamesService.GetGameByKey(key);
 
-            var responseDto = new
-            {
-                gamedto.GameId,
-                gamedto.Name,
-                gamedto.Description,
-                gamedto.Key,
-            };
-
-            return Ok(responseDto);
-        }
-        catch (EntityNotFoundException ex)
+        var responseDto = new
         {
-            return BadRequest(ex.Message);
-        }
+            gamedto.GameId,
+            gamedto.Name,
+            gamedto.Description,
+            gamedto.Key,
+        };
+
+        return Ok(responseDto);
     }
 
     [HttpGet("find/{id}")]
     public IActionResult GetGameByKey([FromRoute] Guid id)
     {
-        try
-        {
-            return Ok(_gamesService.GetGameById(id));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_gamesService.GetGameById(id));
     }
 
     [HttpPut]
     public IActionResult UpdateGame(GameDto gameDto)
     {
-        try
-        {
-            return Ok(_gamesService.UpdateGame(gameDto));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Please provide unique game key");
-        }
+        return Ok(_gamesService.UpdateGame(gameDto));
     }
 
     [HttpDelete("{key}")]
     public IActionResult DeleteGame([FromRoute] string key)
     {
-        try
-        {
-            return Ok(_gamesService.DeleteGame(key));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_gamesService.DeleteGame(key));
     }
 
     [HttpGet]
@@ -105,39 +60,18 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     [HttpGet("{key}/file")]
     public IActionResult GetGamesFile([FromRoute] string key)
     {
-        try
-        {
-            return Ok(_gamesService.GetGameByKeyWithRelations(key));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_gamesService.GetGameByKeyWithRelations(key));
     }
 
     [HttpGet("{key}/genres")]
     public IActionResult GetGamesGenres([FromRoute] string key)
     {
-        try
-        {
-            return Ok(_genreService.GetGamesGenres(key));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_genreService.GetGamesGenres(key));
     }
 
     [HttpGet("{key}/platforms")]
     public IActionResult GetGamesPlatforms([FromRoute] string key)
     {
-        try
-        {
-            return Ok(_platformService.GetGamesPlatforms(key));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_platformService.GetGamesPlatforms(key));
     }
 }

@@ -4,6 +4,7 @@ using GameStore.Application.IServices;
 using GameStore.Infrastructure.Entities;
 using GameStore.Infrastructure.IRepositories;
 using GameStore.Infrastructure.ISearchCriterias;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Application.Services;
 
@@ -29,7 +30,14 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
             genre.ParentGerneId = Guid.Empty;
         }
 
-        _genreRepository.AddGenre(genre);
+        try
+        {
+            _genreRepository.AddGenre(genre);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ExistingFieldException("Please provide unique genre name");
+        }
 
         return genre.Id;
     }
@@ -78,7 +86,14 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
             genre.ParentGerneId = parentGenre.Id;
         }
 
-        _genreRepository.UpdateGenre(genre);
+        try
+        {
+            _genreRepository.UpdateGenre(genre);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ExistingFieldException("Please provide unique genre name");
+        }
 
         return genre.Id;
     }

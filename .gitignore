@@ -302,5 +302,12 @@ pub/
 /Gamestore/.vs/GameStore/v17/.futdcache.v2
 >>>>>>> Epic1.1
 /Gamestore/.vs/GameStore/DesignTimeBuild/.dtbcache.v2
+<<<<<<< HEAD
 /GameStore.Web/Logs/ErrorLogs.txt
 /GameStore.Web/Logs/InfoLogs.txt
+=======
+Logs/ErrorLogs.txt
+Logs/InfoLogs.txt
+GameStore.Web/Logs/ErrorLogs.txt
+GameStore.Web/Logs/InfoLogs.txt
+>>>>>>> Epic1.2

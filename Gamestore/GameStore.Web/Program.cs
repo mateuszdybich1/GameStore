@@ -37,6 +37,13 @@ using (var scope = app.Services.CreateScope())
     predefined.AddPlatforms();
 }
 
+app.UseDeveloperExceptionPage();
+
+string infoLogsPath = builder.Configuration.GetValue("FilePaths:InfoLogs", "default/path.log");
+string errorLogsPath = builder.Configuration.GetValue("FilePaths:ErrorLogs", "default/error.log");
+
+app.UseMiddleware<LoggingMiddleware>(infoLogsPath, errorLogsPath);
+
 app.UseMiddleware<TotalGamesMiddleware>();
 
 app.UseHttpsRedirection();

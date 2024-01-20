@@ -1,8 +1,6 @@
 ﻿using GameStore.Application.Dtos;
-using GameStore.Application.Exceptions;
 using GameStore.Application.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Web.Controllers;
 [Route("api/genres")]
@@ -15,61 +13,25 @@ public class GenresController(IGenreService genreService, IGameService gameServi
     [HttpPost]
     public IActionResult AddGenre(GenreDto genreDto)
     {
-        try
-        {
-            return Ok(_genreService.AddGenre(genreDto));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Please provide unique genre name");
-        }
+        return Ok(_genreService.AddGenre(genreDto));
     }
 
     [HttpPut]
     public IActionResult UpdateGenre(GenreDto genreDto)
     {
-        try
-        {
-            return Ok(_genreService.UpdateGenre(genreDto));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Please provide unique genre name");
-        }
+        return Ok(_genreService.UpdateGenre(genreDto));
     }
 
     [HttpDelete("{id}")]
     public IActionResult DeleteGenre([FromRoute] Guid id)
     {
-        try
-        {
-            return Ok(_genreService.DeleteGenre(id));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_genreService.DeleteGenre(id));
     }
 
     [HttpGet("{id}")]
     public IActionResult GetGenre([FromRoute] Guid id)
     {
-        try
-        {
-            return Ok(_genreService.GetGenre(id));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_genreService.GetGenre(id));
     }
 
     [HttpGet]
@@ -81,26 +43,12 @@ public class GenresController(IGenreService genreService, IGameService gameServi
     [HttpGet("{id}/genres")]
     public IActionResult GetSubGenres([FromRoute] Guid id)
     {
-        try
-        {
-            return Ok(_genreService.GetSubGenres(id));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_genreService.GetSubGenres(id));
     }
 
     [HttpGet("{id}/games")]
     public IActionResult GetGenreGames([FromRoute] Guid id)
     {
-        try
-        {
-            return Ok(_gameService.GetGamesByGenreId(id));
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(_gameService.GetGamesByGenreId(id));
     }
 }
