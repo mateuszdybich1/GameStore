@@ -74,7 +74,7 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
     public Guid UpdateGenre(GenreDto genreDto)
     {
-        Genre genre = _genreRepository.GetGenre(genreDto.Id);
+        Genre genre = _genreRepository.GetGenre(genreDto.Id) ?? throw new EntityNotFoundException($"Couldn't find genre by ID: {genreDto.Id}");
 
         genre.Name = genreDto.Name;
 
