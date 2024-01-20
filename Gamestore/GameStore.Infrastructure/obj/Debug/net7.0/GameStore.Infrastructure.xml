@@ -4,5 +4,17 @@
         <name>GameStore.Infrastructure</name>
     </assembly>
     <members>
+        <member name="T:GameStore.Infrastructure.Migrations.Migration1">
+            <inheritdoc />
+        </member>
+        <member name="M:GameStore.Infrastructure.Migrations.Migration1.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:GameStore.Infrastructure.Migrations.Migration1.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:GameStore.Infrastructure.Migrations.Migration1.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>
