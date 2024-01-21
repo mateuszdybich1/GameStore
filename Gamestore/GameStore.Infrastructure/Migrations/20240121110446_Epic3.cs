@@ -5,8 +5,10 @@
 namespace GameStore.Infrastructure.Migrations;
 
 /// <inheritdoc />
-public partial class Epic2 : Migration
+public partial class Epic3 : Migration
 {
+    private static readonly string[] Columns = ["OrderId", "ProductId"];
+
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
@@ -21,6 +23,35 @@ public partial class Epic2 : Migration
             constraints: table =>
             {
                 table.PrimaryKey("PK_Genres", x => x.Id);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "OrderGames",
+            columns: table => new
+            {
+                OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                Price = table.Column<double>(type: "float", nullable: false),
+                Quantity = table.Column<int>(type: "int", nullable: false),
+                Discount = table.Column<int>(type: "int", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_OrderGames", x => new { x.OrderId, x.ProductId });
+            });
+
+        migrationBuilder.CreateTable(
+            name: "Orders",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                Status = table.Column<int>(type: "int", nullable: false),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Orders", x => x.Id);
             });
 
         migrationBuilder.CreateTable(
@@ -41,8 +72,8 @@ public partial class Epic2 : Migration
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 CompanyName = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                HomePage = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                HomePage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
             },
             constraints: table =>
             {
@@ -56,7 +87,7 @@ public partial class Epic2 : Migration
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 Price = table.Column<double>(type: "float", nullable: false),
                 UnitInStock = table.Column<int>(type: "int", nullable: false),
                 Discount = table.Column<int>(type: "int", nullable: false),
@@ -161,6 +192,18 @@ public partial class Epic2 : Migration
             unique: true);
 
         migrationBuilder.CreateIndex(
+            name: "IX_OrderGames_OrderId_ProductId",
+            table: "OrderGames",
+            columns: Columns,
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Orders_Id",
+            table: "Orders",
+            column: "Id",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
             name: "IX_Platforms_Id",
             table: "Platforms",
             column: "Id",
@@ -193,6 +236,12 @@ public partial class Epic2 : Migration
 
         migrationBuilder.DropTable(
             name: "GamePlatform");
+
+        migrationBuilder.DropTable(
+            name: "OrderGames");
+
+        migrationBuilder.DropTable(
+            name: "Orders");
 
         migrationBuilder.DropTable(
             name: "Genres");

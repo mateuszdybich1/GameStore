@@ -13,6 +13,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Publisher> Publishers { get; set; }
 
+    public DbSet<Order> Orders { get; set; }
+
+    public DbSet<OrderGame> OrderGames { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -21,11 +25,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Game>().HasIndex(e => e.Id).IsUnique(true);
         modelBuilder.Entity<Game>().Property(e => e.Id).IsRequired(true);
         modelBuilder.Entity<Game>().Property(e => e.Name).IsRequired(true);
-        modelBuilder.Entity<Game>().HasIndex(x => x.Key).IsUnique(true);
+        modelBuilder.Entity<Game>().HasIndex(e => e.Key).IsUnique(true);
         modelBuilder.Entity<Game>().Property(e => e.Key).IsRequired(true);
         modelBuilder.Entity<Game>().Property(e => e.Price).IsRequired(true);
         modelBuilder.Entity<Game>().Property(e => e.UnitInStock).IsRequired(true);
         modelBuilder.Entity<Game>().Property(e => e.Discount).IsRequired(true);
+        modelBuilder.Entity<Game>().Property(e => e.Description).IsRequired(false);
 
         modelBuilder.Entity<Genre>().HasKey(e => e.Id);
         modelBuilder.Entity<Genre>().HasIndex(e => e.Id).IsUnique(true);
@@ -44,9 +49,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Publisher>().Property(e => e.Id).IsRequired(true);
         modelBuilder.Entity<Publisher>().Property(e => e.CompanyName).IsRequired(true);
         modelBuilder.Entity<Publisher>().HasIndex(e => e.CompanyName).IsUnique(true);
+        modelBuilder.Entity<Publisher>().Property(e => e.HomePage).IsRequired(false);
+        modelBuilder.Entity<Publisher>().Property(e => e.Description).IsRequired(false);
 
-        modelBuilder.Entity<Game>().HasMany(x => x.Genres).WithMany(x => x.Games);
-        modelBuilder.Entity<Game>().HasMany(x => x.Platforms).WithMany(x => x.Games);
-        modelBuilder.Entity<Publisher>().HasMany(x => x.Games).WithOne(x => x.Publisher).HasForeignKey(x => x.PublisherId).IsRequired(true);
+        modelBuilder.Entity<Order>().HasKey(e => e.Id);
+        modelBuilder.Entity<Order>().HasIndex(e => e.Id).IsUnique(true);
+        modelBuilder.Entity<Order>().Property(e => e.Id).IsRequired(true);
+        modelBuilder.Entity<Order>().Property(e => e.CustomerId).IsRequired(true);
+        modelBuilder.Entity<Order>().Property(e => e.Status).IsRequired(true);
+
+        modelBuilder.Entity<OrderGame>().HasKey(e => new { e.OrderId, e.ProductId });
+        modelBuilder.Entity<OrderGame>().HasIndex(e => new { e.OrderId, e.ProductId }).IsUnique(true);
+        modelBuilder.Entity<OrderGame>().Property(e => e.OrderId).IsRequired(true);
+        modelBuilder.Entity<OrderGame>().Property(e => e.ProductId).IsRequired(true);
+        modelBuilder.Entity<OrderGame>().Property(e => e.Price).IsRequired(true);
+        modelBuilder.Entity<OrderGame>().Property(e => e.Quantity).IsRequired(true);
+
+        modelBuilder.Entity<Game>().HasMany(e => e.Genres).WithMany(e => e.Games);
+        modelBuilder.Entity<Game>().HasMany(e => e.Platforms).WithMany(e => e.Games);
+        modelBuilder.Entity<Publisher>().HasMany(e => e.Games).WithOne(e => e.Publisher).HasForeignKey(e => e.PublisherId).IsRequired(true);
     }
 }

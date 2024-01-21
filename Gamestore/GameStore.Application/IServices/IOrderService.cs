@@ -1,0 +1,18 @@
+﻿using GameStore.Application.Dtos;
+
+namespace GameStore.Application.IServices;
+
+public interface IOrderService
+{
+    public Guid AddOrder(Guid customerId, string gameKey);
+
+    public Guid RemoveOrder(Guid customerId, string gameKey);
+
+    public List<OrderDto> GetPaidAndCancelledOrders();
+
+    public OrderDto GetOrder(Guid orderId);
+
+    public List<OrderGameDto> GetOrderDetails(Guid orderId);
+
+    public List<OrderGameDto> GetCart(Guid customerId);
+}

@@ -154,6 +154,10 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
         game.PublisherId = publisher.Id;
 
+        game.Price = gameDto.Price;
+        game.UnitInStock = gameDto.UnitInStock;
+        game.Discount = gameDto.Discount;
+
         try
         {
             _gameRepository.UpdateGame(game);
