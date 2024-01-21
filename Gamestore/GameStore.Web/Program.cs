@@ -2,6 +2,7 @@ using GameStore.Infrastructure;
 using GameStore.Web;
 using GameStore.Web.Middlewares;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
 var app = builder.Build();
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

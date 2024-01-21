@@ -77,6 +77,21 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
         return _orderGameRepository.GetOrderGames(orderId).Select(x => new OrderGameDto(x)).ToList();
     }
 
+    public OrderInformation GetOrderInformation(Guid customerId)
+    {
+        Order order = _orderRepository.GetCustomerOpenOrder(customerId) ?? throw new EntityNotFoundException($"Customer: {customerId} does not have a cart");
+
+        List<OrderGame> orderGames = _orderGameRepository.GetOrderGames(order.Id);
+
+        double totalSum = 0;
+        foreach (var orderGame in orderGames)
+        {
+            totalSum += orderGame.Price * orderGame.Quantity * (1 - orderGame.Discount);
+        }
+
+        return new(order.Id, order.Date, totalSum);
+    }
+
     public List<OrderDto> GetPaidAndCancelledOrders()
     {
         return _orderRepository.GetPaidAndCancelledOrders().Select(x => new OrderDto(x)).ToList();

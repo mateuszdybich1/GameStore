@@ -15,4 +15,6 @@ public interface IOrderService
     public List<OrderGameDto> GetOrderDetails(Guid orderId);
 
     public List<OrderGameDto> GetCart(Guid customerId);
+
+    public OrderInformation GetOrderInformation(Guid customerId);
 }

@@ -1,4 +1,5 @@
-﻿using GameStore.Application.IServices;
+﻿using GameStore.Application.Dtos;
+using GameStore.Application.IServices;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,23 @@ namespace GameStore.Web.Controllers;
 public class OrdersController(IOrderService orderService) : ControllerBase
 {
     private readonly IOrderService _orderService = orderService;
+
+    [HttpPost("payment")]
+    public IActionResult BankPayment([FromBody] PaymentRequest request)
+    {
+        if (request.Method != "Bank")
+        {
+            return BadRequest("Invalid payment method for this endpoint.");
+        }
+
+        Guid customerId = Guid.Parse("B30F65493C8946A79B69D91FE6577EB2");
+
+        OrderInformation orderInformation = _orderService.GetOrderInformation(customerId);
+
+        var invoice = InvoiceGenerator.GenerateInvoice(customerId, orderInformation.OrderId, orderInformation.Sum);
+
+        return File(invoice, "application/pdf", "invoice.pdf");
+    }
 
     [HttpGet("payment-methods")]
     public IActionResult GetPaymentMethods()
