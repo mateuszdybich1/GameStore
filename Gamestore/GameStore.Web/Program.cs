@@ -14,7 +14,7 @@ services.AddDbContext<AppDbContext>(options =>
 });
 
 services.RegisterServices();
-
+services.AddCors();
 services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
@@ -50,6 +50,12 @@ app.UseMiddleware<LoggingMiddleware>(infoLogsPath, errorLogsPath);
 app.UseMiddleware<TotalGamesMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true) // allow any origin
+    .AllowCredentials());
 
 app.UseAuthorization();
 
