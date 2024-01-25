@@ -14,13 +14,13 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
     public Guid AddGenre(GenreDto genreDto)
     {
-        Guid genreId = genreDto.Id == Guid.Empty ? Guid.NewGuid() : genreDto.Id;
+        Guid genreId = (genreDto.Id == null || genreDto.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)genreDto.Id;
 
         Genre genre = new(genreId, genreDto.Name);
 
-        if (genreDto.ParentGerneId != Guid.Empty)
+        if (genreDto.ParentGerneId != null && genreDto.ParentGerneId != Guid.Empty)
         {
-            Genre parentGenre = _genreRepository.GetGenre(genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
+            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
 
             genre.ParentGerneId = parentGenre.Id;
         }
@@ -74,13 +74,18 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
     public Guid UpdateGenre(GenreDto genreDto)
     {
-        Genre genre = _genreRepository.GetGenre(genreDto.Id) ?? throw new EntityNotFoundException($"Couldn't find genre by ID: {genreDto.Id}");
+        if (genreDto.Id == null)
+        {
+            throw new ArgumentNullException("Cannot update genre. Id is null");
+        }
+
+        Genre genre = _genreRepository.GetGenre((Guid)genreDto.Id) ?? throw new EntityNotFoundException($"Couldn't find genre by ID: {genreDto.Id}");
 
         genre.Name = genreDto.Name;
 
-        if (genreDto.ParentGerneId != Guid.Empty)
+        if (genreDto.ParentGerneId != null && genreDto.ParentGerneId != Guid.Empty)
         {
-            Genre parentGenre = _genreRepository.GetGenre(genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
+            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
 
             genre.ParentGerneId = parentGenre.Id;
         }

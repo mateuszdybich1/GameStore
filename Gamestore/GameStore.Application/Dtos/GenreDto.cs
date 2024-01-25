@@ -16,10 +16,10 @@ public class GenreDto
         ParentGerneId = genre.ParentGerneId;
     }
 
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     [Required]
     public string Name { get; set; }
 
-    public Guid ParentGerneId { get; set; }
+    public Guid? ParentGerneId { get; set; }
 }

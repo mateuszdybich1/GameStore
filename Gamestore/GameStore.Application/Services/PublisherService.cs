@@ -14,7 +14,7 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
 
     public Guid AddPublisher(PublisherDto publisherDto)
     {
-        Guid publisherId = publisherDto.Id == Guid.Empty ? Guid.NewGuid() : publisherDto.Id;
+        Guid publisherId = (publisherDto.Id == null || publisherDto.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)publisherDto.Id;
 
         string homePage = publisherDto.HomePage ?? string.Empty;
         string description = publisherDto.Description ?? string.Empty;
@@ -63,11 +63,16 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
 
     public Guid UpdatePublisher(PublisherDto publisherDto)
     {
-        Publisher publisher = _publisherRepository.GetPublisher(publisherDto.Id) ?? throw new EntityNotFoundException($"Couldn't find publisher by ID: {publisherDto.Id}");
+        if (publisherDto.Id == null)
+        {
+            throw new ArgumentNullException("Cannot update publisher. Id is null");
+        }
+
+        Publisher publisher = _publisherRepository.GetPublisher((Guid)publisherDto.Id) ?? throw new EntityNotFoundException($"Couldn't find publisher by ID: {publisherDto.Id}");
 
         publisher.CompanyName = publisherDto.CompanyName;
-        publisher.HomePage = publisherDto.HomePage;
-        publisher.Description = publisherDto.Description;
+        publisher.HomePage = publisherDto.HomePage ?? string.Empty;
+        publisher.Description = publisherDto.Description ?? string.Empty;
 
         try
         {

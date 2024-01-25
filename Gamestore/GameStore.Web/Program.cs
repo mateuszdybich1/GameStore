@@ -15,7 +15,7 @@ services.AddDbContext<AppDbContext>(options =>
 
 services.RegisterServices();
 services.AddCors();
-services.AddControllers();
+services.AddControllers().AddNewtonsoftJson();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 

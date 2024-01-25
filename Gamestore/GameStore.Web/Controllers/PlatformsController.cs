@@ -11,15 +11,15 @@ public class PlatformsController(IPlatformService platformService, IGameService 
     private readonly IGameService _gameService = gameService;
 
     [HttpPost]
-    public IActionResult AddPlatform(PlatformDto platformDto)
+    public IActionResult AddPlatform([FromBody] PlatformDtoDto platformDto)
     {
-        return Ok(_platformService.AddPlatform(platformDto));
+        return Ok(_platformService.AddPlatform(platformDto.Platform));
     }
 
     [HttpPut]
-    public IActionResult UpdatePlatform(PlatformDto platformDto)
+    public IActionResult UpdatePlatform([FromBody] PlatformDtoDto platformDto)
     {
-        return Ok(_platformService.UpdatePlatform(platformDto));
+        return Ok(_platformService.UpdatePlatform(platformDto.Platform));
     }
 
     [HttpDelete("{id}")]

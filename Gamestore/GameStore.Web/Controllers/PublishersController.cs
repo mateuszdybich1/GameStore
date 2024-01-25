@@ -12,15 +12,15 @@ public class PublishersController(IPublisherService publisherService, IGameServi
     private readonly IGameService _gameService = gameService;
 
     [HttpPost]
-    public IActionResult AddPublisher(PublisherDto publisherDto)
+    public IActionResult AddPublisher([FromBody] PublisherDtoDto publisherDto)
     {
-        return Ok(_publisherService.AddPublisher(publisherDto));
+        return Ok(_publisherService.AddPublisher(publisherDto.Publisher));
     }
 
     [HttpPut]
-    public IActionResult UpdatePublisher(PublisherDto publisherDto)
+    public IActionResult UpdatePublisher([FromBody] PublisherDtoDto publisherDto)
     {
-        return Ok(_publisherService.UpdatePublisher(publisherDto));
+        return Ok(_publisherService.UpdatePublisher(publisherDto.Publisher));
     }
 
     [HttpDelete("{id}")]

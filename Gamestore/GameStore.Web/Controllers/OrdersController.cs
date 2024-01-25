@@ -9,23 +9,41 @@ namespace GameStore.Web.Controllers;
 [ApiController]
 public class OrdersController(IOrderService orderService) : ControllerBase
 {
+    private static readonly Dictionary<int, string> PaymentTypes = new()
+    {
+        { 1, "Bank" },
+        { 2, "IBox Terminal" },
+        { 3, "Visa" },
+    };
+
     private readonly IOrderService _orderService = orderService;
 
     [HttpPost("payment")]
     public IActionResult BankPayment([FromBody] PaymentRequest request)
     {
-        if (request.Method != "Bank")
+        if (!PaymentTypes.ContainsValue(request.Method))
         {
             return BadRequest("Invalid payment method for this endpoint.");
         }
 
         Guid customerId = Guid.Parse("B30F65493C8946A79B69D91FE6577EB2");
 
-        OrderInformation orderInformation = _orderService.GetOrderInformation(customerId);
+        if (request.Method == PaymentTypes[1])
+        {
+            OrderInformation orderInformation = _orderService.GetOrderInformation(customerId);
 
-        var invoice = InvoiceGenerator.GenerateInvoice(customerId, orderInformation.OrderId, orderInformation.Sum);
+            var invoice = InvoiceGenerator.GenerateInvoice(customerId, orderInformation.OrderId, orderInformation.Sum);
 
-        return File(invoice, "application/pdf", "invoice.pdf");
+            return File(invoice, "application/pdf", "invoice.pdf");
+        }
+        else if (request.Method == PaymentTypes[2])
+        {
+        }
+        else
+        {
+        }
+
+        return Ok();
     }
 
     [HttpGet("payment-methods")]
@@ -35,7 +53,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
 
         for (int i = 1; i <= 3; i++)
         {
-            paymentMethods.Add(new($"Image-{i}", Enum.GetName(typeof(PaymentName), i).ToString(), $"description-{i}"));
+            paymentMethods.Add(new($"Image-{i}", PaymentTypes[i], $"description-{i}"));
         }
 
         return Ok(paymentMethods);

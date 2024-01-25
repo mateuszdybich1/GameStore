@@ -14,7 +14,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
 
     public Guid AddPlatform(PlatformDto platformDto)
     {
-        Guid platformId = platformDto.Id == Guid.Empty ? Guid.NewGuid() : platformDto.Id;
+        Guid platformId = (platformDto.Id == null || platformDto.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)platformDto.Id;
 
         Platform platform = new(platformId, platformDto.Type);
 
@@ -59,7 +59,12 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
 
     public Guid UpdatePlatform(PlatformDto platformDto)
     {
-        Platform platform = _platformRepository.GetPlatform(platformDto.Id) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformDto.Id}");
+        if (platformDto.Id == null)
+        {
+            throw new ArgumentNullException("Cannot update platform. Id is null");
+        }
+
+        Platform platform = _platformRepository.GetPlatform((Guid)platformDto.Id) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformDto.Id}");
 
         platform.Type = platformDto.Type;
 

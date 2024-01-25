@@ -1,10 +1,4 @@
 ﻿namespace GameStore.Domain.Entities;
-public enum PaymentName
-{
-    Bank = 1,
-    IBoxTerminal = 2,
-    Visa = 3,
-}
 
 public class PaymentMethod
 {

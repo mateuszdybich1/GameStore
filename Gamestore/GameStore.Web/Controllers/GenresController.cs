@@ -11,15 +11,15 @@ public class GenresController(IGenreService genreService, IGameService gameServi
     private readonly IGameService _gameService = gameService;
 
     [HttpPost]
-    public IActionResult AddGenre(GenreDto genreDto)
+    public IActionResult AddGenre([FromBody] GenreDtoDto genreDto)
     {
-        return Ok(_genreService.AddGenre(genreDto));
+        return Ok(_genreService.AddGenre(genreDto.Genre));
     }
 
     [HttpPut]
-    public IActionResult UpdateGenre(GenreDto genreDto)
+    public IActionResult UpdateGenre([FromBody] GenreDtoDto genreDto)
     {
-        return Ok(_genreService.UpdateGenre(genreDto));
+        return Ok(_genreService.UpdateGenre(genreDto.Genre));
     }
 
     [HttpDelete("{id}")]
