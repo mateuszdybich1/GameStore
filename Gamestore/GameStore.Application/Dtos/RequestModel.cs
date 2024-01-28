@@ -4,7 +4,7 @@ public class RequestModel
 {
     public string Holder { get; set; }
 
-    public decimal CardNumber { get; set; }
+    public string CardNumber { get; set; }
 
     public byte MonthExpire { get; set; }
 

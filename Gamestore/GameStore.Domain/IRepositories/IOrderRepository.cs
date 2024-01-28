@@ -5,6 +5,8 @@ public interface IOrderRepository
 {
     public void AddOrder(Order order);
 
+    public void UpdateOrder(Order order);
+
     public void DeleteOrder(Order order);
 
     public Order GetOrder(Guid orderId);

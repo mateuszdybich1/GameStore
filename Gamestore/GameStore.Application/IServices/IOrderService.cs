@@ -1,10 +1,13 @@
 ﻿using GameStore.Application.Dtos;
+using GameStore.Domain.Entities;
 
 namespace GameStore.Application.IServices;
 
 public interface IOrderService
 {
     public Guid AddOrder(Guid customerId, string gameKey);
+
+    public Guid UpdateOrder(Guid orderId, OrderStatus orderStatus);
 
     public Guid RemoveOrder(Guid customerId, string gameKey);
 

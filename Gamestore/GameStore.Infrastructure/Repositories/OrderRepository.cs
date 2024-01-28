@@ -38,4 +38,10 @@ public class OrderRepository(AppDbContext appDbContext) : IOrderRepository
     {
         return [.. _appDbContext.Orders.Where(x => x.Status == OrderStatus.Paid || x.Status == OrderStatus.Cancelled)];
     }
+
+    public void UpdateOrder(Order order)
+    {
+        _appDbContext.Orders.Update(order);
+        _appDbContext.SaveChanges();
+    }
 }

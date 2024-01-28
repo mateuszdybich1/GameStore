@@ -13,6 +13,12 @@ services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreDatabase"));
 });
 
+services.AddHttpClient("PaymentMicroservice", client =>
+{
+    var connString = builder.Configuration.GetConnectionString("PaymentApiBaseUrl").ToString();
+    client.BaseAddress = new Uri(connString);
+});
+
 services.RegisterServices();
 services.AddCors();
 services.AddControllers().AddNewtonsoftJson();
