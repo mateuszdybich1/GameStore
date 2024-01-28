@@ -16,6 +16,8 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("PaymentMicroservice");
 
+    private readonly Guid _customerId = Guid.Parse("3fa85f6457174562b3fc2c963f66afa6");
+
     private static readonly Dictionary<string, string> PaymentTypes = new()
     {
         { "https://www.pngitem.com/pimgs/m/101-1016890_icon-bank-logo-png-transparent-png.png", "Bank" },
@@ -31,16 +33,14 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
             return BadRequest("Invalid payment method for this endpoint.");
         }
 
-        Guid customerId = Guid.Parse("B30F65493C8946A79B69D91FE6577EB2");
-
-        OrderInformation orderInformation = _orderService.GetOrderInformation(customerId);
+        OrderInformation orderInformation = _orderService.GetOrderInformation(_customerId);
         string route;
         object apiObj;
         HttpResponseMessage response;
 
         if (request.Method == PaymentTypes.First().Value)
         {
-            var invoice = InvoiceGenerator.GenerateInvoice(customerId, orderInformation.OrderId, orderInformation.Sum);
+            var invoice = InvoiceGenerator.GenerateInvoice(_customerId, orderInformation.OrderId, orderInformation.Sum);
 
             _orderService.UpdateOrder(orderInformation.OrderId, OrderStatus.Checkout);
 
@@ -57,7 +57,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
 
             apiObj = new
             {
-                transactionAmount = 0, // specially assigned 0
+                transactionAmount = orderInformation.Sum,
                 cardHolderName = request.Model.Holder,
                 cardNumber = request.Model.CardNumber,
                 expirationMonth = request.Model.MonthExpire,
@@ -71,8 +71,8 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
 
             apiObj = new
             {
-                transactionAmount = 0, // specially assigned 0
-                accountNumber = customerId,
+                transactionAmount = orderInformation.Sum,
+                accountNumber = _customerId,
                 invoiceNumber = orderInformation.OrderId,
             };
         }
@@ -94,7 +94,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
 
         var returnObj = new
         {
-            UserId = customerId,
+            UserId = _customerId,
             OrderId = orderInformation.OrderId,
             PaymentDate = orderInformation.CreationDate,
             Sum = orderInformation.Sum,
@@ -123,10 +123,9 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     [HttpDelete("cart/{key}")]
     public IActionResult RemoveFromCart([FromRoute] string key)
     {
-        Guid customerId = Guid.Parse("B30F65493C8946A79B69D91FE6577EB2");
         try
         {
-            return Ok(_orderService.RemoveOrder(customerId, key));
+            return Ok(_orderService.RemoveOrder(_customerId, key));
         }
         catch (EntityNotFoundException ex)
         {
@@ -162,11 +161,9 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     [HttpGet("cart")]
     public IActionResult GetCart()
     {
-        Guid customerId = Guid.Parse("B30F65493C8946A79B69D91FE6577EB2");
-
         try
         {
-            return Ok(_orderService.GetCart(customerId));
+            return Ok(_orderService.GetCart(_customerId));
         }
         catch (EntityNotFoundException ex)
         {

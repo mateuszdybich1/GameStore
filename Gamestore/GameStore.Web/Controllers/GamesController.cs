@@ -17,6 +17,8 @@ public partial class GamesController(IGameService gamesService, IGenreService ge
     private readonly IPublisherService _publisherService = publisherService;
     private readonly IOrderService _orderService = orderService;
 
+    private readonly Guid _customerId = Guid.Parse("3fa85f6457174562b3fc2c963f66afa6");
+
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         WriteIndented = true,
@@ -105,10 +107,9 @@ public partial class GamesController(IGameService gamesService, IGenreService ge
     [HttpPost("{key}/buy")]
     public IActionResult AddToCart([FromRoute] string key)
     {
-        Guid customerId = Guid.Parse("B30F65493C8946A79B69D91FE6577EB2");
         try
         {
-            return Ok(_orderService.AddOrder(customerId, key));
+            return Ok(_orderService.AddOrder(_customerId, key));
         }
         catch (EntityNotFoundException ex)
         {
