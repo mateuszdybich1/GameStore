@@ -127,6 +127,8 @@ public class UpdateGameTests
     public void UpdateGameIncorrectGenreIdProvidedShouldThrowException()
     {
         // Arrange
+        Publisher publisher = new(Guid.NewGuid(), "TestCompany", null, null);
+
         string platformName = "TestPlatform";
         Platform platform = new(Guid.NewGuid(), platformName);
 
@@ -148,10 +150,12 @@ public class UpdateGameTests
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
+            Publisher = publisher.Id,
         };
 
         _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns((Genre)null);
         _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
+        _publisherRepositoryMock.Setup(x => x.GetPublisher(publisher.Id)).Returns(publisher);
 
         // Act and Assert
         Assert.Throws<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
@@ -161,6 +165,8 @@ public class UpdateGameTests
     public void UpdateGameNoPlatformIdsProvidedShouldThrowException()
     {
         // Arrange
+        Publisher publisher = new(Guid.NewGuid(), "TestCompany", null, null);
+
         string genreName = "TestGenre";
         Genre genre = new(Guid.NewGuid(), genreName);
 
@@ -178,6 +184,7 @@ public class UpdateGameTests
                 Discontinued = 10,
             },
             Genres = new([genre.Id]),
+            Publisher = publisher.Id,
         };
 
         _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);

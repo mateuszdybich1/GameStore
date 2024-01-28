@@ -20,7 +20,6 @@ public partial class GamesController(IGameService gamesService, IGenreService ge
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         WriteIndented = true,
-        ReferenceHandler = ReferenceHandler.Preserve,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
