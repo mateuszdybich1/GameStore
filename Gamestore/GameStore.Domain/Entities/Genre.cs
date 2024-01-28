@@ -12,18 +12,18 @@ public class Genre
         Name = name;
     }
 
-    public Genre(Guid id, string name, Guid parentGuidId)
+    public Genre(Guid id, string name, Genre parentGenre)
     {
         Id = id;
         Name = name;
-        ParentGerneId = parentGuidId;
+        ParentGenre = parentGenre;
     }
 
     public Guid Id { get; private set; }
 
     public string Name { get; set; }
 
-    public Guid ParentGerneId { get; set; }
+    public Genre? ParentGenre { get; set; }
 
     public List<Game> Games { get; set; }
 }

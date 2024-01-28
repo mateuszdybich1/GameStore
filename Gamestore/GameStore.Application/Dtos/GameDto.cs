@@ -11,17 +11,16 @@ public class GameDto
 
     public GameDto(Game game)
     {
-        GameId = game.Id;
+        Id = game.Id;
         Name = game.Name;
         Key = game.Key;
         Description = game.Description;
         Price = game.Price;
         UnitInStock = game.UnitInStock;
-        Discount = game.Discount;
-        PublisherId = game.PublisherId;
+        Discontinued = game.Discount;
     }
 
-    public Guid GameId { get; set; }
+    public Guid? Id { get; set; }
 
     [Required]
     public string Name { get; set; }
@@ -38,14 +37,5 @@ public class GameDto
     public int UnitInStock { get; set; }
 
     [Required]
-    public int Discount { get; set; }
-
-    [Required]
-    public Guid PublisherId { get; set; }
-
-    [Required]
-    public List<Guid> GenresIds { get; set; }
-
-    [Required]
-    public List<Guid> PlatformsIds { get; set; }
+    public int Discontinued { get; set; }
 }

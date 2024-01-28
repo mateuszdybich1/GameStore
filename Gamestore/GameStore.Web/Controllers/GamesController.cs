@@ -1,4 +1,7 @@
-﻿using GameStore.Application.Dtos;
+﻿using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
 using GameStore.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GameStore.Web.Controllers;
 [Route("api/games")]
 [ApiController]
-public class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService, IOrderService orderService) : ControllerBase
+public partial class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService, IOrderService orderService) : ControllerBase
 {
     private readonly IGameService _gamesService = gamesService;
     private readonly IGenreService _genreService = genreService;
@@ -14,8 +17,15 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     private readonly IPublisherService _publisherService = publisherService;
     private readonly IOrderService _orderService = orderService;
 
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+        ReferenceHandler = ReferenceHandler.Preserve,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
+
     [HttpPost]
-    public IActionResult AddGame(GameDto gameDto)
+    public IActionResult AddGame(GameDtoDto gameDto)
     {
         return Ok(_gamesService.AddGame(gameDto));
     }
@@ -27,7 +37,7 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
 
         var responseDto = new
         {
-            gamedto.GameId,
+            gamedto.Id,
             gamedto.Name,
             gamedto.Description,
             gamedto.Key,
@@ -43,7 +53,7 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     }
 
     [HttpPut]
-    public IActionResult UpdateGame(GameDto gameDto)
+    public IActionResult UpdateGame(GameDtoDto gameDto)
     {
         return Ok(_gamesService.UpdateGame(gameDto));
     }
@@ -63,7 +73,16 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     [HttpGet("{key}/file")]
     public IActionResult GetGamesFile([FromRoute] string key)
     {
-        return Ok(_gamesService.GetGameByKeyWithRelations(key));
+        string fileName = $"{key}";
+
+        var game = _gamesService.GetGameByKeyWithRelations(key);
+
+        string serializedGame = JsonSerializer.Serialize(game, _jsonSerializerOptions);
+
+        byte[] fileContents = Encoding.UTF8.GetBytes(serializedGame);
+
+        // Zwracamy plik tekstowy jako odpowiedź HTTP
+        return File(fileContents, "text/plain", fileName);
     }
 
     [HttpGet("{key}/publisher")]

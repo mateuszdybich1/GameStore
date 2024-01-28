@@ -51,25 +51,27 @@ public class UpdateGenreTests
         // Arrange
         Guid parentGenreId = Guid.NewGuid();
 
+        var parentGenre = new Genre(parentGenreId, "ParentGenre");
+
         string updatedName = "UpdatedName";
 
         GenreDto genreDto = new()
         {
             Id = Guid.NewGuid(),
             Name = updatedName,
-            ParentGerneId = parentGenreId,
+            ParentGenreId = parentGenreId,
         };
-        _genreRepositoryMock.Setup(x => x.GetGenre(genreDto.Id)).Returns(new Genre(genreDto.Id, "TestName", Guid.NewGuid()));
+        _genreRepositoryMock.Setup(x => x.GetGenre((Guid)genreDto.Id)).Returns(new Genre((Guid)genreDto.Id, "TestName", parentGenre));
 
-        _genreRepositoryMock.Setup(x => x.GetGenre(parentGenreId)).Returns(new Genre(parentGenreId, "ParentGenre"));
+        _genreRepositoryMock.Setup(x => x.GetGenre(parentGenreId)).Returns(parentGenre);
 
         // Act
         _genreService.UpdateGenre(genreDto);
 
         // Assert
-        _genreRepositoryMock.Verify(x => x.GetGenre(genreDto.Id), Times.Once);
+        _genreRepositoryMock.Verify(x => x.GetGenre((Guid)genreDto.Id), Times.Once);
         _genreRepositoryMock.Verify(x => x.GetGenre(parentGenreId), Times.Once);
-        _genreRepositoryMock.Verify(x => x.UpdateGenre(It.Is<Genre>(g => g.Id == genreDto.Id && g.Name == updatedName && g.ParentGerneId == parentGenreId)), Times.Once);
+        _genreRepositoryMock.Verify(x => x.UpdateGenre(It.Is<Genre>(g => g.Id == genreDto.Id && g.Name == updatedName && g.ParentGenre == parentGenre)), Times.Once);
     }
 
     [Fact]
@@ -80,12 +82,12 @@ public class UpdateGenreTests
         {
             Id = Guid.NewGuid(),
             Name = "UpdatedName",
-            ParentGerneId = Guid.NewGuid(),
+            ParentGenreId = Guid.NewGuid(),
         };
 
-        _genreRepositoryMock.Setup(x => x.GetGenre(genreDto.Id)).Returns(new Genre(genreDto.Id, "TestName"));
+        _genreRepositoryMock.Setup(x => x.GetGenre((Guid)genreDto.Id)).Returns(new Genre((Guid)genreDto.Id, "TestName"));
 
-        _genreRepositoryMock.Setup(x => x.GetGenre(genreDto.ParentGerneId)).Returns((Genre)null);
+        _genreRepositoryMock.Setup(x => x.GetGenre((Guid)genreDto.ParentGenreId)).Returns((Genre)null);
 
         // Act and Assert
         Assert.Throws<EntityNotFoundException>(() => _genreService.UpdateGenre(genreDto));

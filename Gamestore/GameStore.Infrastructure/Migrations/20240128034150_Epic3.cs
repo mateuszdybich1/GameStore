@@ -18,11 +18,16 @@ public partial class Epic3 : Migration
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                ParentGerneId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                ParentGenreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
             },
             constraints: table =>
             {
                 table.PrimaryKey("PK_Genres", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_Genres_Genres_ParentGenreId",
+                    column: x => x.ParentGenreId,
+                    principalTable: "Genres",
+                    principalColumn: "Id");
             });
 
         migrationBuilder.CreateTable(
@@ -190,6 +195,11 @@ public partial class Epic3 : Migration
             table: "Genres",
             column: "Name",
             unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Genres_ParentGenreId",
+            table: "Genres",
+            column: "ParentGenreId");
 
         migrationBuilder.CreateIndex(
             name: "IX_OrderGames_OrderId_ProductId",

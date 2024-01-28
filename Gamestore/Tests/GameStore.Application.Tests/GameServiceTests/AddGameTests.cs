@@ -45,19 +45,22 @@ public class AddGameTests
         string gameName = "TestGame";
         string gameKey = "TestKey";
 
-        GameDto gameDto = new()
+        GameDtoDto gameDto = new()
         {
-            Name = gameName,
-            Key = gameKey,
-            PlatformsIds = new([platform.Id]),
-            GenresIds = new([genre.Id]),
-            Price = 3.14,
-            UnitInStock = 5,
-            Discount = 10,
-            PublisherId = publisher.Id,
+            Game = new()
+            {
+                Name = gameName,
+                Key = gameKey,
+                Price = 3.14,
+                UnitInStock = 5,
+                Discontinued = 10,
+            },
+            Platforms = new([platform.Id]),
+            Genres = new([genre.Id]),
+            Publisher = publisher.Id,
         };
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher(gameDto.PublisherId)).Returns(publisher);
+        _publisherRepositoryMock.Setup(x => x.GetPublisher((Guid)gameDto.Publisher)).Returns(publisher);
         _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
         _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
 
@@ -66,7 +69,7 @@ public class AddGameTests
 
         // Assert
         Assert.True(gameReturnedId != Guid.Empty);
-        _gameRepositoryMock.Verify(x => x.AddGame(It.Is<Game>(x => x.Id == gameReturnedId && x.Name == gameDto.Name && x.Key == gameDto.Key && x.Price == gameDto.Price && x.UnitInStock == gameDto.UnitInStock && x.Discount == gameDto.Discount && x.PublisherId == gameDto.PublisherId && x.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.PlatformsIds) && x.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.GenresIds))), Times.Once());
+        _gameRepositoryMock.Verify(x => x.AddGame(It.Is<Game>(x => x.Id == gameReturnedId && x.Name == gameDto.Game.Name && x.Key == gameDto.Game.Key && x.Price == gameDto.Game.Price && x.UnitInStock == gameDto.Game.UnitInStock && x.Discount == gameDto.Game.Discontinued && x.PublisherId == gameDto.Publisher && x.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.Platforms) && x.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.Genres))), Times.Once());
     }
 
     [Fact]
@@ -84,16 +87,22 @@ public class AddGameTests
         string gameName = "TestGame";
         string gameKey = "TestKey";
 
-        GameDto gameDto = new()
+        GameDtoDto gameDto = new()
         {
-            Name = gameName,
-            Key = gameKey,
-            PlatformsIds = new([platform.Id]),
-            GenresIds = new([genre.Id]),
-            PublisherId = publisher.Id,
+            Game = new()
+            {
+                Name = gameName,
+                Key = gameKey,
+                Price = 3.14,
+                UnitInStock = 5,
+                Discontinued = 10,
+            },
+            Platforms = new([platform.Id]),
+            Genres = new([genre.Id]),
+            Publisher = publisher.Id,
         };
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher(gameDto.PublisherId)).Returns(publisher);
+        _publisherRepositoryMock.Setup(x => x.GetPublisher((Guid)gameDto.Publisher)).Returns(publisher);
         _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns((Genre)null);
         _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
 
@@ -113,15 +122,21 @@ public class AddGameTests
         string gameName = "TestGame";
         string gameKey = "TestKey";
 
-        GameDto gameDto = new()
+        GameDtoDto gameDto = new()
         {
-            Name = gameName,
-            Key = gameKey,
-            GenresIds = new([genre.Id]),
-            PublisherId = publisher.Id,
+            Game = new()
+            {
+                Name = gameName,
+                Key = gameKey,
+                Price = 3.14,
+                UnitInStock = 5,
+                Discontinued = 10,
+            },
+            Genres = new([genre.Id]),
+            Publisher = publisher.Id,
         };
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher(gameDto.PublisherId)).Returns(publisher);
+        _publisherRepositoryMock.Setup(x => x.GetPublisher((Guid)gameDto.Publisher)).Returns(publisher);
         _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
 
         // Act and Assert
@@ -141,15 +156,24 @@ public class AddGameTests
         string gameName = "TestGame";
         string gameKey = "TestKey";
 
-        GameDto gameDto = new()
+        Guid publisherId = Guid.NewGuid();
+
+        GameDtoDto gameDto = new()
         {
-            Name = gameName,
-            Key = gameKey,
-            GenresIds = new([genre.Id]),
-            PublisherId = Guid.NewGuid(),
+            Game = new()
+            {
+                Name = gameName,
+                Key = gameKey,
+                Price = 3.14,
+                UnitInStock = 5,
+                Discontinued = 10,
+            },
+            Platforms = new([platform.Id]),
+            Genres = new([genre.Id]),
+            Publisher = publisherId,
         };
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher(gameDto.PublisherId)).Returns((Publisher)null);
+        _publisherRepositoryMock.Setup(x => x.GetPublisher((Guid)gameDto.Publisher)).Returns((Publisher)null);
         _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
         _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
 

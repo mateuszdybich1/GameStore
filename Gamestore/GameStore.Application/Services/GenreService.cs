@@ -18,15 +18,15 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
         Genre genre = new(genreId, genreDto.Name);
 
-        if (genreDto.ParentGerneId != null && genreDto.ParentGerneId != Guid.Empty)
+        if (genreDto.ParentGenreId != null && genreDto.ParentGenreId != Guid.Empty)
         {
-            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
+            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGenreId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGenreId}");
 
-            genre.ParentGerneId = parentGenre.Id;
+            genre.ParentGenre = parentGenre;
         }
         else
         {
-            genre.ParentGerneId = Guid.Empty;
+            genre.ParentGenre = null;
         }
 
         try
@@ -83,11 +83,11 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
         genre.Name = genreDto.Name;
 
-        if (genreDto.ParentGerneId != null && genreDto.ParentGerneId != Guid.Empty)
+        if (genreDto.ParentGenreId != null && genreDto.ParentGenreId != Guid.Empty)
         {
-            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
+            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGenreId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGenreId}");
 
-            genre.ParentGerneId = parentGenre.Id;
+            genre.ParentGenre = parentGenre;
         }
 
         try

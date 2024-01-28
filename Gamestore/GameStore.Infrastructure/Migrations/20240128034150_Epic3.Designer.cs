@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameStore.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240121110446_Epic3")]
+    [Migration("20240128034150_Epic3")]
     partial class Epic3
     {
         /// <inheritdoc />
@@ -107,7 +107,7 @@ namespace GameStore.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid>("ParentGerneId")
+                    b.Property<Guid?>("ParentGenreId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -117,6 +117,8 @@ namespace GameStore.Infrastructure.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("ParentGenreId");
 
                     b.ToTable("Genres");
                 });
@@ -256,6 +258,15 @@ namespace GameStore.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Publisher");
+                });
+
+            modelBuilder.Entity("GameStore.Domain.Entities.Genre", b =>
+                {
+                    b.HasOne("GameStore.Domain.Entities.Genre", "ParentGenre")
+                        .WithMany()
+                        .HasForeignKey("ParentGenreId");
+
+                    b.Navigation("ParentGenre");
                 });
 
             modelBuilder.Entity("GameStore.Domain.Entities.Publisher", b =>

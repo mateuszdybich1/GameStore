@@ -27,11 +27,11 @@ public class GetGenresListTests
         // Arrange
         var genres = new List<Genre>();
 
-        Guid parentGenreId = Guid.NewGuid();
+        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre");
 
         for (int i = 1; i <= 5; ++i)
         {
-            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenreId));
+            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenre));
         }
 
         _genreRepositoryMock.Setup(x => x.GetAllGenre()).Returns(genres);
@@ -44,7 +44,7 @@ public class GetGenresListTests
         for (int i = 0; i < 5; ++i)
         {
             Assert.Equal($"Name-{i + 1}", genreDtos[i].Name);
-            Assert.Equal(parentGenreId, genreDtos[i].ParentGerneId);
+            Assert.Equal(parentGenre.Id, genreDtos[i].ParentGenreId);
         }
     }
 
@@ -52,26 +52,26 @@ public class GetGenresListTests
     public void GetByParentGenreShouldReturnChildGenreDtosList()
     {
         // Arrange
-        Guid parentGenreId = Guid.NewGuid();
+        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre");
 
         var genres = new List<Genre>();
 
         for (int i = 1; i <= 5; ++i)
         {
-            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenreId));
+            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenre));
         }
 
-        _genresSearchCriteriaMock.Setup(x => x.GetByParentId(parentGenreId)).Returns(genres);
+        _genresSearchCriteriaMock.Setup(x => x.GetByParentId(parentGenre.Id)).Returns(genres);
 
         // Act
-        List<GenreDto> genreDtos = _genreService.GetSubGenres(parentGenreId);
+        List<GenreDto> genreDtos = _genreService.GetSubGenres(parentGenre.Id);
 
         // Assert
         Assert.Equal(5, genreDtos.Count);
         for (int i = 0; i < 5; ++i)
         {
             Assert.Equal($"Name-{i + 1}", genreDtos[i].Name);
-            Assert.Equal(parentGenreId, genreDtos[i].ParentGerneId);
+            Assert.Equal(parentGenre.Id, genreDtos[i].ParentGenreId);
         }
     }
 
@@ -81,13 +81,13 @@ public class GetGenresListTests
         // Arrange
         string gameKey = "TestGame";
 
-        Guid parentGenreId = Guid.NewGuid();
+        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre");
 
         var genres = new List<Genre>();
 
         for (int i = 1; i <= 5; ++i)
         {
-            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenreId));
+            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenre));
         }
 
         _genresSearchCriteriaMock.Setup(x => x.GetByGameKey(gameKey)).Returns(genres);
@@ -100,7 +100,7 @@ public class GetGenresListTests
         for (int i = 0; i < 5; ++i)
         {
             Assert.Equal($"Name-{i + 1}", genreDtos[i].Name);
-            Assert.Equal(parentGenreId, genreDtos[i].ParentGerneId);
+            Assert.Equal(parentGenre.Id, genreDtos[i].ParentGenreId);
         }
     }
 }

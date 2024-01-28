@@ -13,7 +13,7 @@ public class GenreDto
     {
         Id = genre.Id;
         Name = genre.Name;
-        ParentGerneId = genre.ParentGerneId;
+        ParentGenreId = genre.ParentGenre?.Id;
     }
 
     public Guid? Id { get; set; }
@@ -21,5 +21,5 @@ public class GenreDto
     [Required]
     public string Name { get; set; }
 
-    public Guid? ParentGerneId { get; set; }
+    public Guid? ParentGenreId { get; set; }
 }

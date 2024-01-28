@@ -4,9 +4,9 @@ namespace GameStore.Application.IServices;
 
 public interface IGameService
 {
-    public Guid AddGame(GameDto gameDto);
+    public Guid AddGame(GameDtoDto gameDto);
 
-    public Guid UpdateGame(GameDto gameDto);
+    public Guid UpdateGame(GameDtoDto gameDto);
 
     public Guid UpdateGameDescr(Guid gameId, string updatedDesc);
 

@@ -53,7 +53,7 @@ public class AddGenreTests
         GenreDto genreDto = new()
         {
             Name = genreName,
-            ParentGerneId = parentGenreId,
+            ParentGenreId = parentGenreId,
         };
 
         Genre parentGenre = new(parentGenreId, parentName);
@@ -64,7 +64,7 @@ public class AddGenreTests
 
         // Assert
         _genreRepositoryMock.Verify(x => x.GetGenre(parentGenreId), Times.Once);
-        _genreRepositoryMock.Verify(x => x.AddGenre(It.Is<Genre>(g => g.Name == genreName && g.ParentGerneId == parentGenreId)), Times.Once);
+        _genreRepositoryMock.Verify(x => x.AddGenre(It.Is<Genre>(g => g.Name == genreName && g.ParentGenre == parentGenre)), Times.Once);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class AddGenreTests
         GenreDto genreDto = new()
         {
             Name = "TestGenre",
-            ParentGerneId = parentGenreId,
+            ParentGenreId = parentGenreId,
         };
 
         _genreRepositoryMock.Setup(x => x.GetGenre(parentGenreId)).Returns((Genre)null);

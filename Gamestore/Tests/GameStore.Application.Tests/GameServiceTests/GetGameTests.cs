@@ -77,7 +77,7 @@ public class GetGameTests
 
         // Assert
         Assert.NotNull(gameDto);
-        Assert.Equal(gameId, gameDto.GameId);
+        Assert.Equal(gameId, gameDto.Id);
         _gameRepositoryMock.Verify(x => x.GetGame(gameId), Times.Once);
     }
 

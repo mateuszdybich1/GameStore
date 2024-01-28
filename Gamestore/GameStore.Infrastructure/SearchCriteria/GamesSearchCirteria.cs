@@ -25,9 +25,42 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
         return _appDbContext.Games.SingleOrDefault(x => x.Key == key);
     }
 
-    public Game GetByKeyWithRelations(string key)
+    public object GetByKeyWithRelations(string key)
     {
-        return _appDbContext.Games.Where(x => x.Key == key).Include(x => x.Genres).Include(x => x.Platforms).Include(x => x.Publisher).SingleOrDefault();
+        var game = _appDbContext.Games
+        .Where(x => x.Key == key)
+        .Include(x => x.Platforms)
+        .Include(x => x.Publisher)
+        .Include(x => x.Genres).ThenInclude(x => x.ParentGenre)
+        .FirstOrDefault();
+
+        return new
+        {
+            Game = new
+            {
+                Id = game.Id,
+                Name = game.Name,
+                Key = game.Key,
+                Description = game.Description,
+                Price = game.Price,
+                UnitInStock = game.UnitInStock,
+                Discount = game.Discount,
+            },
+            Genres = game.Genres.Select(y => new
+            {
+                Id = y.Id,
+                Name = y.Name,
+                ParentGenre = GetGenre(y).ParentGenre,
+            }),
+            Platforms = game.Platforms,
+            Publisher = new
+            {
+                Id = game.Publisher.Id,
+                Name = game.Publisher.CompanyName,
+                HomePage = game.Publisher.HomePage,
+                Description = game.Publisher.Description,
+            },
+        };
     }
 
     public List<Game> GetByPlatformId(Guid platformId)
@@ -52,5 +85,25 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
         ];
 
         return games;
+    }
+
+    private IEnumerable<Genre> GetChild(Guid id)
+    {
+        return _appDbContext.Genres.Where(x => x.ParentGenre.Id == id || x.Id == id)
+                    .Union(_appDbContext.Genres.Where(x => x.ParentGenre.Id == id)
+                                .SelectMany(y => GetChild(y.Id)));
+    }
+
+    private Genre GetGenre(Genre genre)
+    {
+        var currentGenre = genre;
+        while (currentGenre?.ParentGenre != null)
+        {
+            currentGenre = currentGenre.ParentGenre;
+        }
+
+        currentGenre.ParentGenre = _appDbContext.Genres.Include(x => x.ParentGenre).FirstOrDefault(x => x.Id == currentGenre.Id).ParentGenre;
+
+        return currentGenre.ParentGenre == null ? genre : GetGenre(genre);
     }
 }
