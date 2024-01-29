@@ -17,6 +17,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<OrderGame> OrderGames { get; set; }
 
+    public DbSet<Comment> Comments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -64,6 +66,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<OrderGame>().Property(e => e.ProductId).IsRequired(true);
         modelBuilder.Entity<OrderGame>().Property(e => e.Price).IsRequired(true);
         modelBuilder.Entity<OrderGame>().Property(e => e.Quantity).IsRequired(true);
+
+        modelBuilder.Entity<Comment>().HasKey(e => e.Id);
+        modelBuilder.Entity<Comment>().HasIndex(e => e.Id).IsUnique(true);
+        modelBuilder.Entity<Comment>().Property(e => e.Id).IsRequired(true);
+        modelBuilder.Entity<Comment>().Property(e => e.Name).IsRequired(true);
+        modelBuilder.Entity<Comment>().Property(e => e.Body).IsRequired(true);
+        modelBuilder.Entity<Comment>().Property(e => e.GameId).IsRequired(true);
 
         modelBuilder.Entity<Game>().HasMany(e => e.Genres).WithMany(e => e.Games);
         modelBuilder.Entity<Game>().HasMany(e => e.Platforms).WithMany(e => e.Games);

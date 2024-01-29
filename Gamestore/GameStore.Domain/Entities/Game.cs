@@ -53,5 +53,7 @@ public class Game
 
     public List<Platform> Platforms { get; set; }
 
+    public List<Comment> Comments { get; set; }
+
     public Publisher Publisher { get; private set; }
 }
