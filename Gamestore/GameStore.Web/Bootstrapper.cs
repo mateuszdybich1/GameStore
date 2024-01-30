@@ -17,6 +17,7 @@ internal static class Bootstrapper
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderGameRepository, OrderGameRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
 
         services.AddScoped<IGamesSearchCriteria, GamesSearchCirteria>();
         services.AddScoped<IGenresSearchCriteria, GenresSearchCriteria>();
@@ -28,5 +29,6 @@ internal static class Bootstrapper
         services.AddScoped<IPlatformService, PlatformService>();
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<ICommentService, CommentService>();
     }
 }

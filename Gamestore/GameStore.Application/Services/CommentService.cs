@@ -27,7 +27,7 @@ public class CommentService(ICommentRepository commentRepository, IGamesSearchCr
 
             var actionType = commentDto.Action;
 
-            comment.Body = actionType.Value == CommentActionType.Reply ? $"[{comment.Name}], {comment.Body}" : $"[{comment.Body}], {parentComment.Body}";
+            comment.Body = actionType.Value == CommentActionType.Reply ? $"[{parentComment.Name}], {comment.Body}" : $"[{comment.Body}], {parentComment.Body}";
         }
 
         _commentRepository.AddComment(comment);
@@ -44,9 +44,10 @@ public class CommentService(ICommentRepository commentRepository, IGamesSearchCr
         return Guid.Empty;
     }
 
-    public List<object> GetComments(string gameKey)
+    public List<CommentModel> GetComments(string gameKey)
     {
-        throw new NotImplementedException();
+        Game game = GetGame(gameKey);
+        return _commentRepository.GetGamesComments(game.Id);
     }
 
     private Game GetGame(string gameKey)

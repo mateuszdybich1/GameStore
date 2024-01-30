@@ -1,4 +1,5 @@
 ﻿using GameStore.Application.Dtos;
+using GameStore.Domain.Entities;
 
 namespace GameStore.Application.IServices;
 
@@ -8,5 +9,5 @@ public interface ICommentService
 
     public Guid DeleteComment(string gameKey, Guid commentId);
 
-    public List<object> GetComments(string gameKey);
+    public List<CommentModel> GetComments(string gameKey);
 }

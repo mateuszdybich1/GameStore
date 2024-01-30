@@ -9,5 +9,5 @@ public interface ICommentRepository
 
     public Comment GetComment(Guid commentId, Guid gameId);
 
-    public List<Comment> GetGamesComments(Guid gameId);
+    public List<CommentModel> GetGamesComments(Guid gameId);
 }

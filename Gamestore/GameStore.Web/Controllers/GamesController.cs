@@ -9,13 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace GameStore.Web.Controllers;
 [Route("api/games")]
 [ApiController]
-public partial class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService, IOrderService orderService) : ControllerBase
+public partial class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService, IOrderService orderService, ICommentService commentService) : ControllerBase
 {
     private readonly IGameService _gamesService = gamesService;
     private readonly IGenreService _genreService = genreService;
     private readonly IPlatformService _platformService = platformService;
     private readonly IPublisherService _publisherService = publisherService;
     private readonly IOrderService _orderService = orderService;
+    private readonly ICommentService _commentService = commentService;
 
     private readonly Guid _customerId = Guid.Parse("3fa85f6457174562b3fc2c963f66afa6");
 
@@ -119,5 +120,17 @@ public partial class GamesController(IGameService gamesService, IGenreService ge
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    [HttpPost("{key}/comments")]
+    public IActionResult AddComment([FromRoute] string key, [FromBody] CommentDtoDto commentDto)
+    {
+        return Ok(_commentService.AddComment(key, commentDto));
+    }
+
+    [HttpGet("{key}/comments")]
+    public IActionResult GetComments([FromRoute] string key)
+    {
+        return Ok(_commentService.GetComments(key));
     }
 }

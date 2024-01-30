@@ -19,16 +19,19 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
         return _appDbContext.Comments.FirstOrDefault(x => x.Id == commentId && x.GameId == gameId);
     }
 
-    public List<Comment> GetGamesComments(Guid gameId)
+    public List<CommentModel> GetGamesComments(Guid gameId)
     {
-        var comments = _appDbContext.Comments.Where(x => x.GameId == gameId).ToList();
+        var parentComments = _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.GameId == gameId && x.ParentComment == null).ToList();
 
-        for (int i = 0; i < comments.Count; i++)
+        var parentCommentModels = parentComments.Select(x => new CommentModel(x.Id, x.Name, x.Body)).ToList();
+
+        foreach (var parentCommentModel in parentCommentModels)
         {
-            comments[i].ParentComment = GetComment(comments[i]);
+            parentCommentModel.ChildComments = [];
+            RecursiveGetComments(parentCommentModel, parentCommentModel.ChildComments);
         }
 
-        return comments;
+        return parentCommentModels;
     }
 
     public void UpdateComment(Comment comment)
@@ -37,16 +40,16 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
         _appDbContext.SaveChanges();
     }
 
-    private Comment GetComment(Comment comment)
+    private void RecursiveGetComments(CommentModel comment, List<CommentModel> allComments)
     {
-        var currentComment = comment;
-        while (currentComment?.ParentComment != null)
+        comment.ChildComments =
+        [
+            .. _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.ParentComment.Id == comment.Id).Select(x => new CommentModel(x.Id, x.Name, x.Body)),
+        ];
+        foreach (CommentModel childComment in comment.ChildComments)
         {
-            currentComment = currentComment.ParentComment;
+            allComments.Add(childComment);
+            RecursiveGetComments(childComment, allComments);
         }
-
-        currentComment.ParentComment = _appDbContext.Comments.Include(x => x.ParentComment).FirstOrDefault(x => x.Id == currentComment.Id).ParentComment;
-
-        return currentComment.ParentComment == null ? comment : GetComment(comment);
     }
 }
