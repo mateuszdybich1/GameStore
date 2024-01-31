@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameStore.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240129202324_Epic4")]
+    [Migration("20240131222254_Epic4")]
     partial class Epic4
     {
         /// <inheritdoc />
@@ -75,7 +75,12 @@ namespace GameStore.Infrastructure.Migrations
                     b.Property<Guid?>("ParentCommentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("GameId");
 
                     b.HasIndex("Id")
                         .IsUnique();
@@ -281,9 +286,17 @@ namespace GameStore.Infrastructure.Migrations
 
             modelBuilder.Entity("GameStore.Domain.Entities.Comment", b =>
                 {
+                    b.HasOne("GameStore.Domain.Entities.Game", "Game")
+                        .WithMany("Comments")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("GameStore.Domain.Entities.Comment", "ParentComment")
                         .WithMany()
                         .HasForeignKey("ParentCommentId");
+
+                    b.Navigation("Game");
 
                     b.Navigation("ParentComment");
                 });
@@ -306,6 +319,11 @@ namespace GameStore.Infrastructure.Migrations
                         .HasForeignKey("ParentGenreId");
 
                     b.Navigation("ParentGenre");
+                });
+
+            modelBuilder.Entity("GameStore.Domain.Entities.Game", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("GameStore.Domain.Entities.Publisher", b =>

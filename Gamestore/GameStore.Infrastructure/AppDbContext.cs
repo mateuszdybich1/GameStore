@@ -72,10 +72,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Comment>().Property(e => e.Id).IsRequired(true);
         modelBuilder.Entity<Comment>().Property(e => e.Name).IsRequired(true);
         modelBuilder.Entity<Comment>().Property(e => e.Body).IsRequired(true);
-        modelBuilder.Entity<Comment>().Property(e => e.GameId).IsRequired(true);
 
         modelBuilder.Entity<Game>().HasMany(e => e.Genres).WithMany(e => e.Games);
         modelBuilder.Entity<Game>().HasMany(e => e.Platforms).WithMany(e => e.Games);
-        modelBuilder.Entity<Publisher>().HasMany(e => e.Games).WithOne(e => e.Publisher).HasForeignKey(e => e.PublisherId).IsRequired(true);
+        modelBuilder.Entity<Publisher>().HasMany(e => e.Games).WithOne(e => e.Publisher).HasForeignKey(e => e.PublisherId).IsRequired(true).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Game>().HasMany(e => e.Comments).WithOne(e => e.Game).OnDelete(DeleteBehavior.Cascade);
     }
 }

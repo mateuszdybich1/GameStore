@@ -18,16 +18,13 @@ public class CommentService(ICommentRepository commentRepository, IGamesSearchCr
 
         Guid commentId = Guid.NewGuid();
 
-        Comment comment = new(commentId, commentDto.Comment.Name, commentDto.Comment.Body, game.Id);
+        var actionType = commentDto.Action != null ? commentDto.Action : CommentActionType.Normal;
+        Comment comment = new(commentId, commentDto.Comment.Name, commentDto.Comment.Body, (CommentActionType)actionType, game);
 
         if (commentDto.ParentId != null && commentDto.ParentId != Guid.Empty && commentDto.Action != null)
         {
             Comment parentComment = GetComment((Guid)commentDto.ParentId, game.Id);
             comment.ParentComment = parentComment;
-
-            var actionType = commentDto.Action;
-
-            comment.Body = actionType.Value == CommentActionType.Reply ? $"[{parentComment.Name}], {comment.Body}" : $"[{comment.Body}], {parentComment.Body}";
         }
 
         _commentRepository.AddComment(comment);
@@ -37,11 +34,14 @@ public class CommentService(ICommentRepository commentRepository, IGamesSearchCr
 
     public Guid DeleteComment(string gameKey, Guid commentId)
     {
-        // Game game = GetGame(gameKey);
+        Game game = GetGame(gameKey);
 
-        // Comment comment = GetComment(commentId, game.Id);
-        // comment.Body = "'A comment/quote was deleted";
-        return Guid.Empty;
+        Comment comment = GetComment(commentId, game.Id);
+        comment.Body = "A comment/quote was deleted";
+
+        _commentRepository.UpdateComment(comment);
+
+        return comment.Id;
     }
 
     public List<CommentModel> GetComments(string gameKey)

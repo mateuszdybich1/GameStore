@@ -16,14 +16,14 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
 
     public Comment GetComment(Guid commentId, Guid gameId)
     {
-        return _appDbContext.Comments.FirstOrDefault(x => x.Id == commentId && x.GameId == gameId);
+        return _appDbContext.Comments.FirstOrDefault(x => x.Id == commentId && x.Game.Id == gameId);
     }
 
     public List<CommentModel> GetGamesComments(Guid gameId)
     {
-        var parentComments = _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.GameId == gameId && x.ParentComment == null).ToList();
+        var parentComments = _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.Game.Id == gameId && x.ParentComment == null).ToList();
 
-        var parentCommentModels = parentComments.Select(x => new CommentModel(x.Id, x.Name, x.Body)).ToList();
+        var parentCommentModels = parentComments.Select(x => new CommentModel(x.Id, x.Name, x.Body, x.Type)).ToList();
 
         foreach (var parentCommentModel in parentCommentModels)
         {
@@ -44,11 +44,20 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
     {
         comment.ChildComments =
         [
-            .. _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.ParentComment.Id == comment.Id).Select(x => new CommentModel(x.Id, x.Name, x.Body)),
+            .. _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.ParentComment.Id == comment.Id).Select(x => new CommentModel(x.Id, x.Name, x.Body, x.Type)),
         ];
         foreach (CommentModel childComment in comment.ChildComments)
         {
             allComments.Add(childComment);
+            if (childComment.Type == CommentActionType.Reply)
+            {
+                childComment.Body = $"[{comment.Name}], {childComment.Body}";
+            }
+            else if (childComment.Type == CommentActionType.Quote)
+            {
+                childComment.Body = $"[{comment.Body}], {childComment.Body}";
+            }
+
             RecursiveGetComments(childComment, allComments);
         }
     }

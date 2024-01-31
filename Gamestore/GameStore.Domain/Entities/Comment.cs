@@ -9,20 +9,25 @@ public enum CommentActionType
 
 public class Comment
 {
-    public Comment(Guid id, string name, string body, Guid gameId)
+    public Comment()
     {
-        Id = id;
-        Name = name;
-        Body = body;
-        GameId = gameId;
     }
 
-    public Comment(Guid id, string name, string body, Guid gameId, Comment parentComment)
+    public Comment(Guid id, string name, string body, CommentActionType type, Game game)
     {
         Id = id;
         Name = name;
         Body = body;
-        GameId = gameId;
+        Type = type;
+        Game = game;
+    }
+
+    public Comment(Guid id, string name, string body, Game game, Comment parentComment)
+    {
+        Id = id;
+        Name = name;
+        Body = body;
+        Game = game;
         ParentComment = parentComment;
     }
 
@@ -32,7 +37,9 @@ public class Comment
 
     public string Body { get; set; }
 
-    public Guid GameId { get; set; }
+    public CommentActionType Type { get; set; }
+
+    public Game Game { get; set; }
 
     public Comment? ParentComment { get; set; }
 }

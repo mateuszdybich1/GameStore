@@ -17,6 +17,7 @@ public partial class Epic4 : Migration
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Type = table.Column<int>(type: "int", nullable: false),
                 GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 ParentCommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
             },
@@ -28,7 +29,18 @@ public partial class Epic4 : Migration
                     column: x => x.ParentCommentId,
                     principalTable: "Comments",
                     principalColumn: "Id");
+                table.ForeignKey(
+                    name: "FK_Comments_Games_GameId",
+                    column: x => x.GameId,
+                    principalTable: "Games",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
             });
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Comments_GameId",
+            table: "Comments",
+            column: "GameId");
 
         migrationBuilder.CreateIndex(
             name: "IX_Comments_Id",

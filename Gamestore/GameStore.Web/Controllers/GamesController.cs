@@ -133,4 +133,10 @@ public partial class GamesController(IGameService gamesService, IGenreService ge
     {
         return Ok(_commentService.GetComments(key));
     }
+
+    [HttpDelete("{key}/comments/{id}")]
+    public IActionResult Delete([FromRoute] string key, [FromRoute] Guid id)
+    {
+        return Ok(_commentService.DeleteComment(key, id));
+    }
 }
