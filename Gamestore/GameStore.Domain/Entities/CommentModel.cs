@@ -6,6 +6,10 @@ public class CommentModel(Guid id, string name, string body, CommentActionType t
 
     public string Name { get; set; } = name;
 
+    public string? ParentQuote { get; set; }
+
+    public string OnlyBody { get; set; } = body;
+
     public string Body { get; set; } = body;
 
     public CommentActionType Type { get; set; } = type;

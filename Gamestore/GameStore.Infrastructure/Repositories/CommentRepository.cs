@@ -49,13 +49,15 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
         foreach (CommentModel childComment in comment.ChildComments)
         {
             allComments.Add(childComment);
-            if (childComment.Type == CommentActionType.Reply)
+            string currentChildBody = childComment.Body;
+            if (childComment.Type == CommentActionType.Reply && currentChildBody != "A comment/quote was deleted")
             {
-                childComment.Body = $"[{comment.Name}], {childComment.Body}";
+                childComment.Body = $"[{comment.Name}], {currentChildBody}";
             }
-            else if (childComment.Type == CommentActionType.Quote)
+            else if (childComment.Type == CommentActionType.Quote && currentChildBody != "A comment/quote was deleted")
             {
-                childComment.Body = $"[{comment.Body}], {childComment.Body}";
+                childComment.ParentQuote = comment.OnlyBody;
+                childComment.Body = $"[{childComment.ParentQuote}], {currentChildBody}";
             }
 
             RecursiveGetComments(childComment, allComments);
