@@ -9,7 +9,7 @@ using Xunit;
 
 namespace GameStore.Application.Tests.GameServiceTests;
 
-public class AddGameTests
+public partial class GameTests
 {
     private readonly GameService _gameService;
     private readonly Mock<IGameRepository> _gameRepositoryMock;
@@ -18,7 +18,7 @@ public class AddGameTests
     private readonly Mock<IGenreRepository> _genreRepositoryMock;
     private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
 
-    public AddGameTests()
+    public GameTests()
     {
         _gameRepositoryMock = new();
         _gamesSearchCriteriaMock = new();

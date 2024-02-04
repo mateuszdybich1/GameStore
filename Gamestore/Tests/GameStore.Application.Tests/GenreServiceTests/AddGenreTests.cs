@@ -8,13 +8,13 @@ using Moq;
 using Xunit;
 
 namespace GameStore.Application.Tests.GenreServiceTests;
-public class AddGenreTests
+public partial class GenreTests
 {
     private readonly GenreService _genreService;
     private readonly Mock<IGenreRepository> _genreRepositoryMock;
     private readonly Mock<IGenresSearchCriteria> _genresSearchCriteriaMock;
 
-    public AddGenreTests()
+    public GenreTests()
     {
         _genreRepositoryMock = new();
         _genresSearchCriteriaMock = new();

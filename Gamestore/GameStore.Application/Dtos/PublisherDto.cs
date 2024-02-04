@@ -9,6 +9,11 @@ public class PublisherDto
     {
     }
 
+    public PublisherDto(string companyName)
+    {
+        CompanyName = companyName;
+    }
+
     public PublisherDto(Publisher publisher)
     {
         Id = publisher.Id;

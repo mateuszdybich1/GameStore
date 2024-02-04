@@ -14,6 +14,11 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
 
     public Guid AddPublisher(PublisherDto publisherDto)
     {
+        if (publisherDto.Id != null && _publisherRepository.GetPublisher((Guid)publisherDto.Id) != null)
+        {
+            throw new ExistingFieldException($"Publisher with ID: {publisherDto.Id} already exists");
+        }
+
         Guid publisherId = (publisherDto.Id == null || publisherDto.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)publisherDto.Id;
 
         string homePage = publisherDto.HomePage ?? string.Empty;

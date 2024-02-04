@@ -7,13 +7,13 @@ using Moq;
 using Xunit;
 
 namespace GameStore.Application.Tests.PlatformServiceTests;
-public class AddPlatformTests
+public partial class PlatformTests
 {
     private readonly PlatformService _platformService;
     private readonly Mock<IPlatformRepository> _platformRepositoryMock;
     private readonly Mock<IPlatformsSearchCriteria> _platformsSearchCriteriaMock;
 
-    public AddPlatformTests()
+    public PlatformTests()
     {
         _platformRepositoryMock = new();
         _platformsSearchCriteriaMock = new();

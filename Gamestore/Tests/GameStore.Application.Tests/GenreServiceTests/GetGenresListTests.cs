@@ -1,26 +1,10 @@
 ﻿using GameStore.Application.Dtos;
-using GameStore.Application.Services;
 using GameStore.Domain.Entities;
-using GameStore.Domain.IRepositories;
-using GameStore.Domain.ISearchCriterias;
-using Moq;
 using Xunit;
 
 namespace GameStore.Application.Tests.GenreServiceTests;
-public class GetGenresListTests
+public partial class GenreTests
 {
-    private readonly GenreService _genreService;
-    private readonly Mock<IGenreRepository> _genreRepositoryMock;
-    private readonly Mock<IGenresSearchCriteria> _genresSearchCriteriaMock;
-
-    public GetGenresListTests()
-    {
-        _genreRepositoryMock = new();
-        _genresSearchCriteriaMock = new();
-
-        _genreService = new(_genreRepositoryMock.Object, _genresSearchCriteriaMock.Object);
-    }
-
     [Fact]
     public void GetAllShouldReturnGenreDtosList()
     {

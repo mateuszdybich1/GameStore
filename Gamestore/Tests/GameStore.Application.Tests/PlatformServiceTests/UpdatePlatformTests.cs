@@ -1,27 +1,12 @@
 ﻿using GameStore.Application.Dtos;
-using GameStore.Application.Services;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
-using GameStore.Domain.IRepositories;
-using GameStore.Domain.ISearchCriterias;
 using Moq;
 using Xunit;
 
 namespace GameStore.Application.Tests.PlatformServiceTests;
-public class UpdatePlatformTests
+public partial class PlatformTests
 {
-    private readonly PlatformService _platformService;
-    private readonly Mock<IPlatformRepository> _platformRepositoryMock;
-    private readonly Mock<IPlatformsSearchCriteria> _platformsSearchCriteriaMock;
-
-    public UpdatePlatformTests()
-    {
-        _platformRepositoryMock = new();
-        _platformsSearchCriteriaMock = new();
-
-        _platformService = new(_platformRepositoryMock.Object, _platformsSearchCriteriaMock.Object);
-    }
-
     [Fact]
     public void UpdatePlatformShouldUpdatePlatofrmOnce()
     {
