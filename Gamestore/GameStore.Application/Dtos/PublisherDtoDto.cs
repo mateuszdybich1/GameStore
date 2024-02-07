@@ -1,6 +1,6 @@
 ﻿namespace GameStore.Application.Dtos;
 
-public class PublisherDtoDto
+public class PublisherDtoDto(PublisherDto publisherDto)
 {
-    public PublisherDto Publisher { get; set; }
+    public PublisherDto Publisher { get; set; } = publisherDto;
 }
