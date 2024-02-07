@@ -152,7 +152,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
         }
     }
 
-    [HttpGet("{id}/detais")]
+    [HttpGet("{id}/details")]
     public IActionResult GetOrderDetails([FromRoute] Guid id)
     {
         return Ok(_orderService.GetOrderDetails(id));

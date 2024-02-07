@@ -1,4 +1,47 @@
-﻿namespace GameStore.Domain.Entities;
+﻿using System.ComponentModel;
+
+namespace GameStore.Domain.Entities;
+public enum NumberOfGamesOnPageFilteringMode
+{
+    [Description("10")]
+    Ten,
+    [Description("20")]
+    Twenty,
+    [Description("50")]
+    Fifty,
+    [Description("100")]
+    OneHundred,
+    [Description("All")]
+    All,
+}
+
+public enum GameSortingMode
+{
+    [Description("Most popular")]
+    MostPopular,
+    [Description("Most commented")]
+    MostCommented,
+    [Description("Price ASC")]
+    PriceASC,
+    [Description("Price DESC")]
+    PriceDESC,
+    [Description("New")]
+    New,
+}
+
+public enum PublishDateFilteringMode
+{
+    [Description("last week")]
+    LastWeek,
+    [Description("last month")]
+    LastMonth,
+    [Description("last year")]
+    LastYear,
+    [Description("2 years")]
+    TwoYears,
+    [Description("3 years")]
+    ThreeYears,
+}
 
 public class Game
 {

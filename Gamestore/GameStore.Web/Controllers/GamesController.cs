@@ -1,8 +1,10 @@
-﻿using System.Text;
+﻿using System.ComponentModel;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -138,5 +140,63 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     public IActionResult Delete([FromRoute] string key, [FromRoute] Guid id)
     {
         return Ok(_commentService.DeleteComment(key, id));
+    }
+
+    [HttpGet("pagination-options")]
+    public IActionResult GetNumberOfGamesForPage()
+    {
+        var numberOfGames = new List<string>();
+        var values = Enum.GetValues(typeof(NumberOfGamesOnPageFilteringMode));
+
+        foreach (var value in values)
+        {
+            if (value is NumberOfGamesOnPageFilteringMode enumValue)
+            {
+                numberOfGames.Add(GetEnumDescription(enumValue));
+            }
+        }
+
+        return Ok(numberOfGames);
+    }
+
+    [HttpGet("sorting-options")]
+    public IActionResult GetSortingOptions()
+    {
+        var sortingOptions = new List<string>();
+        var values = Enum.GetValues(typeof(GameSortingMode));
+
+        foreach (var value in values)
+        {
+            if (value is GameSortingMode enumValue)
+            {
+                sortingOptions.Add(GetEnumDescription(enumValue));
+            }
+        }
+
+        return Ok(sortingOptions);
+    }
+
+    [HttpGet("publish-options")]
+    public IActionResult GetPublishDateOptions()
+    {
+        var publishDateList = new List<string>();
+        var values = Enum.GetValues(typeof(PublishDateFilteringMode));
+
+        foreach (var value in values)
+        {
+            if (value is PublishDateFilteringMode enumValue)
+            {
+                publishDateList.Add(GetEnumDescription(enumValue));
+            }
+        }
+
+        return Ok(publishDateList);
+    }
+
+    private static string GetEnumDescription(Enum value)
+    {
+        var field = value.GetType().GetField(value.ToString());
+        var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field!, typeof(DescriptionAttribute));
+        return attribute == null ? value.ToString() : attribute.Description;
     }
 }
