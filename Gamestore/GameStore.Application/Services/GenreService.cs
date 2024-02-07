@@ -1,10 +1,9 @@
 ﻿using GameStore.Application.Dtos;
-using GameStore.Application.Exceptions;
 using GameStore.Application.IServices;
-using GameStore.Infrastructure.Entities;
-using GameStore.Infrastructure.IRepositories;
-using GameStore.Infrastructure.ISearchCriterias;
-using Microsoft.EntityFrameworkCore;
+using GameStore.Domain.Entities;
+using GameStore.Domain.Exceptions;
+using GameStore.Domain.IRepositories;
+using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
@@ -15,26 +14,26 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
     public Guid AddGenre(GenreDto genreDto)
     {
-        Guid genreId = Guid.NewGuid();
+        Guid genreId = (genreDto.Id == null || genreDto.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)genreDto.Id;
 
         Genre genre = new(genreId, genreDto.Name);
 
-        if (genreDto.ParentGerneId != Guid.Empty)
+        if (genreDto.ParentGenreId != null && genreDto.ParentGenreId != Guid.Empty)
         {
-            Genre parentGenre = _genreRepository.GetGenre(genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
+            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGenreId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGenreId}");
 
-            genre.ParentGerneId = parentGenre.Id;
+            genre.ParentGenre = parentGenre;
         }
         else
         {
-            genre.ParentGerneId = Guid.Empty;
+            genre.ParentGenre = null;
         }
 
         try
         {
             _genreRepository.AddGenre(genre);
         }
-        catch (DbUpdateException)
+        catch (Exception)
         {
             throw new ExistingFieldException("Please provide unique genre name");
         }
@@ -75,22 +74,27 @@ public class GenreService(IGenreRepository genreRepository, IGenresSearchCriteri
 
     public Guid UpdateGenre(GenreDto genreDto)
     {
-        Genre genre = _genreRepository.GetGenre(genreDto.Id);
+        if (genreDto.Id == null)
+        {
+            throw new ArgumentNullException("Cannot update genre. Id is null");
+        }
+
+        Genre genre = _genreRepository.GetGenre((Guid)genreDto.Id) ?? throw new EntityNotFoundException($"Couldn't find genre by ID: {genreDto.Id}");
 
         genre.Name = genreDto.Name;
 
-        if (genreDto.ParentGerneId != Guid.Empty)
+        if (genreDto.ParentGenreId != null && genreDto.ParentGenreId != Guid.Empty)
         {
-            Genre parentGenre = _genreRepository.GetGenre(genreDto.ParentGerneId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGerneId}");
+            Genre parentGenre = _genreRepository.GetGenre((Guid)genreDto.ParentGenreId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGenreId}");
 
-            genre.ParentGerneId = parentGenre.Id;
+            genre.ParentGenre = parentGenre;
         }
 
         try
         {
             _genreRepository.UpdateGenre(genre);
         }
-        catch (DbUpdateException)
+        catch (Exception)
         {
             throw new ExistingFieldException("Please provide unique genre name");
         }

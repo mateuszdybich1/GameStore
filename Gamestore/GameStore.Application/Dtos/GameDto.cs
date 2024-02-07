@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using GameStore.Infrastructure.Entities;
+using GameStore.Domain.Entities;
 
 namespace GameStore.Application.Dtos;
 
@@ -11,13 +11,16 @@ public class GameDto
 
     public GameDto(Game game)
     {
-        GameId = game.Id;
+        Id = game.Id;
         Name = game.Name;
-        Description = game.Description;
         Key = game.Key;
+        Description = game.Description;
+        Price = game.Price;
+        UnitInStock = game.UnitInStock;
+        Discontinued = game.Discount;
     }
 
-    public Guid GameId { get; set; }
+    public Guid? Id { get; set; }
 
     [Required]
     public string Name { get; set; }
@@ -28,8 +31,11 @@ public class GameDto
     public string Description { get; set; }
 
     [Required]
-    public List<Guid> GenresIds { get; set; }
+    public double Price { get; set; }
 
     [Required]
-    public List<Guid> PlatformsIds { get; set; }
+    public int UnitInStock { get; set; }
+
+    [Required]
+    public int Discontinued { get; set; }
 }

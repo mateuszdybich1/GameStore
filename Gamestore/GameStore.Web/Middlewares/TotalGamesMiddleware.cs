@@ -1,4 +1,4 @@
-﻿using GameStore.Infrastructure.IRepositories;
+﻿using GameStore.Domain.IRepositories;
 
 namespace GameStore.Web.Middlewares;
 

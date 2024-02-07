@@ -4,9 +4,9 @@ namespace GameStore.Application.IServices;
 
 public interface IGameService
 {
-    public Guid AddGame(GameDto gameDto);
+    public Guid AddGame(GameDtoDto gameDto);
 
-    public Guid UpdateGame(GameDto gameDto);
+    public Guid UpdateGame(GameDtoDto gameDto);
 
     public Guid UpdateGameDescr(Guid gameId, string updatedDesc);
 
@@ -23,4 +23,6 @@ public interface IGameService
     public List<GameDto> GetGamesByPlatformId(Guid platformId);
 
     public List<GameDto> GetGamesByGenreId(Guid genreId);
+
+    public List<GameDto> GetGamesByPublisherName(string companyName);
 }

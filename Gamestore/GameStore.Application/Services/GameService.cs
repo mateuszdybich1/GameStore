@@ -1,48 +1,56 @@
 ﻿using GameStore.Application.Dtos;
-using GameStore.Application.Exceptions;
 using GameStore.Application.IServices;
-using GameStore.Infrastructure.Entities;
-using GameStore.Infrastructure.IRepositories;
-using GameStore.Infrastructure.ISearchCriterias;
-using Microsoft.EntityFrameworkCore;
+using GameStore.Domain.Entities;
+using GameStore.Domain.Exceptions;
+using GameStore.Domain.IRepositories;
+using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository) : IGameService
+public class GameService(IGameRepository gameRepository, IGamesSearchCriteria gamesSearchCriteria, IPlatformRepository platformRepository, IGenreRepository genreRepository, IPublisherRepository publisherRepository) : IGameService
 {
     private readonly IGameRepository _gameRepository = gameRepository;
     private readonly IGamesSearchCriteria _gamesSearchCriteria = gamesSearchCriteria;
     private readonly IPlatformRepository _platformRepository = platformRepository;
     private readonly IGenreRepository _genreRepository = genreRepository;
+    private readonly IPublisherRepository _publisherRepository = publisherRepository;
 
-    public Guid AddGame(GameDto gameDto)
+    public Guid AddGame(GameDtoDto gameDto)
     {
-        Guid gameId = Guid.NewGuid();
-        List<Genre> genres = gameDto.GenresIds == null ? [] : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
+        Guid gameId = (gameDto.Game.Id == null || gameDto.Game.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)gameDto.Game.Id;
+
+        if (gameDto.Publisher == null)
+        {
+            throw new ArgumentException("Empty publisher ID");
+        }
+
+        Publisher publisher = _publisherRepository.GetPublisher((Guid)gameDto.Publisher) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.Publisher} does not exists");
+
+        List<Genre> genres = gameDto.Genres == null ? [] : gameDto.Genres.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
         if (genres.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        List<Platform> platforms = gameDto.PlatformsIds == null ? [] : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
+        List<Platform> platforms = gameDto.Platforms == null ? [] : gameDto.Platforms.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
 
         if (platforms.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one platform");
         }
 
-        string description = string.IsNullOrWhiteSpace(gameDto.Description) ? null : gameDto.Description;
+        string description = string.IsNullOrWhiteSpace(gameDto.Game.Description) ? null : gameDto.Game.Description;
 
         Game game = string.IsNullOrWhiteSpace(description)
-            ? new Game(gameId, gameDto.Name, gameDto.Key, genres, platforms)
-            : new Game(gameId, gameDto.Name, gameDto.Key, description, genres, platforms);
+            ? new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discontinued, publisher.Id, genres, platforms)
+            : new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discontinued, description, publisher.Id, genres, platforms);
 
         try
         {
             _gameRepository.AddGame(game);
         }
-        catch (DbUpdateException)
+        catch (Exception)
         {
             throw new ExistingFieldException("Please provide unique game key");
         }
@@ -75,24 +83,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
     public object GetGameByKeyWithRelations(string gameKey)
     {
-        Game game = _gamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
-        long unixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-        game.Name = game.Name.Replace(' ', '_');
-
-        string filePath = $"{game.Name}_{unixTime}000.txt";
-
-        object newObj = new
-        {
-            FilePath = filePath,
-            Name = game.Name,
-            Key = game.Key,
-            Description = game.Description,
-            Genres = game.Genres.Select(x => x.Name).ToList(),
-            Platforms = game.Platforms.Select(x => x.Type).ToList(),
-        };
-
-        return newObj;
+        return _gamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
     }
 
     public List<GameDto> GetGames()
@@ -110,27 +101,44 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         return _gamesSearchCriteria.GetByPlatformId(platformId).Select(x => new GameDto(x)).ToList();
     }
 
-    public Guid UpdateGame(GameDto gameDto)
+    public List<GameDto> GetGamesByPublisherName(string companyName)
     {
-        List<Genre> genres = gameDto.GenresIds == null ? [] : gameDto.GenresIds.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
+        return _gamesSearchCriteria.GetByPublisherName(companyName).Select(x => new GameDto(x)).ToList();
+    }
+
+    public Guid UpdateGame(GameDtoDto gameDto)
+    {
+        if (gameDto.Game.Id == null)
+        {
+            gameDto.Game.Id = Guid.NewGuid();
+        }
+
+        if (gameDto.Publisher == null)
+        {
+            throw new ArgumentException("Empty publisher ID");
+        }
+
+        Publisher publisher = _publisherRepository.GetPublisher((Guid)gameDto.Publisher) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.Publisher} does not exists");
+
+        List<Genre> genres = gameDto.Genres == null ? [] : gameDto.Genres.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
 
         if (genres.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        List<Platform> platforms = gameDto.PlatformsIds == null ? [] : gameDto.PlatformsIds.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
+        List<Platform> platforms = gameDto.Platforms == null ? [] : gameDto.Platforms.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
 
         if (platforms.Count == 0)
         {
             throw new EntityNotFoundException("You must provide at least one platform");
         }
 
-        Game game = _gameRepository.GetGameWithRelations(gameDto.GameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.GameId}");
+        Game game = _gameRepository.GetGameWithRelations((Guid)gameDto.Game.Id) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.Game.Id}");
 
-        game.Name = gameDto.Name;
-        game.Key = gameDto.Key;
-        game.Description = gameDto.Description;
+        game.Name = gameDto.Game.Name;
+        game.Key = gameDto.Game.Key;
+        game.Description = gameDto.Game.Description;
 
         game.Genres.Clear();
         game.Genres = genres;
@@ -138,11 +146,17 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         game.Platforms.Clear();
         game.Platforms = platforms;
 
+        game.PublisherId = publisher.Id;
+
+        game.Price = gameDto.Game.Price;
+        game.UnitInStock = gameDto.Game.UnitInStock;
+        game.Discount = gameDto.Game.Discontinued;
+
         try
         {
             _gameRepository.UpdateGame(game);
         }
-        catch (DbUpdateException)
+        catch (Exception)
         {
             throw new ExistingFieldException("Please provide unique game key");
         }

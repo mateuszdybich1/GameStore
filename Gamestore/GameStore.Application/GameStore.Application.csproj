@@ -9,7 +9,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GameStore.Infrastructure\GameStore.Infrastructure.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameStore.Domain\GameStore.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="StyleCop.Analyzers.Unstable" Version="1.2.0.556">

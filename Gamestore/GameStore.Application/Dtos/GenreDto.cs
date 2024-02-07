@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using GameStore.Infrastructure.Entities;
+using GameStore.Domain.Entities;
 
 namespace GameStore.Application.Dtos;
 
@@ -13,13 +13,13 @@ public class GenreDto
     {
         Id = genre.Id;
         Name = genre.Name;
-        ParentGerneId = genre.ParentGerneId;
+        ParentGenreId = genre.ParentGenre?.Id;
     }
 
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     [Required]
     public string Name { get; set; }
 
-    public Guid ParentGerneId { get; set; }
+    public Guid? ParentGenreId { get; set; }
 }

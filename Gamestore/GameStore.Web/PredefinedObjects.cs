@@ -1,5 +1,5 @@
-﻿using GameStore.Infrastructure;
-using GameStore.Infrastructure.Entities;
+﻿using GameStore.Domain.Entities;
+using GameStore.Infrastructure;
 
 namespace GameStore.Web;
 
@@ -23,39 +23,41 @@ internal class PredefinedObjects(AppDbContext appDbContext)
     {
         var parentGenres = new[] { "Strategy", "RPG", "Sports", "Races", "Action", "Adventure", "Puzzle & Skill" };
 
-        List<string> missingParents = parentGenres.Except(_appDbContext.Genres.Select(x => x.Name)).ToList();
-
-        foreach (var parentGenre in missingParents)
+        foreach (var parentGenreName in parentGenres)
         {
-            Genre genre = new(Guid.NewGuid(), parentGenre);
-            _appDbContext.Genres.Add(genre);
+            Genre genre = _appDbContext.Genres.FirstOrDefault(x => x.Name == parentGenreName);
+            if (genre == null)
+            {
+                genre = new(Guid.NewGuid(), parentGenreName);
+                _appDbContext.Genres.Add(genre);
+            }
 
-            switch (parentGenre)
+            switch (parentGenreName)
             {
                 case "Strategy":
-                    List<string> strategyChilds = new([.. _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name)]);
-
                     var predefinedStrategyChilds = new[] { "RTS", "TBS" };
 
-                    AddMissingChilds(genre.Id, strategyChilds, predefinedStrategyChilds);
+                    var strategyChilds = predefinedStrategyChilds.Where(child => !_appDbContext.Genres.Any(x => x.Name == child)).ToList();
+
+                    AddMissingChilds(genre!, strategyChilds);
 
                     break;
 
                 case "Races":
-                    List<string> raceChilds = new([.. _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name)]);
-
                     var predefinedRaceChilds = new[] { "Rally", "Arcade", "Formula", "Off-road" };
 
-                    AddMissingChilds(genre.Id, raceChilds, predefinedRaceChilds);
+                    var raceChilds = predefinedRaceChilds.Where(child => !_appDbContext.Genres.Any(x => x.Name == child)).ToList();
+
+                    AddMissingChilds(genre!, raceChilds);
 
                     break;
 
                 case "Action":
-                    List<string> actionChilds = new([.. _appDbContext.Genres.Where(y => y.ParentGerneId == genre.Id).Select(x => x.Name)]);
-
                     var predefinedActionChilds = new[] { "FPS", "TPS" };
 
-                    AddMissingChilds(genre.Id, actionChilds, predefinedActionChilds);
+                    var actionChilds = predefinedActionChilds.Where(child => !_appDbContext.Genres.Any(x => x.Name == child)).ToList();
+
+                    AddMissingChilds(genre!, actionChilds);
 
                     break;
 
@@ -66,13 +68,11 @@ internal class PredefinedObjects(AppDbContext appDbContext)
         _appDbContext.SaveChanges();
     }
 
-    private void AddMissingChilds(Guid parentId, List<string> allChilds, string[] predefinedChilds)
+    private void AddMissingChilds(Genre genre, List<string> childs)
     {
-        List<string> missingChilds = predefinedChilds.Except(allChilds).ToList();
-
-        foreach (var missingChild in missingChilds)
+        foreach (var missingChild in childs)
         {
-            _appDbContext.Genres.Add(new Genre(Guid.NewGuid(), missingChild, parentId));
+            _appDbContext.Genres.Add(new Genre(Guid.NewGuid(), missingChild, genre));
         }
     }
 }
