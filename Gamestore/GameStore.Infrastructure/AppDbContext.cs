@@ -33,6 +33,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Game>().Property(e => e.UnitInStock).IsRequired(true);
         modelBuilder.Entity<Game>().Property(e => e.Discount).IsRequired(true);
         modelBuilder.Entity<Game>().Property(e => e.Description).IsRequired(false);
+        modelBuilder.Entity<Game>().Property(e => e.CreationDate).IsRequired(true);
+        modelBuilder.Entity<Game>().Property(e => e.NumberOfViews).HasDefaultValue(0);
 
         modelBuilder.Entity<Genre>().HasKey(e => e.Id);
         modelBuilder.Entity<Genre>().HasIndex(e => e.Id).IsUnique(true);
@@ -60,7 +62,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Order>().Property(e => e.CustomerId).IsRequired(true);
         modelBuilder.Entity<Order>().Property(e => e.Status).IsRequired(true);
 
-        modelBuilder.Entity<OrderGame>().HasKey(e => new { e.OrderId, e.ProductId });
+        modelBuilder.Entity<OrderGame>().HasKey(e => e.Id);
+        modelBuilder.Entity<OrderGame>().HasIndex(e => e.Id).IsUnique(true);
         modelBuilder.Entity<OrderGame>().HasIndex(e => new { e.OrderId, e.ProductId }).IsUnique(true);
         modelBuilder.Entity<OrderGame>().Property(e => e.OrderId).IsRequired(true);
         modelBuilder.Entity<OrderGame>().Property(e => e.ProductId).IsRequired(true);

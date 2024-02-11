@@ -15,4 +15,6 @@ public interface IGameRepository
     public void RemoveGame(Game game);
 
     public List<Game> GetAllGames();
+
+    public List<Game> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice);
 }

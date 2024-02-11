@@ -43,15 +43,15 @@ public enum PublishDateFilteringMode
     ThreeYears,
 }
 
-public class Game
+public class Game : Entity
 {
     public Game()
     {
     }
 
     public Game(Guid id, string name, string key, double price, int unitInStock, int discount, Guid publisherId, List<Genre> genres, List<Platform> platforms)
+        : base(id)
     {
-        Id = id;
         Name = name;
         Key = key;
         Price = price;
@@ -63,8 +63,8 @@ public class Game
     }
 
     public Game(Guid id, string name, string key, double price, int unitInStock, int discount, string description, Guid publisherId, List<Genre> genres, List<Platform> platforms)
+        : base(id)
     {
-        Id = id;
         Name = name;
         Key = key;
         Price = price;
@@ -75,8 +75,6 @@ public class Game
         Genres = genres;
         Platforms = platforms;
     }
-
-    public Guid Id { get; private set; }
 
     public string Name { get; set; }
 
@@ -89,6 +87,8 @@ public class Game
     public int UnitInStock { get; set; }
 
     public int Discount { get; set; }
+
+    public ulong NumberOfViews { get; set; }
 
     public Guid PublisherId { get; set; }
 

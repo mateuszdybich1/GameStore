@@ -38,6 +38,7 @@ public class CommentService(ICommentRepository commentRepository, IGamesSearchCr
 
         Comment comment = GetComment(commentId, game.Id);
         comment.Body = "A comment/quote was deleted";
+        comment.ModificationDate = DateTime.Now;
 
         _commentRepository.UpdateComment(comment);
 

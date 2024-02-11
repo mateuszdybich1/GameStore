@@ -20,6 +20,8 @@ public interface IGameService
 
     public List<GameDto> GetGames();
 
+    public List<GameDto> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice);
+
     public List<GameDto> GetGamesByPlatformId(Guid platformId);
 
     public List<GameDto> GetGamesByGenreId(Guid genreId);

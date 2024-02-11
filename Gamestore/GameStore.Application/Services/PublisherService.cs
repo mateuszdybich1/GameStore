@@ -78,6 +78,7 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
         publisher.CompanyName = publisherDto.CompanyName;
         publisher.HomePage = publisherDto.HomePage ?? string.Empty;
         publisher.Description = publisherDto.Description ?? string.Empty;
+        publisher.ModificationDate = DateTime.Now;
 
         try
         {

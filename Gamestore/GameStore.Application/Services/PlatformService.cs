@@ -67,6 +67,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
         Platform platform = _platformRepository.GetPlatform((Guid)platformDto.Id) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformDto.Id}");
 
         platform.Type = platformDto.Type;
+        platform.ModificationDate = DateTime.Now;
 
         try
         {

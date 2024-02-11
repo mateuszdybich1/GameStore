@@ -7,15 +7,15 @@ public enum CommentActionType
     Quote,
 }
 
-public class Comment
+public class Comment : Entity
 {
     public Comment()
     {
     }
 
     public Comment(Guid id, string name, string body, CommentActionType type, Game game)
+        : base(id)
     {
-        Id = id;
         Name = name;
         Body = body;
         Type = type;
@@ -23,15 +23,13 @@ public class Comment
     }
 
     public Comment(Guid id, string name, string body, Game game, Comment parentComment)
+        : base(id)
     {
-        Id = id;
         Name = name;
         Body = body;
         Game = game;
         ParentComment = parentComment;
     }
-
-    public Guid Id { get; set; }
 
     public string Name { get; set; }
 

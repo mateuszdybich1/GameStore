@@ -5,7 +5,7 @@
 namespace GameStore.Infrastructure.Migrations;
 
 /// <inheritdoc />
-public partial class Epic3 : Migration
+public partial class Epic5 : Migration
 {
     private static readonly string[] Columns = ["OrderId", "ProductId"];
 
@@ -19,6 +19,8 @@ public partial class Epic3 : Migration
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 ParentGenreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
             },
             constraints: table =>
             {
@@ -34,15 +36,18 @@ public partial class Epic3 : Migration
             name: "OrderGames",
             columns: table => new
             {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Price = table.Column<double>(type: "float", nullable: false),
                 Quantity = table.Column<int>(type: "int", nullable: false),
                 Discount = table.Column<int>(type: "int", nullable: false),
+                CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_OrderGames", x => new { x.OrderId, x.ProductId });
+                table.PrimaryKey("PK_OrderGames", x => x.Id);
             });
 
         migrationBuilder.CreateTable(
@@ -53,6 +58,8 @@ public partial class Epic3 : Migration
                 Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                 CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Status = table.Column<int>(type: "int", nullable: false),
+                CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
             },
             constraints: table =>
             {
@@ -65,6 +72,8 @@ public partial class Epic3 : Migration
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Type = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
             },
             constraints: table =>
             {
@@ -79,6 +88,8 @@ public partial class Epic3 : Migration
                 CompanyName = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 HomePage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
             },
             constraints: table =>
             {
@@ -96,7 +107,10 @@ public partial class Epic3 : Migration
                 Price = table.Column<double>(type: "float", nullable: false),
                 UnitInStock = table.Column<int>(type: "int", nullable: false),
                 Discount = table.Column<int>(type: "int", nullable: false),
+                NumberOfViews = table.Column<decimal>(type: "decimal(20,0)", nullable: false, defaultValue: 0m),
                 PublisherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
             },
             constraints: table =>
             {
@@ -105,6 +119,35 @@ public partial class Epic3 : Migration
                     name: "FK_Games_Publishers_PublisherId",
                     column: x => x.PublisherId,
                     principalTable: "Publishers",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "Comments",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Type = table.Column<int>(type: "int", nullable: false),
+                GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                ParentCommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Comments", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_Comments_Comments_ParentCommentId",
+                    column: x => x.ParentCommentId,
+                    principalTable: "Comments",
+                    principalColumn: "Id");
+                table.ForeignKey(
+                    name: "FK_Comments_Games_GameId",
+                    column: x => x.GameId,
+                    principalTable: "Games",
                     principalColumn: "Id",
                     onDelete: ReferentialAction.Cascade);
             });
@@ -158,6 +201,22 @@ public partial class Epic3 : Migration
             });
 
         migrationBuilder.CreateIndex(
+            name: "IX_Comments_GameId",
+            table: "Comments",
+            column: "GameId");
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Comments_Id",
+            table: "Comments",
+            column: "Id",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Comments_ParentCommentId",
+            table: "Comments",
+            column: "ParentCommentId");
+
+        migrationBuilder.CreateIndex(
             name: "IX_GameGenre_GenresId",
             table: "GameGenre",
             column: "GenresId");
@@ -202,6 +261,12 @@ public partial class Epic3 : Migration
             column: "ParentGenreId");
 
         migrationBuilder.CreateIndex(
+            name: "IX_OrderGames_Id",
+            table: "OrderGames",
+            column: "Id",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
             name: "IX_OrderGames_OrderId_ProductId",
             table: "OrderGames",
             columns: Columns,
@@ -241,6 +306,9 @@ public partial class Epic3 : Migration
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
+        migrationBuilder.DropTable(
+            name: "Comments");
+
         migrationBuilder.DropTable(
             name: "GameGenre");
 

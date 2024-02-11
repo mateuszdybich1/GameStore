@@ -1,19 +1,17 @@
 ﻿namespace GameStore.Domain.Entities;
-public class Publisher
+public class Publisher : Entity
 {
     public Publisher()
     {
     }
 
     public Publisher(Guid id, string companyName, string homePage, string description)
+        : base(id)
     {
-        Id = id;
         CompanyName = companyName;
         HomePage = homePage;
         Description = description;
     }
-
-    public Guid Id { get; private set; }
 
     public string CompanyName { get; set; }
 

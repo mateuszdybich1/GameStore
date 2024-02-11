@@ -1,11 +1,12 @@
 ﻿namespace GameStore.Domain.Entities;
-public class OrderGame
+public class OrderGame : Entity
 {
     public OrderGame()
     {
     }
 
-    public OrderGame(Guid orderId, Guid productId, double price, int quantity, int discount)
+    public OrderGame(Guid id, Guid orderId, Guid productId, double price, int quantity, int discount)
+        : base(id)
     {
         OrderId = orderId;
         ProductId = productId;

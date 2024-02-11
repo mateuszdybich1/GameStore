@@ -26,7 +26,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
         {
             order = new(Guid.NewGuid(), customerId, OrderStatus.Open);
 
-            OrderGame orderGame = new(order.Id, game.Id, game.Price, 1, game.Discount);
+            OrderGame orderGame = new(Guid.NewGuid(), order.Id, game.Id, game.Price, 1, game.Discount);
 
             _orderRepository.AddOrder(order);
 
@@ -38,12 +38,13 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
 
             if (orderGame == null)
             {
-                orderGame = new(order.Id, game.Id, game.Price, 1, game.Discount);
+                orderGame = new(Guid.NewGuid(), order.Id, game.Id, game.Price, 1, game.Discount);
                 _orderGameRepository.AddOrderGame(orderGame);
             }
             else
             {
                 orderGame.Quantity += 1;
+                orderGame.ModificationDate = DateTime.Now;
 
                 if (gamesInStock < orderGame.Quantity)
                 {
@@ -114,6 +115,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
         if (orderGame.Quantity > 1)
         {
             orderGame.Quantity -= 1;
+            orderGame.ModificationDate = DateTime.Now;
 
             _orderGameRepository.UpdateOrderGame(orderGame);
         }
@@ -146,6 +148,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
         }
 
         order.Status = orderStatus;
+        order.ModificationDate = DateTime.Now;
 
         _orderRepository.UpdateOrder(order);
         return order.Id;

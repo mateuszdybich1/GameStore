@@ -1,11 +1,11 @@
-﻿using System.ComponentModel;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
+using GameStore.Domain.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameStore.Web.Controllers;
@@ -37,21 +37,11 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     [HttpGet("{key}")]
     public IActionResult GetGameByKey([FromRoute] string key)
     {
-        GameDto gamedto = _gamesService.GetGameByKey(key);
-
-        var responseDto = new
-        {
-            gamedto.Id,
-            gamedto.Name,
-            gamedto.Description,
-            gamedto.Key,
-        };
-
-        return Ok(responseDto);
+        return Ok(_gamesService.GetGameByKey(key));
     }
 
     [HttpGet("find/{id}")]
-    public IActionResult GetGameByKey([FromRoute] Guid id)
+    public IActionResult GetGameId([FromRoute] Guid id)
     {
         return Ok(_gamesService.GetGameById(id));
     }
@@ -69,9 +59,9 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     }
 
     [HttpGet]
-    public IActionResult GetAllGames()
+    public IActionResult GetAllGames([FromQuery] List<Guid> genres = null, [FromQuery] List<Guid> platforms = null, [FromQuery] List<Guid> publishers = null, [FromQuery] string name = null, [FromQuery] string datePublishing = null, [FromQuery] string sort = null, [FromQuery] uint page = 1, [FromQuery] string pageCount = "All", [FromQuery] int minPrice = 0, [FromQuery] int maxPrice = int.MaxValue)
     {
-        return Ok(_gamesService.GetGames());
+        return Ok(_gamesService.GetGames(genres, platforms, publishers, name, datePublishing, sort, page, pageCount, minPrice, maxPrice));
     }
 
     [HttpGet("{key}/file")]
@@ -85,7 +75,6 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
 
         byte[] fileContents = Encoding.UTF8.GetBytes(serializedGame);
 
-        // Zwracamy plik tekstowy jako odpowiedź HTTP
         return File(fileContents, "text/plain", fileName);
     }
 
@@ -152,7 +141,7 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         {
             if (value is NumberOfGamesOnPageFilteringMode enumValue)
             {
-                numberOfGames.Add(GetEnumDescription(enumValue));
+                numberOfGames.Add(EnumExtensions.GetEnumDescription(enumValue));
             }
         }
 
@@ -169,7 +158,7 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         {
             if (value is GameSortingMode enumValue)
             {
-                sortingOptions.Add(GetEnumDescription(enumValue));
+                sortingOptions.Add(EnumExtensions.GetEnumDescription(enumValue));
             }
         }
 
@@ -186,17 +175,10 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         {
             if (value is PublishDateFilteringMode enumValue)
             {
-                publishDateList.Add(GetEnumDescription(enumValue));
+                publishDateList.Add(EnumExtensions.GetEnumDescription(enumValue));
             }
         }
 
         return Ok(publishDateList);
-    }
-
-    private static string GetEnumDescription(Enum value)
-    {
-        var field = value.GetType().GetField(value.ToString());
-        var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field!, typeof(DescriptionAttribute));
-        return attribute == null ? value.ToString() : attribute.Description;
     }
 }

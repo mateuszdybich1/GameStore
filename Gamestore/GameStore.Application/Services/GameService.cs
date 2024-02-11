@@ -2,6 +2,7 @@
 using GameStore.Application.IServices;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
+using GameStore.Domain.Extensions;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.ISearchCriterias;
 
@@ -60,7 +61,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
     public Guid DeleteGame(string gameKey)
     {
-        Game game = _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        Game game = GameByKey(gameKey);
 
         _gameRepository.RemoveGame(game);
 
@@ -69,14 +70,20 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
     public GameDto GetGameById(Guid gameId)
     {
-        Game game = _gameRepository.GetGame(gameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameId}");
+        Game game = GameById(gameId);
+        game.NumberOfViews += 1;
+        game.ModificationDate = DateTime.Now;
+        _gameRepository.UpdateGame(game);
 
         return new(game);
     }
 
     public GameDto GetGameByKey(string gameKey)
     {
-        Game game = _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        Game game = GameByKey(gameKey);
+        game.NumberOfViews += 1;
+        game.ModificationDate = DateTime.Now;
+        _gameRepository.UpdateGame(game);
 
         return new(game);
     }
@@ -88,7 +95,79 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
     public List<GameDto> GetGames()
     {
-        return _gameRepository.GetAllGames().Select(x => new GameDto(x)).ToList();
+        List<Game> games = _gameRepository.GetAllGames();
+        return games.Select(x => new GameDto(x)).ToList();
+    }
+
+    public List<GameDto> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice)
+    {
+        List<Guid>? updatedGenreIds = genreIds != null ? new List<Guid>(genreIds) : null;
+        if (genreIds != null)
+        {
+            foreach (var genreId in genreIds)
+            {
+                Genre genre = _genreRepository.GetGenre(genreId);
+                if (genre == null)
+                {
+                    updatedGenreIds.Remove(genreId);
+                }
+            }
+        }
+
+        List<Guid>? updatedPlatformIds = platformIds != null ? new List<Guid>(platformIds) : null;
+        if (platformIds != null)
+        {
+            foreach (var platformId in platformIds)
+            {
+                Platform platform = _platformRepository.GetPlatform(platformId);
+                if (platform == null)
+                {
+                    updatedPlatformIds.Remove(platformId);
+                }
+            }
+        }
+
+        List<Guid>? updatedPublisherIds = publisherIds != null ? new List<Guid>(publisherIds) : null;
+        if (publisherIds != null)
+        {
+            foreach (var publisherId in publisherIds)
+            {
+                Publisher publisher = _publisherRepository.GetPublisher(publisherId);
+                if (publisher == null)
+                {
+                    updatedPublisherIds.Remove(publisherId);
+                }
+            }
+        }
+
+        if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name) || name.Length < 3)
+        {
+            name = null;
+        }
+
+        if (page < 1)
+        {
+            page = 1;
+        }
+
+        if (minPrice < 0)
+        {
+            minPrice = 0;
+        }
+
+        if (maxPrice < minPrice)
+        {
+            maxPrice = int.MaxValue;
+        }
+
+        PublishDateFilteringMode? publishDate = EnumExtensions.GetEnumValueFromDescription<PublishDateFilteringMode>(datePublishing);
+
+        GameSortingMode? sortMode = EnumExtensions.GetEnumValueFromDescription<GameSortingMode>(sort);
+
+        NumberOfGamesOnPageFilteringMode? numberOfGamesOnPage = EnumExtensions.GetEnumValueFromDescription<NumberOfGamesOnPageFilteringMode>(pageCount);
+        numberOfGamesOnPage ??= NumberOfGamesOnPageFilteringMode.All;
+
+        return _gameRepository.GetAllGames(updatedGenreIds, updatedPlatformIds, updatedPublisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice).Select(x => new GameDto(x)).ToList();
     }
 
     public List<GameDto> GetGamesByGenreId(Guid genreId)
@@ -134,7 +213,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
             throw new EntityNotFoundException("You must provide at least one platform");
         }
 
-        Game game = _gameRepository.GetGameWithRelations((Guid)gameDto.Game.Id) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.Game.Id}");
+        Game game = GameById((Guid)gameDto.Game.Id);
 
         game.Name = gameDto.Game.Name;
         game.Key = gameDto.Game.Key;
@@ -152,6 +231,8 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         game.UnitInStock = gameDto.Game.UnitInStock;
         game.Discount = gameDto.Game.Discontinued;
 
+        game.ModificationDate = DateTime.Now;
+
         try
         {
             _gameRepository.UpdateGame(game);
@@ -166,12 +247,23 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
     public Guid UpdateGameDescr(Guid gameId, string updatedDesc)
     {
-        Game game = _gameRepository.GetGame(gameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameId}");
+        Game game = GameById(gameId);
 
         game.Description = updatedDesc;
+        game.ModificationDate = DateTime.Now;
 
         _gameRepository.UpdateGame(game);
 
         return game.Id;
+    }
+
+    private Game GameById(Guid gameId)
+    {
+        return _gameRepository.GetGame(gameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameId}");
+    }
+
+    private Game GameByKey(string gameKey)
+    {
+        return _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
     }
 }

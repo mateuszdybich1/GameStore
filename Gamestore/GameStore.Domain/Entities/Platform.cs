@@ -11,19 +11,17 @@ public enum PlatformType
     Console,
 }
 
-public class Platform
+public class Platform : Entity
 {
     public Platform()
     {
     }
 
     public Platform(Guid id, string type)
+        : base(id)
     {
-        Id = id;
         Type = type;
     }
-
-    public Guid Id { get; private set; }
 
     public string Type { get; set; }
 
