@@ -213,7 +213,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
             throw new EntityNotFoundException("You must provide at least one platform");
         }
 
-        Game game = GameById((Guid)gameDto.Game.Id);
+        Game game = _gameRepository.GetGameWithRelations((Guid)gameDto.Game.Id) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.Game.Id}");
 
         game.Name = gameDto.Game.Name;
         game.Key = gameDto.Game.Key;
