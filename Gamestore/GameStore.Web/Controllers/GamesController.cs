@@ -61,7 +61,9 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     [HttpGet]
     public IActionResult GetAllGames([FromQuery] List<Guid> genres = null, [FromQuery] List<Guid> platforms = null, [FromQuery] List<Guid> publishers = null, [FromQuery] string name = null, [FromQuery] string datePublishing = null, [FromQuery] string sort = null, [FromQuery] uint page = 1, [FromQuery] string pageCount = "All", [FromQuery] int minPrice = 0, [FromQuery] int maxPrice = int.MaxValue)
     {
-        return Ok(_gamesService.GetGames(genres, platforms, publishers, name, datePublishing, sort, page, pageCount, minPrice, maxPrice));
+        return genres == null && platforms == null && publishers == null && name == null && datePublishing == null && sort == null && page == 1 && pageCount == "All" && minPrice == 0 && maxPrice == int.MaxValue
+            ? Ok(_gamesService.GetGames())
+            : Ok(_gamesService.GetGames(genres, platforms, publishers, name, datePublishing, sort, page, pageCount, minPrice, maxPrice));
     }
 
     [HttpGet("{key}/file")]

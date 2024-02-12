@@ -99,7 +99,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         return games.Select(x => new GameDto(x)).ToList();
     }
 
-    public List<GameDto> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice)
+    public object GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice)
     {
         List<Guid>? updatedGenreIds = genreIds != null ? new List<Guid>(genreIds) : null;
         if (genreIds != null)
@@ -167,7 +167,18 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         NumberOfGamesOnPageFilteringMode? numberOfGamesOnPage = EnumExtensions.GetEnumValueFromDescription<NumberOfGamesOnPageFilteringMode>(pageCount);
         numberOfGamesOnPage ??= NumberOfGamesOnPageFilteringMode.All;
 
-        return _gameRepository.GetAllGames(updatedGenreIds, updatedPlatformIds, updatedPublisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice).Select(x => new GameDto(x)).ToList();
+        List<GameDto> gameDtos = _gameRepository.GetAllGames(updatedGenreIds, updatedPlatformIds, updatedPublisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice).Select(x => new GameDto(x)).ToList();
+
+        int numberOfPages = numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All ? _gameRepository.GetNumberOfPages((NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage) : 1;
+
+        object returnObj = new
+        {
+            Games = gameDtos,
+            TotalPages = numberOfPages,
+            CurrentPage = page,
+        };
+
+        return returnObj;
     }
 
     public List<GameDto> GetGamesByGenreId(Guid genreId)

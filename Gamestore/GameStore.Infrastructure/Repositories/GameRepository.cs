@@ -72,28 +72,7 @@ public class GameRepository(AppDbContext appDbContext) : IGameRepository
 
         if (numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All)
         {
-            int takeGamesNum = 0;
-            switch (numberOfGamesOnPage)
-            {
-                case NumberOfGamesOnPageFilteringMode.Ten:
-                    takeGamesNum = 10;
-                    break;
-                case NumberOfGamesOnPageFilteringMode.Twenty:
-                    takeGamesNum = 20;
-                    break;
-                case NumberOfGamesOnPageFilteringMode.Fifty:
-                    takeGamesNum = 50;
-                    break;
-                case NumberOfGamesOnPageFilteringMode.OneHundred:
-                    takeGamesNum = 100;
-                    break;
-                case NumberOfGamesOnPageFilteringMode.All:
-                    break;
-                default:
-                    break;
-            }
-
-            games = games.Skip(((int)page - 1) * takeGamesNum).Take(takeGamesNum);
+            games = games.Skip(((int)page - 1) * (int)numberOfGamesOnPage).Take((int)numberOfGamesOnPage);
         }
 
         if (sortMode != null)
@@ -143,5 +122,17 @@ public class GameRepository(AppDbContext appDbContext) : IGameRepository
     public Game GetGameWithRelations(Guid gameId)
     {
         return _appDbContext.Games.Where(x => x.Id == gameId).Include(x => x.Genres).Include(x => x.Platforms).Single();
+    }
+
+    public int GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage)
+    {
+        int numberOfGames = _appDbContext.Games.Count();
+        int numberOfPages = numberOfGames / (int)numberOfGamesOnPage;
+        if (numberOfGames % (int)numberOfGamesOnPage > 0)
+        {
+            numberOfPages += 1;
+        }
+
+        return numberOfPages;
     }
 }

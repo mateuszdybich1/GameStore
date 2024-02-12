@@ -4,13 +4,13 @@ namespace GameStore.Domain.Entities;
 public enum NumberOfGamesOnPageFilteringMode
 {
     [Description("10")]
-    Ten,
+    Ten = 10,
     [Description("20")]
-    Twenty,
+    Twenty = 20,
     [Description("50")]
-    Fifty,
+    Fifty = 50,
     [Description("100")]
-    OneHundred,
+    OneHundred = 100,
     [Description("All")]
     All,
 }
