@@ -20,6 +20,11 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
     {
         Guid gameId = (gameDto.Game.Id == null || gameDto.Game.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)gameDto.Game.Id;
 
+        if (gameDto.Game.Discount > gameDto.Game.Price)
+        {
+            throw new ArgumentException("Discount cannot be greater than price");
+        }
+
         if (gameDto.Publisher == null)
         {
             throw new ArgumentException("Empty publisher ID");
@@ -44,8 +49,8 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         string description = string.IsNullOrWhiteSpace(gameDto.Game.Description) ? null : gameDto.Game.Description;
 
         Game game = string.IsNullOrWhiteSpace(description)
-            ? new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discontinued, publisher.Id, genres, platforms)
-            : new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discontinued, description, publisher.Id, genres, platforms);
+            ? new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, publisher.Id, genres, platforms)
+            : new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, description, publisher.Id, genres, platforms);
 
         try
         {
@@ -240,7 +245,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
         game.Price = gameDto.Game.Price;
         game.UnitInStock = gameDto.Game.UnitInStock;
-        game.Discount = gameDto.Game.Discontinued;
+        game.Discount = gameDto.Game.Discount;
 
         game.ModificationDate = DateTime.Now;
 

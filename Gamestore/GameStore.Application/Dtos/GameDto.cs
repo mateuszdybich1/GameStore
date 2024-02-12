@@ -17,7 +17,7 @@ public class GameDto
         Description = game.Description;
         Price = game.Price;
         UnitInStock = game.UnitInStock;
-        Discontinued = game.Discount;
+        Discount = game.Discount;
         NumberOfViews = game.NumberOfViews;
     }
 
@@ -38,7 +38,7 @@ public class GameDto
     public int UnitInStock { get; set; }
 
     [Required]
-    public int Discontinued { get; set; }
+    public int Discount { get; set; }
 
     public ulong NumberOfViews { get; private set; }
 }

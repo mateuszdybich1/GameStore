@@ -41,7 +41,7 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     }
 
     [HttpGet("find/{id}")]
-    public IActionResult GetGameId([FromRoute] Guid id)
+    public IActionResult GetGameById([FromRoute] Guid id)
     {
         return Ok(_gamesService.GetGameById(id));
     }

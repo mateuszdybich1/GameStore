@@ -53,7 +53,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discontinued = 10,
+                Discount = 10,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
@@ -69,7 +69,7 @@ public partial class GameTests
 
         // Assert
         Assert.True(gameReturnedId != Guid.Empty);
-        _gameRepositoryMock.Verify(x => x.AddGame(It.Is<Game>(x => x.Id == gameReturnedId && x.Name == gameDto.Game.Name && x.Key == gameDto.Game.Key && x.Price == gameDto.Game.Price && x.UnitInStock == gameDto.Game.UnitInStock && x.Discount == gameDto.Game.Discontinued && x.PublisherId == gameDto.Publisher && x.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.Platforms) && x.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.Genres))), Times.Once());
+        _gameRepositoryMock.Verify(x => x.AddGame(It.Is<Game>(x => x.Id == gameReturnedId && x.Name == gameDto.Game.Name && x.Key == gameDto.Game.Key && x.Price == gameDto.Game.Price && x.UnitInStock == gameDto.Game.UnitInStock && x.Discount == gameDto.Game.Discount && x.PublisherId == gameDto.Publisher && x.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.Platforms) && x.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.Genres))), Times.Once());
     }
 
     [Fact]
@@ -95,7 +95,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discontinued = 10,
+                Discount = 10,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
@@ -130,7 +130,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discontinued = 10,
+                Discount = 10,
             },
             Genres = new([genre.Id]),
             Publisher = publisher.Id,
@@ -166,7 +166,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discontinued = 10,
+                Discount = 10,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
