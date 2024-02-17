@@ -1,5 +1,6 @@
 ﻿using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Infrastructure.Repositories;
 
@@ -15,12 +16,12 @@ public class OrderGameRepository(AppDbContext appDbContext) : IOrderGameReposito
 
     public OrderGame GetOrderGame(Guid orderId, Guid gameId)
     {
-        return _appDbContext.OrderGames.FirstOrDefault(x => x.OrderId == orderId && x.ProductId == gameId);
+        return _appDbContext.OrderGames.AsNoTracking().SingleOrDefault(x => x.OrderId == orderId && x.ProductId == gameId);
     }
 
     public List<OrderGame> GetOrderGames(Guid orderId)
     {
-        return [.. _appDbContext.OrderGames.Where(x => x.OrderId == orderId)];
+        return [.. _appDbContext.OrderGames.AsNoTracking().Where(x => x.OrderId == orderId)];
     }
 
     public void RemoveOrderGame(OrderGame orderGame)
@@ -31,7 +32,7 @@ public class OrderGameRepository(AppDbContext appDbContext) : IOrderGameReposito
 
     public void UpdateOrderGame(OrderGame orderGame)
     {
-        _appDbContext.OrderGames.Update(orderGame);
+        _appDbContext.OrderGames.Attach(orderGame);
         _appDbContext.SaveChanges();
     }
 }

@@ -99,13 +99,6 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
         return games;
     }
 
-    private IEnumerable<Genre> GetChild(Guid id)
-    {
-        return _appDbContext.Genres.Where(x => x.ParentGenre.Id == id || x.Id == id)
-                    .Union(_appDbContext.Genres.Where(x => x.ParentGenre.Id == id)
-                                .SelectMany(y => GetChild(y.Id)));
-    }
-
     private Genre GetGenre(Genre genre)
     {
         var currentGenre = genre;
@@ -114,7 +107,7 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
             currentGenre = currentGenre.ParentGenre;
         }
 
-        currentGenre.ParentGenre = _appDbContext.Genres.Include(x => x.ParentGenre).FirstOrDefault(x => x.Id == currentGenre.Id).ParentGenre;
+        currentGenre.ParentGenre = _appDbContext.Genres.Include(x => x.ParentGenre).SingleOrDefault(x => x.Id == currentGenre.Id).ParentGenre;
 
         return currentGenre.ParentGenre == null ? genre : GetGenre(genre);
     }

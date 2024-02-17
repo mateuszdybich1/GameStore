@@ -16,7 +16,7 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
 
     public Comment GetComment(Guid commentId, Guid gameId)
     {
-        return _appDbContext.Comments.FirstOrDefault(x => x.Id == commentId && x.Game.Id == gameId);
+        return _appDbContext.Comments.SingleOrDefault(x => x.Id == commentId && x.Game.Id == gameId);
     }
 
     public List<CommentModel> GetGamesComments(Guid gameId)
