@@ -1,19 +1,11 @@
 ﻿using GameStore.Domain.Entities;
 
 namespace GameStore.Domain.IRepositories;
-public interface IOrderRepository
+public interface IOrderRepository : IRepository<Order>
 {
-    public void AddOrder(Order order);
+    public Task<Order> GetCustomerOpenOrder(Guid customerId);
 
-    public void UpdateOrder(Order order);
+    public Task<IEnumerable<Order>> GetOrdersByCustomerId(Guid customerId);
 
-    public void DeleteOrder(Order order);
-
-    public Order GetOrder(Guid orderId);
-
-    public Order GetCustomerOpenOrder(Guid customerId);
-
-    public List<Order> GetOrdersByCustomerId(Guid customerId);
-
-    public List<Order> GetPaidAndCancelledOrders();
+    public Task<IEnumerable<Order>> GetPaidAndCancelledOrders();
 }

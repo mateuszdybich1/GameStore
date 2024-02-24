@@ -1,15 +1,9 @@
 ﻿using GameStore.Domain.Entities;
 
 namespace GameStore.Domain.IRepositories;
-public interface IOrderGameRepository
+public interface IOrderGameRepository : IRepository<OrderGame>
 {
-    public void AddOrderGame(OrderGame orderGame);
+    public Task<OrderGame> GetOrderGame(Guid orderId, Guid gameId);
 
-    public void UpdateOrderGame(OrderGame orderGame);
-
-    public void RemoveOrderGame(OrderGame orderGame);
-
-    public OrderGame GetOrderGame(Guid orderId, Guid gameId);
-
-    public List<OrderGame> GetOrderGames(Guid orderId);
+    public Task<IEnumerable<OrderGame>> GetOrderGames(Guid orderId);
 }

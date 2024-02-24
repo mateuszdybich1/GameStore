@@ -4,45 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Infrastructure.Repositories;
 
-public class OrderRepository(AppDbContext appDbContext) : IOrderRepository
+public class OrderRepository(AppDbContext appDbContext) : Repository<Order>(appDbContext), IOrderRepository
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public void AddOrder(Order order)
+    public async Task<Order> GetCustomerOpenOrder(Guid customerId)
     {
-        _appDbContext.Orders.Add(order);
-        _appDbContext.SaveChanges();
+        return await _appDbContext.Orders.AsNoTracking().SingleOrDefaultAsync(x => x.CustomerId == customerId && x.Status == OrderStatus.Open);
     }
 
-    public void DeleteOrder(Order order)
+    public async Task<IEnumerable<Order>> GetOrdersByCustomerId(Guid customerId)
     {
-        _appDbContext.Orders.Remove(order);
-        _appDbContext.SaveChanges();
+        return await _appDbContext.Orders.AsNoTracking().Where(x => x.CustomerId == customerId).ToListAsync();
     }
 
-    public Order GetOrder(Guid orderId)
+    public async Task<IEnumerable<Order>> GetPaidAndCancelledOrders()
     {
-        return _appDbContext.Orders.AsNoTracking().SingleOrDefault(x => x.Id == orderId);
-    }
-
-    public Order GetCustomerOpenOrder(Guid customerId)
-    {
-        return _appDbContext.Orders.AsNoTracking().SingleOrDefault(x => x.CustomerId == customerId && x.Status == OrderStatus.Open);
-    }
-
-    public List<Order> GetOrdersByCustomerId(Guid customerId)
-    {
-        return [.. _appDbContext.Orders.AsNoTracking().Where(x => x.CustomerId == customerId)];
-    }
-
-    public List<Order> GetPaidAndCancelledOrders()
-    {
-        return [.. _appDbContext.Orders.AsNoTracking().Where(x => x.Status == OrderStatus.Paid || x.Status == OrderStatus.Cancelled)];
-    }
-
-    public void UpdateOrder(Order order)
-    {
-        _appDbContext.Orders.Attach(order);
-        _appDbContext.SaveChanges();
+        return await _appDbContext.Orders.AsNoTracking().Where(x => x.Status == OrderStatus.Paid || x.Status == OrderStatus.Cancelled).ToListAsync();
     }
 }

@@ -4,7 +4,7 @@ namespace GameStore.Domain.ISearchCriterias;
 
 public interface IGenresSearchCriteria
 {
-    public List<Genre> GetByGameKey(string gameKey);
+    public Task<IEnumerable<Genre>> GetByGameKey(string gameKey);
 
-    public List<Genre> GetByParentId(Guid parentId);
+    public Task<IEnumerable<Genre>> GetByParentId(Guid parentId);
 }

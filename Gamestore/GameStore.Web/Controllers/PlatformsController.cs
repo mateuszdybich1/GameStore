@@ -11,38 +11,38 @@ public class PlatformsController(IPlatformService platformService, IGameService 
     private readonly IGameService _gameService = gameService;
 
     [HttpPost]
-    public IActionResult AddPlatform([FromBody] PlatformDtoDto platformDto)
+    public async Task<IActionResult> AddPlatform([FromBody] PlatformDtoDto platformDto)
     {
-        return Ok(_platformService.AddPlatform(platformDto.Platform));
+        return Ok(await _platformService.AddPlatform(platformDto.Platform));
     }
 
     [HttpPut]
-    public IActionResult UpdatePlatform([FromBody] PlatformDtoDto platformDto)
+    public async Task<IActionResult> UpdatePlatform([FromBody] PlatformDtoDto platformDto)
     {
-        return Ok(_platformService.UpdatePlatform(platformDto.Platform));
+        return Ok(await _platformService.UpdatePlatform(platformDto.Platform));
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeletePlatform([FromRoute] Guid id)
+    public async Task<IActionResult> DeletePlatform([FromRoute] Guid id)
     {
-        return Ok(_platformService.DeletePlatform(id));
+        return Ok(await _platformService.DeletePlatform(id));
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetPlatform([FromRoute] Guid id)
+    public async Task<IActionResult> GetPlatform([FromRoute] Guid id)
     {
-        return Ok(_platformService.GetPlatform(id));
+        return Ok(await _platformService.GetPlatform(id));
     }
 
     [HttpGet]
-    public IActionResult GetAllPlatforms()
+    public async Task<IActionResult> GetAllPlatforms()
     {
-        return Ok(_platformService.GetAll());
+        return Ok(await _platformService.GetAll());
     }
 
     [HttpGet("{id}/games")]
-    public IActionResult GetPlatformGames([FromRoute] Guid id)
+    public async Task<IActionResult> GetPlatformGames([FromRoute] Guid id)
     {
-        return Ok(_gameService.GetGamesByPlatformId(id));
+        return Ok(await _gameService.GetGamesByPlatformId(id));
     }
 }

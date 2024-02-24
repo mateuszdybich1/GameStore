@@ -12,7 +12,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
     private readonly IPlatformRepository _platformRepository = platformRepository;
     private readonly IPlatformsSearchCriteria _platformsSearchCriteria = platformsSearchCriteria;
 
-    public Guid AddPlatform(PlatformDto platformDto)
+    public async Task<Guid> AddPlatform(PlatformDto platformDto)
     {
         Guid platformId = (platformDto.Id == null || platformDto.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)platformDto.Id;
 
@@ -20,7 +20,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
 
         try
         {
-            _platformRepository.AddPlatform(platform);
+            await _platformRepository.Add(platform);
         }
         catch (Exception)
         {
@@ -30,48 +30,49 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
         return platform.Id;
     }
 
-    public Guid DeletePlatform(Guid platformId)
+    public async Task<Guid> DeletePlatform(Guid platformId)
     {
-        Platform platform = _platformRepository.GetPlatform(platformId) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformId}");
+        Platform platform = await _platformRepository.Get(platformId) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformId}");
 
-        _platformRepository.RemovePlatform(platform);
+        await _platformRepository.Delete(platform);
 
         return platform.Id;
     }
 
-    public List<PlatformDto> GetAll()
+    public async Task<IEnumerable<PlatformDto>> GetAll()
     {
-        return _platformRepository.GetAllPlatforms().Select(x => new PlatformDto(x)).ToList();
+        var platforms = await _platformRepository.GetAllPlatforms();
+        return platforms.Select(x => new PlatformDto(x));
     }
 
-    public List<PlatformDto> GetGamesPlatforms(string gameKey)
+    public async Task<IEnumerable<PlatformDto>> GetGamesPlatforms(string gameKey)
     {
-        List<Platform> platforms = _platformsSearchCriteria.GetByGameKey(gameKey);
+        var platforms = await _platformsSearchCriteria.GetByGameKey(gameKey);
 
-        return platforms.Select(x => new PlatformDto(x)).ToList();
+        return platforms.Select(x => new PlatformDto(x));
     }
 
-    public PlatformDto GetPlatform(Guid platformId)
+    public async Task<PlatformDto> GetPlatform(Guid platformId)
     {
-        Platform platform = _platformRepository.GetPlatform(platformId) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformId}");
+        Platform platform = await _platformRepository.Get(platformId) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformId}");
         return new(platform);
     }
 
-    public Guid UpdatePlatform(PlatformDto platformDto)
+    public async Task<Guid> UpdatePlatform(PlatformDto platformDto)
     {
         if (platformDto.Id == null)
         {
             throw new ArgumentNullException("Cannot update platform. Id is null");
         }
 
-        Platform platform = _platformRepository.GetPlatform((Guid)platformDto.Id) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformDto.Id}");
+        Platform platform = await _platformRepository.Get((Guid)platformDto.Id) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformDto.Id}");
 
         platform.Type = platformDto.Type;
         platform.ModificationDate = DateTime.Now;
 
         try
         {
-            _platformRepository.UpdatePlatform(platform);
+            await _platformRepository.Update(platform);
         }
         catch (Exception)
         {

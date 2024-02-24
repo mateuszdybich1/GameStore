@@ -8,7 +8,7 @@ public class TotalGamesMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context, IGameRepository gameRepository)
     {
-        int totalGames = gameRepository.GetAllGames().Count;
+        int totalGames = await gameRepository.GetAllGamesCount();
         context.Response.OnStarting(() =>
         {
             context.Response.Headers.Append("x-total-numbers-of-games", totalGames.ToString());

@@ -8,7 +8,7 @@ namespace GameStore.Application.Tests.GameServiceTests;
 public partial class GameTests
 {
     [Fact]
-    public void UpdateGameShouldUpdateGameOnce()
+    public async Task UpdateGameShouldUpdateGameOnce()
     {
         // Arrange
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", "HomePage", "Description");
@@ -29,10 +29,10 @@ public partial class GameTests
 
         Game game = new(gameId, gameName, gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher(publisher.Id)).Returns(publisher);
-        _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
-        _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
-        _gameRepositoryMock.Setup(x => x.GetGameWithRelations(gameId)).Returns(game);
+        _publisherRepositoryMock.Setup(x => x.Get(publisher.Id)).ReturnsAsync(publisher);
+        _genreRepositoryMock.Setup(x => x.Get(genre.Id)).ReturnsAsync(genre);
+        _platformRepositoryMock.Setup(x => x.Get(platform.Id)).ReturnsAsync(platform);
+        _gameRepositoryMock.Setup(x => x.GetGameWithRelations(gameId)).ReturnsAsync(game);
 
         string updatedName = "updatedName";
         string updatedKey = "updatedKey";
@@ -54,18 +54,18 @@ public partial class GameTests
         };
 
         // Act
-        _gameService.UpdateGame(gameDto);
+        await _gameService.UpdateGame(gameDto);
 
         // Assert
         _gameRepositoryMock.Verify(x => x.GetGameWithRelations(gameId), Times.Once);
-        _publisherRepositoryMock.Verify(x => x.GetPublisher(publisher.Id), Times.Once);
-        _genreRepositoryMock.Verify(x => x.GetGenre(genre.Id), Times.Once);
-        _platformRepositoryMock.Verify(x => x.GetPlatform(platform.Id), Times.Once);
-        _gameRepositoryMock.Verify(x => x.UpdateGame(It.Is<Game>(g => g.Id == gameId && g.Name == updatedName && g.Key == updatedKey && g.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.Genres) && g.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.Platforms))), Times.Once);
+        _publisherRepositoryMock.Verify(x => x.Get(publisher.Id), Times.Once);
+        _genreRepositoryMock.Verify(x => x.Get(genre.Id), Times.Once);
+        _platformRepositoryMock.Verify(x => x.Get(platform.Id), Times.Once);
+        _gameRepositoryMock.Verify(x => x.Update(It.Is<Game>(g => g.Id == gameId && g.Name == updatedName && g.Key == updatedKey && g.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.Genres) && g.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.Platforms))), Times.Once);
     }
 
     [Fact]
-    public void UpdateGameIncorrectPublisherIdProvidedShouldThrowException()
+    public async Task UpdateGameIncorrectPublisherIdProvidedShouldThrowException()
     {
         // Arrange
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", "HomePage", "Description");
@@ -94,16 +94,16 @@ public partial class GameTests
             Publisher = publisher.Id,
         };
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher((Guid)gameDto.Publisher)).Returns((Publisher)null);
-        _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
-        _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
+        _publisherRepositoryMock.Setup(x => x.Get((Guid)gameDto.Publisher)).Returns(Task.FromResult<Publisher>(null));
+        _genreRepositoryMock.Setup(x => x.Get(genre.Id)).ReturnsAsync(genre);
+        _platformRepositoryMock.Setup(x => x.Get(platform.Id)).ReturnsAsync(platform);
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
     }
 
     [Fact]
-    public void UpdateGameIncorrectGenreIdProvidedShouldThrowException()
+    public async Task UpdateGameIncorrectGenreIdProvidedShouldThrowException()
     {
         // Arrange
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", null, null);
@@ -132,16 +132,16 @@ public partial class GameTests
             Publisher = publisher.Id,
         };
 
-        _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns((Genre)null);
-        _platformRepositoryMock.Setup(x => x.GetPlatform(platform.Id)).Returns(platform);
-        _publisherRepositoryMock.Setup(x => x.GetPublisher(publisher.Id)).Returns(publisher);
+        _genreRepositoryMock.Setup(x => x.Get(genre.Id)).Returns(Task.FromResult<Genre>(null));
+        _platformRepositoryMock.Setup(x => x.Get(platform.Id)).ReturnsAsync(platform);
+        _publisherRepositoryMock.Setup(x => x.Get(publisher.Id)).ReturnsAsync(publisher);
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
     }
 
     [Fact]
-    public void UpdateGameNoPlatformIdsProvidedShouldThrowException()
+    public async Task UpdateGameNoPlatformIdsProvidedShouldThrowException()
     {
         // Arrange
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", null, null);
@@ -166,14 +166,14 @@ public partial class GameTests
             Publisher = publisher.Id,
         };
 
-        _genreRepositoryMock.Setup(x => x.GetGenre(genre.Id)).Returns(genre);
+        _genreRepositoryMock.Setup(x => x.Get(genre.Id)).ReturnsAsync(genre);
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _gameService.UpdateGame(gameDto));
     }
 
     [Fact]
-    public void UpdateGameDescrShouldUpdateOnce()
+    public async Task UpdateGameDescrShouldUpdateOnce()
     {
         // Arrange
         Guid gameId = Guid.NewGuid();
@@ -195,18 +195,18 @@ public partial class GameTests
 
         string updatedDescription = "Updated description";
 
-        _gameRepositoryMock.Setup(x => x.GetGame(gameId)).Returns(game);
+        _gameRepositoryMock.Setup(x => x.Get(gameId)).ReturnsAsync(game);
 
         // Act
-        _gameService.UpdateGameDescr(gameId, updatedDescription);
+        await _gameService.UpdateGameDescr(gameId, updatedDescription);
 
         // Assert
-        _gameRepositoryMock.Verify(x => x.GetGame(game.Id), Times.Once);
-        _gameRepositoryMock.Verify(x => x.UpdateGame(It.Is<Game>(g => g.Id == gameId && g.Name == gameName && g.Key == gameKey && g.Description == updatedDescription)), Times.Once);
+        _gameRepositoryMock.Verify(x => x.Get(game.Id), Times.Once);
+        _gameRepositoryMock.Verify(x => x.Update(It.Is<Game>(g => g.Id == gameId && g.Name == gameName && g.Key == gameKey && g.Description == updatedDescription)), Times.Once);
     }
 
     [Fact]
-    public void UpdateGameDescrIncorrectGameIdProvidedShouldThrowException()
+    public async Task UpdateGameDescrIncorrectGameIdProvidedShouldThrowException()
     {
         // Arrange
         Guid gameId = Guid.NewGuid();
@@ -214,6 +214,6 @@ public partial class GameTests
         string updatedDescription = "Updated description";
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _gameService.UpdateGameDescr(gameId, updatedDescription));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _gameService.UpdateGameDescr(gameId, updatedDescription));
     }
 }

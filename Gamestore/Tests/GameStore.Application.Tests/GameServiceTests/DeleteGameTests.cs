@@ -7,31 +7,31 @@ namespace GameStore.Application.Tests.GameServiceTests;
 public partial class GameTests
 {
     [Fact]
-    public void DeleteGameShouldDeleteGameOnce()
+    public async Task DeleteGameShouldDeleteGameOnce()
     {
         // Arrange
         string gameKey = "GameKey";
 
         Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 5, Guid.NewGuid(), new([new()]), new([new()]));
-        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(game);
+        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
 
         // Act
-        _gameService.DeleteGame(gameKey);
+        await _gameService.DeleteGame(gameKey);
 
         // Assert
         _gamesSearchCriteriaMock.Verify(x => x.GetByKey(gameKey), Times.Once);
-        _gameRepositoryMock.Verify(x => x.RemoveGame(It.Is<Game>(g => g == game)), Times.Once);
+        _gameRepositoryMock.Verify(x => x.Delete(It.Is<Game>(g => g == game)), Times.Once);
     }
 
     [Fact]
-    public void DeleteGameIncorrectGameKeyProvidedShouldTHrowException()
+    public async Task DeleteGameIncorrectGameKeyProvidedShouldTHrowException()
     {
         // Arrange
         string gameKey = "GameKey";
 
-        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns((Game)null);
+        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(Task.FromResult<Game>(null));
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _gameService.DeleteGame(gameKey));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _gameService.DeleteGame(gameKey));
     }
 }

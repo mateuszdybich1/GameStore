@@ -4,27 +4,27 @@ namespace GameStore.Application.IServices;
 
 public interface IGameService
 {
-    public Guid AddGame(GameDtoDto gameDto);
+    public Task<Guid> AddGame(GameDtoDto gameDto);
 
-    public Guid UpdateGame(GameDtoDto gameDto);
+    public Task<Guid> UpdateGame(GameDtoDto gameDto);
 
-    public Guid UpdateGameDescr(Guid gameId, string updatedDesc);
+    public Task<Guid> UpdateGameDescr(Guid gameId, string updatedDesc);
 
-    public Guid DeleteGame(string gameKey);
+    public Task<Guid> DeleteGame(string gameKey);
 
-    public GameDto GetGameByKey(string gameKey);
+    public Task<GameDto> GetGameByKey(string gameKey);
 
-    public object GetGameByKeyWithRelations(string gameKey);
+    public Task<object> GetGameByKeyWithRelations(string gameKey);
 
-    public GameDto GetGameById(Guid gameId);
+    public Task<GameDto> GetGameById(Guid gameId);
 
-    public List<GameDto> GetGames();
+    public Task<IEnumerable<GameDto>> GetGames();
 
-    public object GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice);
+    public Task<object> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice);
 
-    public List<GameDto> GetGamesByPlatformId(Guid platformId);
+    public Task<IEnumerable<GameDto>> GetGamesByPlatformId(Guid platformId);
 
-    public List<GameDto> GetGamesByGenreId(Guid genreId);
+    public Task<IEnumerable<GameDto>> GetGamesByGenreId(Guid genreId);
 
-    public List<GameDto> GetGamesByPublisherName(string companyName);
+    public Task<IEnumerable<GameDto>> GetGamesByPublisherName(string companyName);
 }

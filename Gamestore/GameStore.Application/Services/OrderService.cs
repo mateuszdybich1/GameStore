@@ -14,13 +14,13 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
     private readonly IOrderGameRepository _orderGameRepository = orderGameRepository;
     private readonly IGameRepository _gameRepository = gameRepository;
 
-    public Guid AddOrder(Guid customerId, string gameKey)
+    public async Task<Guid> AddOrder(Guid customerId, string gameKey)
     {
-        Game game = _gameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        Game game = await _gameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
 
         int gamesInStock = game.UnitInStock < 1 ? throw new InvalidOperationException("Game has no stock") : game.UnitInStock;
 
-        Order order = _orderRepository.GetCustomerOpenOrder(customerId);
+        Order order = await _orderRepository.GetCustomerOpenOrder(customerId);
 
         if (order == null)
         {
@@ -28,18 +28,18 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
 
             OrderGame orderGame = new(Guid.NewGuid(), order.Id, game.Id, game.Price, 1, game.Discount);
 
-            _orderRepository.AddOrder(order);
+            await _orderRepository.Add(order);
 
-            _orderGameRepository.AddOrderGame(orderGame);
+            await _orderGameRepository.Add(orderGame);
         }
         else
         {
-            OrderGame orderGame = _orderGameRepository.GetOrderGame(order.Id, game.Id);
+            OrderGame orderGame = await _orderGameRepository.GetOrderGame(order.Id, game.Id);
 
             if (orderGame == null)
             {
                 orderGame = new(Guid.NewGuid(), order.Id, game.Id, game.Price, 1, game.Discount);
-                _orderGameRepository.AddOrderGame(orderGame);
+                await _orderGameRepository.Add(orderGame);
             }
             else
             {
@@ -51,37 +51,40 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
                     throw new InvalidOperationException("Couldn' add game to cart. Not enough games in stock");
                 }
 
-                _orderGameRepository.UpdateOrderGame(orderGame);
+                await _orderGameRepository.Update(orderGame);
             }
         }
 
         return order.Id;
     }
 
-    public List<OrderGameDto> GetCart(Guid customerId)
+    public async Task<IEnumerable<OrderGameDto>> GetCart(Guid customerId)
     {
-        Order order = _orderRepository.GetCustomerOpenOrder(customerId);
+        Order order = await _orderRepository.GetCustomerOpenOrder(customerId);
 
-        return order == null ? (List<OrderGameDto>)[] : _orderGameRepository.GetOrderGames(order.Id).Select(x => new OrderGameDto(x)).ToList();
+        var orderGames = order == null ? [] : await _orderGameRepository.GetOrderGames(order.Id);
+
+        return orderGames.Select(x => new OrderGameDto(x));
     }
 
-    public OrderDto GetOrder(Guid orderId)
+    public async Task<OrderDto> GetOrder(Guid orderId)
     {
-        Order order = _orderRepository.GetOrder(orderId) ?? throw new EntityNotFoundException($"Order with Id: {orderId} not found");
+        Order order = await _orderRepository.Get(orderId) ?? throw new EntityNotFoundException($"Order with Id: {orderId} not found");
 
         return new(order);
     }
 
-    public List<OrderGameDto> GetOrderDetails(Guid orderId)
+    public async Task<IEnumerable<OrderGameDto>> GetOrderDetails(Guid orderId)
     {
-        return _orderGameRepository.GetOrderGames(orderId).Select(x => new OrderGameDto(x)).ToList();
+        var orderGames = await _orderGameRepository.GetOrderGames(orderId);
+        return orderGames.Select(x => new OrderGameDto(x));
     }
 
-    public OrderInformation GetOrderInformation(Guid customerId)
+    public async Task<OrderInformation> GetOrderInformation(Guid customerId)
     {
-        Order order = GetOpenOrder(customerId);
+        Order order = await GetOpenOrder(customerId);
 
-        List<OrderGame> orderGames = _orderGameRepository.GetOrderGames(order.Id);
+        var orderGames = await _orderGameRepository.GetOrderGames(order.Id);
 
         double totalSum = 0;
         foreach (var orderGame in orderGames)
@@ -92,20 +95,21 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
         return new(order.Id, order.Date, (int)totalSum);
     }
 
-    public List<OrderDto> GetPaidAndCancelledOrders()
+    public async Task<IEnumerable<OrderDto>> GetPaidAndCancelledOrders()
     {
-        return _orderRepository.GetPaidAndCancelledOrders().Select(x => new OrderDto(x)).ToList();
+        var games = await _orderRepository.GetPaidAndCancelledOrders();
+        return games.Select(x => new OrderDto(x));
     }
 
-    public Guid RemoveOrder(Guid customerId, string gameKey)
+    public async Task<Guid> RemoveOrder(Guid customerId, string gameKey)
     {
-        Game game = _gameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        Game game = await _gameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
 
-        Order order = GetOpenOrder(customerId);
+        Order order = await GetOpenOrder(customerId);
 
-        List<OrderGame> orderGames = _orderGameRepository.GetOrderGames(order.Id);
+        var orderGames = await _orderGameRepository.GetOrderGames(order.Id);
 
-        if (orderGames.Count == 0)
+        if (!orderGames.Any())
         {
             throw new EntityNotFoundException("Cart is empty");
         }
@@ -117,45 +121,45 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, IOrderReposit
             orderGame.Quantity -= 1;
             orderGame.ModificationDate = DateTime.Now;
 
-            _orderGameRepository.UpdateOrderGame(orderGame);
+            await _orderGameRepository.Delete(orderGame);
         }
         else
         {
-            _orderGameRepository.RemoveOrderGame(orderGame);
-            if (orderGames.Count == 1)
+            await _orderGameRepository.Delete(orderGame);
+            if (orderGames.Count() == 1)
             {
-                _orderRepository.DeleteOrder(order);
+                await _orderRepository.Delete(order);
             }
         }
 
         return order.Id;
     }
 
-    public Guid UpdateOrder(Guid orderId, OrderStatus orderStatus)
+    public async Task<Guid> UpdateOrder(Guid orderId, OrderStatus orderStatus)
     {
-        Order order = _orderRepository.GetOrder(orderId) ?? throw new EntityNotFoundException($"Couldn't find order by ID: {orderId}");
+        Order order = await _orderRepository.Get(orderId) ?? throw new EntityNotFoundException($"Couldn't find order by ID: {orderId}");
 
         if (orderStatus == OrderStatus.Paid)
         {
-            List<OrderGame> orderGames = _orderGameRepository.GetOrderGames(orderId);
+            var orderGames = await _orderGameRepository.GetOrderGames(orderId);
 
             foreach (OrderGame orderGame in orderGames)
             {
-                Game game = _gameRepository.GetGame(orderGame.ProductId);
+                Game game = await _gameRepository.Get(orderGame.ProductId);
                 game.UnitInStock -= orderGame.Quantity;
-                _gameRepository.UpdateGame(game);
+                await _gameRepository.Update(game);
             }
         }
 
         order.Status = orderStatus;
         order.ModificationDate = DateTime.Now;
 
-        _orderRepository.UpdateOrder(order);
+        await _orderRepository.Update(order);
         return order.Id;
     }
 
-    private Order GetOpenOrder(Guid customerId)
+    private async Task<Order> GetOpenOrder(Guid customerId)
     {
-        return _orderRepository.GetCustomerOpenOrder(customerId) ?? throw new EntityNotFoundException($"Customer: {customerId} does not have a cart");
+        return await _orderRepository.GetCustomerOpenOrder(customerId) ?? throw new EntityNotFoundException($"Customer: {customerId} does not have a cart");
     }
 }

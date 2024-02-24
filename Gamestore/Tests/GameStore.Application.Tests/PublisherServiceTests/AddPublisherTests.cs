@@ -23,22 +23,22 @@ public partial class PublisherTests
     }
 
     [Fact]
-    public void AddPublisherShouldAddPublisherOnce()
+    public async Task AddPublisherShouldAddPublisherOnce()
     {
         // Arrange
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", "TestHomePage", "TestDescription");
         PublisherDto publisherDto = new(publisher);
 
         // Act
-        Guid publisherId = _publisherService.AddPublisher(publisherDto);
+        Guid publisherId = await _publisherService.AddPublisher(publisherDto);
 
         // Assert
         Assert.True(publisherId != Guid.Empty);
-        _publisherRepositoryMock.Verify(x => x.AddPublisher(It.Is<Publisher>(x => x.Id == publisherDto.Id && x.CompanyName == publisherDto.CompanyName)), Times.Once());
+        _publisherRepositoryMock.Verify(x => x.Add(It.Is<Publisher>(x => x.Id == publisherDto.Id && x.CompanyName == publisherDto.CompanyName)), Times.Once());
     }
 
     [Fact]
-    public void AddPublisherIncorrectPublisherIdProvidedShouldThrowException()
+    public async Task AddPublisherIncorrectPublisherIdProvidedShouldThrowException()
     {
         // Arrange
         PublisherDto publisherDto = new("TestCompany")
@@ -49,9 +49,9 @@ public partial class PublisherTests
         // Act
         Publisher existingPublisher = new((Guid)publisherDto.Id, "ExistingCompany", string.Empty, string.Empty);
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher((Guid)publisherDto.Id)).Returns(existingPublisher);
+        _publisherRepositoryMock.Setup(x => x.Get((Guid)publisherDto.Id)).ReturnsAsync(existingPublisher);
 
         // Assert
-        Assert.Throws<ExistingFieldException>(() => _publisherService.AddPublisher(publisherDto));
+        await Assert.ThrowsAsync<ExistingFieldException>(() => _publisherService.AddPublisher(publisherDto));
     }
 }

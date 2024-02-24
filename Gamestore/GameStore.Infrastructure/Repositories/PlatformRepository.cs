@@ -1,37 +1,15 @@
 ﻿using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Infrastructure.Repositories;
 
-public class PlatformRepository(AppDbContext appDbContext) : IPlatformRepository
+public class PlatformRepository(AppDbContext appDbContext) : Repository<Platform>(appDbContext), IPlatformRepository
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public void AddPlatform(Platform platform)
+    public async Task<IEnumerable<Platform>> GetAllPlatforms()
     {
-        _appDbContext.Platforms.Add(platform);
-        _appDbContext.SaveChanges();
-    }
-
-    public List<Platform> GetAllPlatforms()
-    {
-        return [.. _appDbContext.Platforms];
-    }
-
-    public Platform GetPlatform(Guid platformId)
-    {
-        return _appDbContext.Platforms.SingleOrDefault(x => x.Id == platformId);
-    }
-
-    public void RemovePlatform(Platform platform)
-    {
-        _appDbContext.Platforms.Remove(platform);
-        _appDbContext.SaveChanges();
-    }
-
-    public void UpdatePlatform(Platform platform)
-    {
-        _appDbContext.Platforms.Update(platform);
-        _appDbContext.SaveChanges();
+        return await _appDbContext.Platforms.ToListAsync();
     }
 }

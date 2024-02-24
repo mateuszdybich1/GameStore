@@ -8,44 +8,41 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public void AddComment(Comment comment)
+    public async Task AddComment(Comment comment)
     {
         _appDbContext.Comments.Add(comment);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
     }
 
-    public Comment GetComment(Guid commentId, Guid gameId)
+    public async Task<Comment> GetComment(Guid commentId, Guid gameId)
     {
-        return _appDbContext.Comments.SingleOrDefault(x => x.Id == commentId && x.Game.Id == gameId);
+        return await _appDbContext.Comments.FirstOrDefaultAsync(x => x.Id == commentId && x.Game.Id == gameId);
     }
 
-    public List<CommentModel> GetGamesComments(Guid gameId)
+    public async Task<IEnumerable<CommentModel>> GetGamesComments(Guid gameId)
     {
-        var parentComments = _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.Game.Id == gameId && x.ParentComment == null).ToList();
+        var parentComments = await _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.Game.Id == gameId && x.ParentComment == null).ToListAsync();
 
         var parentCommentModels = parentComments.Select(x => new CommentModel(x.Id, x.Name, x.Body, x.Type)).ToList();
 
         foreach (var parentCommentModel in parentCommentModels)
         {
             parentCommentModel.ChildComments = [];
-            RecursiveGetComments(parentCommentModel, parentCommentModel.ChildComments);
+            await RecursiveGetComments(parentCommentModel, parentCommentModel.ChildComments);
         }
 
         return parentCommentModels;
     }
 
-    public void UpdateComment(Comment comment)
+    public async Task UpdateComment(Comment comment)
     {
         _appDbContext.Comments.Update(comment);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
     }
 
-    private void RecursiveGetComments(CommentModel comment, List<CommentModel> allComments)
+    private async Task RecursiveGetComments(CommentModel comment, List<CommentModel> allComments)
     {
-        comment.ChildComments =
-        [
-            .. _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.ParentComment.Id == comment.Id).Select(x => new CommentModel(x.Id, x.Name, x.Body, x.Type)),
-        ];
+        comment.ChildComments = await _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.ParentComment.Id == comment.Id).Select(x => new CommentModel(x.Id, x.Name, x.Body, x.Type)).ToListAsync();
         foreach (CommentModel childComment in comment.ChildComments)
         {
             allComments.Add(childComment);
@@ -60,7 +57,7 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
                 childComment.Body = $"[{childComment.ParentQuote}], {currentChildBody}";
             }
 
-            RecursiveGetComments(childComment, allComments);
+            await RecursiveGetComments(childComment, allComments);
         }
     }
 }

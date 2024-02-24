@@ -12,9 +12,9 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
     private readonly IPublisherRepository _publisherRepository = publisherRepository;
     private readonly IPublisherSearchCriteria _publisherSearchCriteria = publisherSearchCriteria;
 
-    public Guid AddPublisher(PublisherDto publisherDto)
+    public async Task<Guid> AddPublisher(PublisherDto publisherDto)
     {
-        if (publisherDto.Id != null && _publisherRepository.GetPublisher((Guid)publisherDto.Id) != null)
+        if (publisherDto.Id != null && await _publisherRepository.Get((Guid)publisherDto.Id) != null)
         {
             throw new ExistingFieldException($"Publisher with ID: {publisherDto.Id} already exists");
         }
@@ -28,7 +28,7 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
 
         try
         {
-            _publisherRepository.AddPublisher(publisher);
+            await _publisherRepository.Add(publisher);
         }
         catch (Exception)
         {
@@ -38,42 +38,43 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
         return publisher.Id;
     }
 
-    public Guid DeletePublisher(Guid publisherId)
+    public async Task<Guid> DeletePublisher(Guid publisherId)
     {
-        Publisher publisher = _publisherRepository.GetPublisher(publisherId) ?? throw new EntityNotFoundException($"Couldn't find publisher by ID: {publisherId}");
+        Publisher publisher = await _publisherRepository.Get(publisherId) ?? throw new EntityNotFoundException($"Couldn't find publisher by ID: {publisherId}");
 
-        _publisherRepository.DeletePublisher(publisher);
+        await _publisherRepository.Delete(publisher);
 
         return publisher.Id;
     }
 
-    public List<PublisherDto> GetAll()
+    public async Task<IEnumerable<PublisherDto>> GetAll()
     {
-        return _publisherRepository.GetAllPublishers().Select(x => new PublisherDto(x)).ToList();
+        var publishers = await _publisherRepository.GetAllPublishers();
+        return publishers.Select(x => new PublisherDto(x));
     }
 
-    public PublisherDto GetPublisherByCompanyName(string companyName)
+    public async Task<PublisherDto> GetPublisherByCompanyName(string companyName)
     {
-        Publisher publisher = _publisherSearchCriteria.GetPublisherByCompanyName(companyName) ?? throw new EntityNotFoundException($"Couldn't find publisher by company name: {companyName}");
+        Publisher publisher = await _publisherSearchCriteria.GetPublisherByCompanyName(companyName) ?? throw new EntityNotFoundException($"Couldn't find publisher by company name: {companyName}");
 
         return new(publisher);
     }
 
-    public PublisherDto GetPublisherByGameKey(string gameKey)
+    public async Task<PublisherDto> GetPublisherByGameKey(string gameKey)
     {
-        Publisher publisher = _publisherSearchCriteria.GetPublisherByGameKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find publisher by game key: {gameKey}");
+        Publisher publisher = await _publisherSearchCriteria.GetPublisherByGameKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find publisher by game key: {gameKey}");
 
         return new(publisher);
     }
 
-    public Guid UpdatePublisher(PublisherDto publisherDto)
+    public async Task<Guid> UpdatePublisher(PublisherDto publisherDto)
     {
         if (publisherDto.Id == null)
         {
             throw new ArgumentNullException("Cannot update publisher. Id is null");
         }
 
-        Publisher publisher = _publisherRepository.GetPublisher((Guid)publisherDto.Id) ?? throw new EntityNotFoundException($"Couldn't find publisher by ID: {publisherDto.Id}");
+        Publisher publisher = await _publisherRepository.Get((Guid)publisherDto.Id) ?? throw new EntityNotFoundException($"Couldn't find publisher by ID: {publisherDto.Id}");
 
         publisher.CompanyName = publisherDto.CompanyName;
         publisher.HomePage = publisherDto.HomePage ?? string.Empty;
@@ -82,7 +83,7 @@ public class PublisherService(IPublisherRepository publisherRepository, IPublish
 
         try
         {
-            _publisherRepository.UpdatePublisher(publisher);
+            await _publisherRepository.Update(publisher);
         }
         catch (Exception)
         {

@@ -7,7 +7,7 @@ namespace GameStore.Application.Tests.PublisherServiceTests;
 public partial class PublisherTests
 {
     [Fact]
-    public void UpdatePublisherShouldUpdatePublisherOnce()
+    public async Task UpdatePublisherShouldUpdatePublisherOnce()
     {
         // Arrange
         Guid publisherId = Guid.NewGuid();
@@ -16,18 +16,18 @@ public partial class PublisherTests
         Publisher updatedPublisher = new(publisherId, "UpdatedCompany", "TestHomePage", "TestDescription");
         PublisherDto publisherDto = new(updatedPublisher);
 
-        _publisherRepositoryMock.Setup(x => x.GetPublisher(publisherId)).Returns(publisher);
+        _publisherRepositoryMock.Setup(x => x.Get(publisherId)).ReturnsAsync(publisher);
 
         // Act
-        _publisherService.UpdatePublisher(publisherDto);
+        await _publisherService.UpdatePublisher(publisherDto);
 
         // Assert
-        _publisherRepositoryMock.Verify(x => x.GetPublisher(publisherId), Times.Once);
-        _publisherRepositoryMock.Verify(x => x.UpdatePublisher(It.Is<Publisher>(x => x.Id == publisherId && x.CompanyName == publisherDto.CompanyName && x.HomePage == publisherDto.HomePage && x.Description == publisherDto.Description)), Times.Once);
+        _publisherRepositoryMock.Verify(x => x.Get(publisherId), Times.Once);
+        _publisherRepositoryMock.Verify(x => x.Update(It.Is<Publisher>(x => x.Id == publisherId && x.CompanyName == publisherDto.CompanyName && x.HomePage == publisherDto.HomePage && x.Description == publisherDto.Description)), Times.Once);
     }
 
     [Fact]
-    public void UpdatePublisherPublisherIdNotProvidedShouldThrowException()
+    public async Task UpdatePublisherPublisherIdNotProvidedShouldThrowException()
     {
         // Arrange
         PublisherDto publisherDto = new()
@@ -37,6 +37,6 @@ public partial class PublisherTests
         };
 
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => _publisherService.UpdatePublisher(publisherDto));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _publisherService.UpdatePublisher(publisherDto));
     }
 }

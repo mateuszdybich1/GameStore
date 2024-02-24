@@ -3,7 +3,7 @@
 namespace GameStore.Domain.ISearchCriterias;
 public interface IPublisherSearchCriteria
 {
-    public Publisher GetPublisherByCompanyName(string companyName);
+    public Task<Publisher> GetPublisherByCompanyName(string companyName);
 
-    public Publisher GetPublisherByGameKey(string gameKey);
+    public Task<Publisher> GetPublisherByGameKey(string gameKey);
 }

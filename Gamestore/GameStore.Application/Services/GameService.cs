@@ -16,7 +16,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
     private readonly IGenreRepository _genreRepository = genreRepository;
     private readonly IPublisherRepository _publisherRepository = publisherRepository;
 
-    public Guid AddGame(GameDtoDto gameDto)
+    public async Task<Guid> AddGame(GameDtoDto gameDto)
     {
         Guid gameId = (gameDto.Game.Id == null || gameDto.Game.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)gameDto.Game.Id;
 
@@ -30,18 +30,22 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
             throw new ArgumentException("Empty publisher ID");
         }
 
-        Publisher publisher = _publisherRepository.GetPublisher((Guid)gameDto.Publisher) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.Publisher} does not exists");
+        Publisher publisher = await _publisherRepository.Get((Guid)gameDto.Publisher) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.Publisher} does not exists");
 
-        List<Genre> genres = gameDto.Genres == null ? [] : gameDto.Genres.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
+        var genres = gameDto.Genres == null
+                                    ? Enumerable.Empty<Genre>()
+                                    : await Task.WhenAll(gameDto.Genres.Select(async x => await _genreRepository.Get(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")));
 
-        if (genres.Count == 0)
+        if (!genres.Any())
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        List<Platform> platforms = gameDto.Platforms == null ? [] : gameDto.Platforms.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
+        var platforms = gameDto.Platforms == null
+                                          ? Enumerable.Empty<Platform>()
+                                          : await Task.WhenAll(gameDto.Platforms.Select(async x => await _platformRepository.Get(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")));
 
-        if (platforms.Count == 0)
+        if (!platforms.Any())
         {
             throw new EntityNotFoundException("You must provide at least one platform");
         }
@@ -49,12 +53,12 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         string description = string.IsNullOrWhiteSpace(gameDto.Game.Description) ? null : gameDto.Game.Description;
 
         Game game = string.IsNullOrWhiteSpace(description)
-            ? new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, publisher.Id, genres, platforms)
-            : new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, description, publisher.Id, genres, platforms);
+            ? new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, publisher.Id, genres.ToList(), platforms.ToList())
+            : new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, description, publisher.Id, genres.ToList(), platforms.ToList());
 
         try
         {
-            _gameRepository.AddGame(game);
+            await _gameRepository.Add(game);
         }
         catch (Exception)
         {
@@ -64,54 +68,54 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         return game.Id;
     }
 
-    public Guid DeleteGame(string gameKey)
+    public async Task<Guid> DeleteGame(string gameKey)
     {
-        Game game = GameByKey(gameKey);
+        Game game = await GameByKey(gameKey);
 
-        _gameRepository.RemoveGame(game);
+        await _gameRepository.Delete(game);
 
         return game.Id;
     }
 
-    public GameDto GetGameById(Guid gameId)
+    public async Task<GameDto> GetGameById(Guid gameId)
     {
-        Game game = GameById(gameId);
+        Game game = await GameById(gameId);
         game.NumberOfViews += 1;
         game.ModificationDate = DateTime.Now;
-        _gameRepository.UpdateGame(game);
+        await _gameRepository.Update(game);
 
         return new(game);
     }
 
-    public GameDto GetGameByKey(string gameKey)
+    public async Task<GameDto> GetGameByKey(string gameKey)
     {
-        Game game = GameByKey(gameKey);
+        Game game = await GameByKey(gameKey);
         game.NumberOfViews += 1;
         game.ModificationDate = DateTime.Now;
-        _gameRepository.UpdateGame(game);
+        await _gameRepository.Update(game);
 
         return new(game);
     }
 
-    public object GetGameByKeyWithRelations(string gameKey)
+    public async Task<object> GetGameByKeyWithRelations(string gameKey)
     {
-        return _gamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        return await _gamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
     }
 
-    public List<GameDto> GetGames()
+    public async Task<IEnumerable<GameDto>> GetGames()
     {
-        List<Game> games = _gameRepository.GetAllGames();
-        return games.Select(x => new GameDto(x)).ToList();
+        var games = await _gameRepository.GetAllGames();
+        return games.Select(x => new GameDto(x));
     }
 
-    public object GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice)
+    public async Task<object> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice)
     {
         List<Guid>? updatedGenreIds = genreIds != null ? new List<Guid>(genreIds) : null;
         if (genreIds != null)
         {
             foreach (var genreId in genreIds)
             {
-                Genre genre = _genreRepository.GetGenre(genreId);
+                Genre genre = await _genreRepository.Get(genreId);
                 if (genre == null)
                 {
                     updatedGenreIds.Remove(genreId);
@@ -124,7 +128,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         {
             foreach (var platformId in platformIds)
             {
-                Platform platform = _platformRepository.GetPlatform(platformId);
+                Platform platform = await _platformRepository.Get(platformId);
                 if (platform == null)
                 {
                     updatedPlatformIds.Remove(platformId);
@@ -137,7 +141,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         {
             foreach (var publisherId in publisherIds)
             {
-                Publisher publisher = _publisherRepository.GetPublisher(publisherId);
+                Publisher publisher = await _publisherRepository.Get(publisherId);
                 if (publisher == null)
                 {
                     updatedPublisherIds.Remove(publisherId);
@@ -172,9 +176,10 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         NumberOfGamesOnPageFilteringMode? numberOfGamesOnPage = EnumExtensions.GetEnumValueFromDescription<NumberOfGamesOnPageFilteringMode>(pageCount);
         numberOfGamesOnPage ??= NumberOfGamesOnPageFilteringMode.All;
 
-        List<GameDto> gameDtos = _gameRepository.GetAllGames(updatedGenreIds, updatedPlatformIds, updatedPublisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice).Select(x => new GameDto(x)).ToList();
+        var games = await _gameRepository.GetAllGames(updatedGenreIds, updatedPlatformIds, updatedPublisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice);
 
-        int numberOfPages = numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All ? _gameRepository.GetNumberOfPages((NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage) : 1;
+        var gameDtos = games.Select(x => new GameDto(x));
+        int numberOfPages = numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All ? await _gameRepository.GetNumberOfPages((NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage) : 1;
 
         object returnObj = new
         {
@@ -186,22 +191,28 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         return returnObj;
     }
 
-    public List<GameDto> GetGamesByGenreId(Guid genreId)
+    public async Task<IEnumerable<GameDto>> GetGamesByGenreId(Guid genreId)
     {
-        return _gamesSearchCriteria.GetByGenreId(genreId).Select(x => new GameDto(x)).ToList();
+        var games = await _gamesSearchCriteria.GetByGenreId(genreId);
+
+        return games.Select(x => new GameDto(x));
     }
 
-    public List<GameDto> GetGamesByPlatformId(Guid platformId)
+    public async Task<IEnumerable<GameDto>> GetGamesByPlatformId(Guid platformId)
     {
-        return _gamesSearchCriteria.GetByPlatformId(platformId).Select(x => new GameDto(x)).ToList();
+        var games = await _gamesSearchCriteria.GetByPlatformId(platformId);
+
+        return games.Select(x => new GameDto(x));
     }
 
-    public List<GameDto> GetGamesByPublisherName(string companyName)
+    public async Task<IEnumerable<GameDto>> GetGamesByPublisherName(string companyName)
     {
-        return _gamesSearchCriteria.GetByPublisherName(companyName).Select(x => new GameDto(x)).ToList();
+        var games = await _gamesSearchCriteria.GetByPublisherName(companyName);
+
+        return games.Select(x => new GameDto(x));
     }
 
-    public Guid UpdateGame(GameDtoDto gameDto)
+    public async Task<Guid> UpdateGame(GameDtoDto gameDto)
     {
         if (gameDto.Game.Id == null)
         {
@@ -213,33 +224,37 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
             throw new ArgumentException("Empty publisher ID");
         }
 
-        Publisher publisher = _publisherRepository.GetPublisher((Guid)gameDto.Publisher) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.Publisher} does not exists");
+        Publisher publisher = await _publisherRepository.Get((Guid)gameDto.Publisher) ?? throw new EntityNotFoundException($"Publisher with ID: {gameDto.Publisher} does not exists");
 
-        List<Genre> genres = gameDto.Genres == null ? [] : gameDto.Genres.Select(x => _genreRepository.GetGenre(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")).ToList();
+        var genres = gameDto.Genres == null
+                                   ? Enumerable.Empty<Genre>()
+                                   : await Task.WhenAll(gameDto.Genres.Select(async x => await _genreRepository.Get(x) ?? throw new EntityNotFoundException($"Genre ID: {x} is incorrect")));
 
-        if (genres.Count == 0)
+        if (!genres.Any())
         {
             throw new EntityNotFoundException("You must provide at least one genre");
         }
 
-        List<Platform> platforms = gameDto.Platforms == null ? [] : gameDto.Platforms.Select(x => _platformRepository.GetPlatform(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")).ToList();
+        var platforms = gameDto.Platforms == null
+                                          ? Enumerable.Empty<Platform>()
+                                          : await Task.WhenAll(gameDto.Platforms.Select(async x => await _platformRepository.Get(x) ?? throw new EntityNotFoundException($"Platform ID: {x} is incorrect")));
 
-        if (platforms.Count == 0)
+        if (!platforms.Any())
         {
             throw new EntityNotFoundException("You must provide at least one platform");
         }
 
-        Game game = _gameRepository.GetGameWithRelations((Guid)gameDto.Game.Id) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.Game.Id}");
+        Game game = await _gameRepository.GetGameWithRelations((Guid)gameDto.Game.Id) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameDto.Game.Id}");
 
         game.Name = gameDto.Game.Name;
         game.Key = gameDto.Game.Key;
         game.Description = gameDto.Game.Description;
 
         game.Genres.Clear();
-        game.Genres = genres;
+        game.Genres = genres.ToList();
 
         game.Platforms.Clear();
-        game.Platforms = platforms;
+        game.Platforms = platforms.ToList();
 
         game.PublisherId = publisher.Id;
 
@@ -251,7 +266,7 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
 
         try
         {
-            _gameRepository.UpdateGame(game);
+            await _gameRepository.Update(game);
         }
         catch (Exception)
         {
@@ -261,25 +276,25 @@ public class GameService(IGameRepository gameRepository, IGamesSearchCriteria ga
         return game.Id;
     }
 
-    public Guid UpdateGameDescr(Guid gameId, string updatedDesc)
+    public async Task<Guid> UpdateGameDescr(Guid gameId, string updatedDesc)
     {
-        Game game = GameById(gameId);
+        Game game = await GameById(gameId);
 
         game.Description = updatedDesc;
         game.ModificationDate = DateTime.Now;
 
-        _gameRepository.UpdateGame(game);
+        await _gameRepository.Update(game);
 
         return game.Id;
     }
 
-    private Game GameById(Guid gameId)
+    private async Task<Game> GameById(Guid gameId)
     {
-        return _gameRepository.GetGame(gameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameId}");
+        return await _gameRepository.Get(gameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameId}");
     }
 
-    private Game GameByKey(string gameKey)
+    private async Task<Game> GameByKey(string gameKey)
     {
-        return _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        return await _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
     }
 }

@@ -2,21 +2,15 @@
 
 namespace GameStore.Domain.IRepositories;
 
-public interface IGameRepository
+public interface IGameRepository : IRepository<Game>
 {
-    public void AddGame(Game game);
+    public Task<Game> GetGameWithRelations(Guid gameId);
 
-    public Game GetGame(Guid gameId);
+    public Task<IEnumerable<Game>> GetAllGames();
 
-    public Game GetGameWithRelations(Guid gameId);
+    public Task<int> GetAllGamesCount();
 
-    public void UpdateGame(Game game);
+    public Task<int> GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage);
 
-    public void RemoveGame(Game game);
-
-    public List<Game> GetAllGames();
-
-    public int GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage);
-
-    public List<Game> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice);
+    public Task<IEnumerable<Game>> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice);
 }

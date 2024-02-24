@@ -4,13 +4,13 @@ namespace GameStore.Domain.ISearchCriterias;
 
 public interface IGamesSearchCriteria
 {
-    public Game GetByKey(string key);
+    public Task<Game> GetByKey(string key);
 
-    public object GetByKeyWithRelations(string key);
+    public Task<object> GetByKeyWithRelations(string key);
 
-    public List<Game> GetByGenreId(Guid genreId);
+    public Task<IEnumerable<Game>> GetByGenreId(Guid genreId);
 
-    public List<Game> GetByPlatformId(Guid platformId);
+    public Task<IEnumerable<Game>> GetByPlatformId(Guid platformId);
 
-    public List<Game> GetByPublisherName(string companyName);
+    public Task<IEnumerable<Game>> GetByPublisherName(string companyName);
 }

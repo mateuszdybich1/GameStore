@@ -1,12 +1,12 @@
-﻿using GameStore.Application.Dtos;
-using GameStore.Domain.Entities;
+﻿using GameStore.Domain.Entities;
+using Moq;
 using Xunit;
 
 namespace GameStore.Application.Tests.PlatformServiceTests;
 public partial class PlatformTests
 {
     [Fact]
-    public void GetAllShouldReturnPlatformDtosList()
+    public async Task GetAllShouldReturnPlatformDtosList()
     {
         // Arrange
         var platforms = new List<Platform>();
@@ -16,10 +16,11 @@ public partial class PlatformTests
             platforms.Add(new Platform(Guid.NewGuid(), $"Type-{i}"));
         }
 
-        _platformRepositoryMock.Setup(x => x.GetAllPlatforms()).Returns(platforms);
+        _platformRepositoryMock.Setup(x => x.GetAllPlatforms()).ReturnsAsync(platforms.AsEnumerable);
 
         // Act
-        List<PlatformDto> platformDtos = _platformService.GetAll();
+        var result = await _platformService.GetAll();
+        var platformDtos = result.ToList();
 
         // Assert
         Assert.Equal(5, platformDtos.Count);
@@ -30,7 +31,7 @@ public partial class PlatformTests
     }
 
     [Fact]
-    public void GetGamesPlatformsCorrectGameKeyProvidedShouldReturnPlatformDtosList()
+    public async Task GetGamesPlatformsCorrectGameKeyProvidedShouldReturnPlatformDtosList()
     {
         // Arrange
         string gamekey = "TestKey";
@@ -42,10 +43,11 @@ public partial class PlatformTests
             platforms.Add(new Platform(Guid.NewGuid(), $"Type-{i}"));
         }
 
-        _platformsSearchCriteriaMock.Setup(x => x.GetByGameKey(gamekey)).Returns(platforms);
+        _platformsSearchCriteriaMock.Setup(x => x.GetByGameKey(gamekey)).ReturnsAsync(platforms.AsEnumerable);
 
         // Act
-        List<PlatformDto> platformDtos = _platformService.GetGamesPlatforms(gamekey);
+        var result = await _platformService.GetGamesPlatforms(gamekey);
+        var platformDtos = result.ToList();
 
         // Assert
         Assert.Equal(5, platformDtos.Count);

@@ -4,22 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Infrastructure.Repositories;
 
-public class GameRepository(AppDbContext appDbContext) : IGameRepository
+public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbContext), IGameRepository
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public void AddGame(Game game)
+    public async Task<IEnumerable<Game>> GetAllGames()
     {
-        _appDbContext.Games.Add(game);
-        _appDbContext.SaveChanges();
+        return await _appDbContext.Games.ToListAsync();
     }
 
-    public List<Game> GetAllGames()
-    {
-        return [.. _appDbContext.Games];
-    }
-
-    public List<Game> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
+    public async Task<IEnumerable<Game>> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
     {
         IQueryable<Game>? games = _appDbContext.Games.Where(x => x.Price >= minPrice && x.Price <= maxPrice);
         if (publisherIds != null)
@@ -99,34 +93,22 @@ public class GameRepository(AppDbContext appDbContext) : IGameRepository
             }
         }
 
-        return [.. games];
+        return await games.ToListAsync();
     }
 
-    public Game GetGame(Guid gameId)
+    public async Task<int> GetAllGamesCount()
     {
-        return _appDbContext.Games.SingleOrDefault(x => x.Id == gameId);
+        return await _appDbContext.Games.CountAsync();
     }
 
-    public void RemoveGame(Game game)
+    public async Task<Game> GetGameWithRelations(Guid gameId)
     {
-        _appDbContext.Games.Remove(game);
-        _appDbContext.SaveChanges();
+        return await _appDbContext.Games.Where(x => x.Id == gameId).Include(x => x.Genres).Include(x => x.Platforms).SingleOrDefaultAsync();
     }
 
-    public void UpdateGame(Game game)
+    public async Task<int> GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage)
     {
-        _appDbContext.Games.Update(game);
-        _appDbContext.SaveChanges();
-    }
-
-    public Game GetGameWithRelations(Guid gameId)
-    {
-        return _appDbContext.Games.Where(x => x.Id == gameId).Include(x => x.Genres).Include(x => x.Platforms).Single();
-    }
-
-    public int GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage)
-    {
-        int numberOfGames = _appDbContext.Games.Count();
+        int numberOfGames = await _appDbContext.Games.CountAsync();
         int numberOfPages = numberOfGames / (int)numberOfGamesOnPage;
         if (numberOfGames % (int)numberOfGamesOnPage > 0)
         {

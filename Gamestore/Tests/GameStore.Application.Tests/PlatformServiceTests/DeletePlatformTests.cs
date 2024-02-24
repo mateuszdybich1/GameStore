@@ -7,30 +7,30 @@ namespace GameStore.Application.Tests.PlatformServiceTests;
 public partial class PlatformTests
 {
     [Fact]
-    public void DeletePlatformShouldDeletePlatformOnce()
+    public async Task DeletePlatformShouldDeletePlatformOnce()
     {
         // Arrange
         Guid platformId = Guid.NewGuid();
 
         Platform platform = new(platformId, "TestType");
-        _platformRepositoryMock.Setup(x => x.GetPlatform(platformId)).Returns(platform);
+        _platformRepositoryMock.Setup(x => x.Get(platformId)).ReturnsAsync(platform);
 
         // Act
-        _platformService.DeletePlatform(platformId);
+        await _platformService.DeletePlatform(platformId);
 
         // Assert
-        _platformRepositoryMock.Verify(x => x.GetPlatform(platformId), Times.Once);
-        _platformRepositoryMock.Verify(x => x.RemovePlatform(It.Is<Platform>(p => p == platform)), Times.Once);
+        _platformRepositoryMock.Verify(x => x.Get(platformId), Times.Once);
+        _platformRepositoryMock.Verify(x => x.Delete(It.Is<Platform>(p => p == platform)), Times.Once);
     }
 
     [Fact]
-    public void DeletePlatformIncorrectPlatformIdProvidedShouldThrowException()
+    public async Task DeletePlatformIncorrectPlatformIdProvidedShouldThrowException()
     {
         // Arrange
         Guid platformId = Guid.NewGuid();
-        _platformRepositoryMock.Setup(x => x.GetPlatform(platformId)).Returns((Platform)null);
+        _platformRepositoryMock.Setup(x => x.Get(platformId)).Returns(Task.FromResult<Platform>(null));
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _platformService.DeletePlatform(platformId));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _platformService.DeletePlatform(platformId));
     }
 }

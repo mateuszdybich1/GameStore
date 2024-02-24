@@ -8,16 +8,16 @@ namespace GameStore.Application.Tests.PublisherServiceTests;
 public partial class PublisherTests
 {
     [Fact]
-    public void GetPublisherByCompanyNameShouldGetPublisherDto()
+    public async Task GetPublisherByCompanyNameShouldGetPublisherDto()
     {
         // Arrange
         string companyName = "TestCompany";
 
         Publisher publisher = new(Guid.NewGuid(), companyName, string.Empty, string.Empty);
-        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).Returns(publisher);
+        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).ReturnsAsync(publisher);
 
         // Act
-        PublisherDto publisherDto = _publisherService.GetPublisherByCompanyName(companyName);
+        PublisherDto publisherDto = await _publisherService.GetPublisherByCompanyName(companyName);
 
         // Assert
         Assert.NotNull(publisherDto);
@@ -29,27 +29,27 @@ public partial class PublisherTests
     }
 
     [Fact]
-    public void GetPublisherByCompanyNameIncorrectCompanyNameProvidedShouldThrowException()
+    public async Task GetPublisherByCompanyNameIncorrectCompanyNameProvidedShouldThrowException()
     {
         // Arrange
         string companyName = "RandomCompanyName";
-        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).Returns((Publisher)null);
+        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).Returns(Task.FromResult<Publisher>(null));
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _publisherService.GetPublisherByCompanyName(companyName));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _publisherService.GetPublisherByCompanyName(companyName));
     }
 
     [Fact]
-    public void GetPublisherByGameKeyShouldGetPublisherDto()
+    public async Task GetPublisherByGameKeyShouldGetPublisherDto()
     {
         // Arrange
         string gameKey = "TestKey";
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", string.Empty, string.Empty);
 
-        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).Returns(publisher);
+        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).ReturnsAsync(publisher);
 
         // Act
-        PublisherDto publisherDto = _publisherService.GetPublisherByGameKey(gameKey);
+        PublisherDto publisherDto = await _publisherService.GetPublisherByGameKey(gameKey);
 
         // Assert
         Assert.NotNull(publisherDto);
@@ -61,13 +61,13 @@ public partial class PublisherTests
     }
 
     [Fact]
-    public void GetPublisherByGameKeyIncorrectGameKeyProvidedShouldThrowException()
+    public async Task GetPublisherByGameKeyIncorrectGameKeyProvidedShouldThrowException()
     {
         // Arrange
         string gameKey = "TestKey";
-        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).Returns((Publisher)null);
+        _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).Returns(Task.FromResult<Publisher>(null));
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _publisherService.GetPublisherByCompanyName(gameKey));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _publisherService.GetPublisherByCompanyName(gameKey));
     }
 }

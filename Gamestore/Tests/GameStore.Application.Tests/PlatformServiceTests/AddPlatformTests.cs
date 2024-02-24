@@ -22,7 +22,7 @@ public partial class PlatformTests
     }
 
     [Fact]
-    public void AddPlatformShouldAddPlatformOnce()
+    public async Task AddPlatformShouldAddPlatformOnce()
     {
         // Arrange
         PlatformDto platformDto = new()
@@ -31,10 +31,10 @@ public partial class PlatformTests
         };
 
         // Act
-        Guid platformId = _platformService.AddPlatform(platformDto);
+        Guid platformId = await _platformService.AddPlatform(platformDto);
 
         // Assert
         Assert.True(platformId != Guid.Empty);
-        _platformRepositoryMock.Verify(x => x.AddPlatform(It.Is<Platform>(x => x.Type == platformDto.Type)), Times.Once());
+        _platformRepositoryMock.Verify(x => x.Add(It.Is<Platform>(x => x.Type == platformDto.Type)), Times.Once());
     }
 }

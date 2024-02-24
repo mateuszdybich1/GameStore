@@ -8,15 +8,8 @@ public class PlatformsSearchCriteria(AppDbContext appDbContext) : IPlatformsSear
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public List<Platform> GetByGameKey(string gameKey)
+    public async Task<IEnumerable<Platform>> GetByGameKey(string gameKey)
     {
-        List<Platform> platforms =
-        [
-            .. _appDbContext.Platforms
-                    .Include(x => x.Games)
-                    .Where(x => x.Games.Any(y => y.Key == gameKey)),
-        ];
-
-        return platforms;
+        return await _appDbContext.Platforms.Include(x => x.Games).Where(x => x.Games.Any(y => y.Key == gameKey)).ToListAsync();
     }
 }

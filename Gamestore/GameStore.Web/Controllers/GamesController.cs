@@ -29,49 +29,49 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     };
 
     [HttpPost]
-    public IActionResult AddGame(GameDtoDto gameDto)
+    public async Task<IActionResult> AddGame(GameDtoDto gameDto)
     {
-        return Ok(_gamesService.AddGame(gameDto));
+        return Ok(await _gamesService.AddGame(gameDto));
     }
 
     [HttpGet("{key}")]
-    public IActionResult GetGameByKey([FromRoute] string key)
+    public async Task<IActionResult> GetGameByKey([FromRoute] string key)
     {
-        return Ok(_gamesService.GetGameByKey(key));
+        return Ok(await _gamesService.GetGameByKey(key));
     }
 
     [HttpGet("find/{id}")]
-    public IActionResult GetGameById([FromRoute] Guid id)
+    public async Task<IActionResult> GetGameById([FromRoute] Guid id)
     {
-        return Ok(_gamesService.GetGameById(id));
+        return Ok(await _gamesService.GetGameById(id));
     }
 
     [HttpPut]
-    public IActionResult UpdateGame(GameDtoDto gameDto)
+    public async Task<IActionResult> UpdateGame(GameDtoDto gameDto)
     {
-        return Ok(_gamesService.UpdateGame(gameDto));
+        return Ok(await _gamesService.UpdateGame(gameDto));
     }
 
     [HttpDelete("{key}")]
-    public IActionResult DeleteGame([FromRoute] string key)
+    public async Task<IActionResult> DeleteGame([FromRoute] string key)
     {
-        return Ok(_gamesService.DeleteGame(key));
+        return Ok(await _gamesService.DeleteGame(key));
     }
 
     [HttpGet]
-    public IActionResult GetAllGames([FromQuery] List<Guid> genres = null, [FromQuery] List<Guid> platforms = null, [FromQuery] List<Guid> publishers = null, [FromQuery] string name = null, [FromQuery] string datePublishing = null, [FromQuery] string sort = null, [FromQuery] uint page = 1, [FromQuery] string pageCount = "All", [FromQuery] int? minPrice = 0, [FromQuery] int? maxPrice = int.MaxValue)
+    public async Task<IActionResult> GetAllGames([FromQuery] List<Guid> genres = null, [FromQuery] List<Guid> platforms = null, [FromQuery] List<Guid> publishers = null, [FromQuery] string name = null, [FromQuery] string datePublishing = null, [FromQuery] string sort = null, [FromQuery] uint page = 1, [FromQuery] string pageCount = "All", [FromQuery] int? minPrice = 0, [FromQuery] int? maxPrice = int.MaxValue)
     {
         return genres == null && platforms == null && publishers == null && name == null && datePublishing == null && sort == null && page == 1 && pageCount == "All" && minPrice == 0 && maxPrice == int.MaxValue
-            ? Ok(_gamesService.GetGames())
-            : Ok(_gamesService.GetGames(genres, platforms, publishers, name, datePublishing, sort, page, pageCount, (int)minPrice!, (int)maxPrice!));
+            ? Ok(await _gamesService.GetGames())
+            : Ok(await _gamesService.GetGames(genres, platforms, publishers, name, datePublishing, sort, page, pageCount, (int)minPrice!, (int)maxPrice!));
     }
 
     [HttpGet("{key}/file")]
-    public IActionResult GetGamesFile([FromRoute] string key)
+    public async Task<IActionResult> GetGamesFile([FromRoute] string key)
     {
         string fileName = $"{key}";
 
-        var game = _gamesService.GetGameByKeyWithRelations(key);
+        var game = await _gamesService.GetGameByKeyWithRelations(key);
 
         string serializedGame = JsonSerializer.Serialize(game, _jsonSerializerOptions);
 
@@ -81,29 +81,29 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     }
 
     [HttpGet("{key}/publisher")]
-    public IActionResult GetGamePublisher([FromRoute] string key)
+    public async Task<IActionResult> GetGamePublisher([FromRoute] string key)
     {
-        return Ok(_publisherService.GetPublisherByGameKey(key));
+        return Ok(await _publisherService.GetPublisherByGameKey(key));
     }
 
     [HttpGet("{key}/genres")]
-    public IActionResult GetGamesGenres([FromRoute] string key)
+    public async Task<IActionResult> GetGamesGenres([FromRoute] string key)
     {
-        return Ok(_genreService.GetGamesGenres(key));
+        return Ok(await _genreService.GetGamesGenres(key));
     }
 
     [HttpGet("{key}/platforms")]
-    public IActionResult GetGamesPlatforms([FromRoute] string key)
+    public async Task<IActionResult> GetGamesPlatforms([FromRoute] string key)
     {
-        return Ok(_platformService.GetGamesPlatforms(key));
+        return Ok(await _platformService.GetGamesPlatforms(key));
     }
 
     [HttpPost("{key}/buy")]
-    public IActionResult AddToCart([FromRoute] string key)
+    public async Task<IActionResult> AddToCart([FromRoute] string key)
     {
         try
         {
-            return Ok(_orderService.AddOrder(_customerId, key));
+            return Ok(await _orderService.AddOrder(_customerId, key));
         }
         catch (EntityNotFoundException ex)
         {
@@ -116,21 +116,21 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     }
 
     [HttpPost("{key}/comments")]
-    public IActionResult AddComment([FromRoute] string key, [FromBody] CommentDtoDto commentDto)
+    public async Task<IActionResult> AddComment([FromRoute] string key, [FromBody] CommentDtoDto commentDto)
     {
-        return Ok(_commentService.AddComment(key, commentDto));
+        return Ok(await _commentService.AddComment(key, commentDto));
     }
 
     [HttpGet("{key}/comments")]
-    public IActionResult GetComments([FromRoute] string key)
+    public async Task<IActionResult> GetComments([FromRoute] string key)
     {
-        return Ok(_commentService.GetComments(key));
+        return Ok(await _commentService.GetComments(key));
     }
 
     [HttpDelete("{key}/comments/{id}")]
-    public IActionResult Delete([FromRoute] string key, [FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] string key, [FromRoute] Guid id)
     {
-        return Ok(_commentService.DeleteComment(key, id));
+        return Ok(await _commentService.DeleteComment(key, id));
     }
 
     [HttpGet("pagination-options")]

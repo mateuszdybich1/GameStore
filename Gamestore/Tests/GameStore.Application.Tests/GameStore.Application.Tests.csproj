@@ -10,9 +10,19 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="GenreServiceTests\**" />
     <Compile Remove="NewFolder1\**" />
+    <EmbeddedResource Remove="GenreServiceTests\**" />
     <EmbeddedResource Remove="NewFolder1\**" />
+    <None Remove="GenreServiceTests\**" />
     <None Remove="NewFolder1\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="AddGenreTests.cs" />
+    <Compile Remove="DeleteGenreTests.cs" />
+    <Compile Remove="GetGenresListTests.cs" />
+    <Compile Remove="GetGenreTests.cs" />
+    <Compile Remove="UpdateGenreTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />

@@ -33,7 +33,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
             return BadRequest("Invalid payment method for this endpoint.");
         }
 
-        OrderInformation orderInformation = _orderService.GetOrderInformation(_customerId);
+        OrderInformation orderInformation = await _orderService.GetOrderInformation(_customerId);
         string route;
         object apiObj;
         HttpResponseMessage response;
@@ -42,7 +42,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
         {
             var invoice = InvoiceGenerator.GenerateInvoice(_customerId, orderInformation.OrderId, orderInformation.Sum);
 
-            _orderService.UpdateOrder(orderInformation.OrderId, OrderStatus.Checkout);
+            await _orderService.UpdateOrder(orderInformation.OrderId, OrderStatus.Checkout);
 
             return File(invoice, "application/pdf", "invoice.pdf");
         }
@@ -81,8 +81,6 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
 
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-        Console.WriteLine(jsonContent);
-
         response = await _httpClient.PostAsync(route, content);
 
         if (response.StatusCode != HttpStatusCode.OK)
@@ -90,7 +88,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
             return BadRequest(await response.Content.ReadAsStringAsync());
         }
 
-        _orderService.UpdateOrder(orderInformation.OrderId, OrderStatus.Paid);
+        await _orderService.UpdateOrder(orderInformation.OrderId, OrderStatus.Paid);
 
         var returnObj = new
         {
@@ -121,11 +119,11 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     }
 
     [HttpDelete("cart/{key}")]
-    public IActionResult RemoveFromCart([FromRoute] string key)
+    public async Task<IActionResult> RemoveFromCart([FromRoute] string key)
     {
         try
         {
-            return Ok(_orderService.RemoveOrder(_customerId, key));
+            return Ok(await _orderService.RemoveOrder(_customerId, key));
         }
         catch (EntityNotFoundException ex)
         {
@@ -134,9 +132,9 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     }
 
     [HttpGet]
-    public IActionResult GetPaidAndCancelledOrders()
+    public async Task<IActionResult> GetPaidAndCancelledOrders()
     {
-        return Ok(_orderService.GetPaidAndCancelledOrders());
+        return Ok(await _orderService.GetPaidAndCancelledOrders());
     }
 
     [HttpGet("{id}")]
@@ -153,17 +151,17 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     }
 
     [HttpGet("{id}/details")]
-    public IActionResult GetOrderDetails([FromRoute] Guid id)
+    public async Task<IActionResult> GetOrderDetails([FromRoute] Guid id)
     {
-        return Ok(_orderService.GetOrderDetails(id));
+        return Ok(await _orderService.GetOrderDetails(id));
     }
 
     [HttpGet("cart")]
-    public IActionResult GetCart()
+    public async Task<IActionResult> GetCart()
     {
         try
         {
-            return Ok(_orderService.GetCart(_customerId));
+            return Ok(await _orderService.GetCart(_customerId));
         }
         catch (EntityNotFoundException ex)
         {

@@ -8,39 +8,33 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public List<Game> GetByGenreId(Guid genreId)
+    public async Task<IEnumerable<Game>> GetByGenreId(Guid genreId)
     {
-        List<Game> games =
-        [
-            .. _appDbContext.Games
-                    .Include(x => x.Genres)
-                    .Where(x => x.Genres.Any(y => y.Id == genreId)),
-        ];
+        var games = await _appDbContext.Games.Include(x => x.Genres).Where(x => x.Genres.Any(y => y.Id == genreId)).ToListAsync();
 
         return games;
     }
 
-    public Game GetByKey(string key)
+    public async Task<Game> GetByKey(string key)
     {
-        return _appDbContext.Games.SingleOrDefault(x => x.Key == key);
+        return await _appDbContext.Games.SingleOrDefaultAsync(x => x.Key == key);
     }
 
-    public object GetByKeyWithRelations(string key)
+    public async Task<object> GetByKeyWithRelations(string key)
     {
-        var game = _appDbContext.Games
-        .Where(x => x.Key == key).SingleOrDefault();
+        var game = await _appDbContext.Games.Where(x => x.Key == key).SingleOrDefaultAsync();
 
         if (game == null)
         {
             return null;
         }
 
-        game = _appDbContext.Games
+        game = await _appDbContext.Games
         .Where(x => x.Key == key)
         .Include(x => x.Publisher)
         .Include(x => x.Platforms)
         .Include(x => x.Genres).ThenInclude(x => x.ParentGenre)
-        .SingleOrDefault();
+        .SingleOrDefaultAsync();
 
         return new
         {
@@ -75,28 +69,14 @@ public class GamesSearchCirteria(AppDbContext appDbContext) : IGamesSearchCriter
         };
     }
 
-    public List<Game> GetByPlatformId(Guid platformId)
+    public async Task<IEnumerable<Game>> GetByPlatformId(Guid platformId)
     {
-        List<Game> games =
-        [
-            .. _appDbContext.Games
-                    .Include(x => x.Platforms)
-                    .Where(x => x.Platforms.Any(y => y.Id == platformId)),
-        ];
-
-        return games;
+        return await _appDbContext.Games.Include(x => x.Platforms).Where(x => x.Platforms.Any(y => y.Id == platformId)).ToListAsync();
     }
 
-    public List<Game> GetByPublisherName(string companyName)
+    public async Task<IEnumerable<Game>> GetByPublisherName(string companyName)
     {
-        List<Game> games =
-        [
-            .. _appDbContext.Games
-                    .Include(x => x.Publisher)
-                    .Where(x => x.Publisher.CompanyName == companyName),
-        ];
-
-        return games;
+        return await _appDbContext.Games.Include(x => x.Publisher).Where(x => x.Publisher.CompanyName == companyName).ToListAsync();
     }
 
     private Genre GetGenre(Genre genre)

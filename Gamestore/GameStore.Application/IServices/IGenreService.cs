@@ -4,17 +4,17 @@ namespace GameStore.Application.IServices;
 
 public interface IGenreService
 {
-    public Guid AddGenre(GenreDto genreDto);
+    public Task<Guid> AddGenre(GenreDto genreDto);
 
-    public Guid UpdateGenre(GenreDto genreDto);
+    public Task<Guid> UpdateGenre(GenreDto genreDto);
 
-    public Guid DeleteGenre(Guid genreId);
+    public Task<Guid> DeleteGenre(Guid genreId);
 
-    public GenreDto GetGenre(Guid genreId);
+    public Task<GenreDto> GetGenre(Guid genreId);
 
-    public List<GenreDto> GetAll();
+    public Task<IEnumerable<GenreDto>> GetAll();
 
-    List<GenreDto> GetGamesGenres(string gameKey);
+    public Task<IEnumerable<GenreDto>> GetGamesGenres(string gameKey);
 
-    public List<GenreDto> GetSubGenres(Guid parentGenreId);
+    public Task<IEnumerable<GenreDto>> GetSubGenres(Guid parentGenreId);
 }

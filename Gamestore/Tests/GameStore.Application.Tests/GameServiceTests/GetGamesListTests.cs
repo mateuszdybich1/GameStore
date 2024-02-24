@@ -1,12 +1,12 @@
-﻿using GameStore.Application.Dtos;
-using GameStore.Domain.Entities;
+﻿using GameStore.Domain.Entities;
+using Moq;
 using Xunit;
 
 namespace GameStore.Application.Tests.GameServiceTests;
 public partial class GameTests
 {
     [Fact]
-    public void GetAllGamesShouldReturnGameDtosList()
+    public async Task GetAllGamesShouldReturnGameDtosList()
     {
         // Arrange
         var games = new List<Game>();
@@ -18,10 +18,11 @@ public partial class GameTests
             games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms));
         }
 
-        _gameRepositoryMock.Setup(x => x.GetAllGames()).Returns(games);
+        _gameRepositoryMock.Setup(x => x.GetAllGames()).ReturnsAsync(games.AsEnumerable);
 
         // Act
-        List<GameDto> gameDtos = _gameService.GetGames();
+        var result = await _gameService.GetGames();
+        var gameDtos = result.ToList();
 
         // Assert
         Assert.Equal(5, gameDtos.Count);
@@ -33,7 +34,7 @@ public partial class GameTests
     }
 
     [Fact]
-    public void GetGamesByPlatformIdShouldReturnGameDtosList()
+    public async Task GetGamesByPlatformIdShouldReturnGameDtosList()
     {
         // Arrange
         var platformId = Guid.NewGuid();
@@ -46,10 +47,11 @@ public partial class GameTests
             games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms));
         }
 
-        _gamesSearchCriteriaMock.Setup(x => x.GetByPlatformId(platformId)).Returns(games);
+        _gamesSearchCriteriaMock.Setup(x => x.GetByPlatformId(platformId)).ReturnsAsync(games.AsEnumerable);
 
         // Act
-        List<GameDto> gameDtos = _gameService.GetGamesByPlatformId(platformId);
+        var result = await _gameService.GetGamesByPlatformId(platformId);
+        var gameDtos = result.ToList();
 
         // Assert
         Assert.Equal(5, gameDtos.Count);
@@ -61,7 +63,7 @@ public partial class GameTests
     }
 
     [Fact]
-    public void GetGamesByGenreIdShouldReturnGameDtosList()
+    public async Task GetGamesByGenreIdShouldReturnGameDtosList()
     {
         // Arrange
         var genreId = Guid.NewGuid();
@@ -74,10 +76,11 @@ public partial class GameTests
             games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms));
         }
 
-        _gamesSearchCriteriaMock.Setup(x => x.GetByGenreId(genreId)).Returns(games);
+        _gamesSearchCriteriaMock.Setup(x => x.GetByGenreId(genreId)).ReturnsAsync(games.AsEnumerable);
 
         // Act
-        List<GameDto> gameDtos = _gameService.GetGamesByGenreId(genreId);
+        var result = await _gameService.GetGamesByGenreId(genreId);
+        var gameDtos = result.ToList();
 
         // Assert
         Assert.Equal(5, gameDtos.Count);

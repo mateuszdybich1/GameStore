@@ -8,13 +8,13 @@ public class PublisherSearchCriteria(AppDbContext appDbContext) : IPublisherSear
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public Publisher GetPublisherByCompanyName(string companyName)
+    public async Task<Publisher> GetPublisherByCompanyName(string companyName)
     {
-        return _appDbContext.Publishers.Where(x => x.CompanyName == companyName).FirstOrDefault();
+        return await _appDbContext.Publishers.Where(x => x.CompanyName == companyName).SingleOrDefaultAsync();
     }
 
-    public Publisher GetPublisherByGameKey(string gameKey)
+    public async Task<Publisher> GetPublisherByGameKey(string gameKey)
     {
-        return _appDbContext.Publishers.Include(x => x.Games).SingleOrDefault(x => x.Games.Any(y => y.Key == gameKey));
+        return await _appDbContext.Publishers.Include(x => x.Games).SingleOrDefaultAsync(x => x.Games.Any(y => y.Key == gameKey));
     }
 }

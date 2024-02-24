@@ -8,7 +8,7 @@ namespace GameStore.Application.Tests.GameServiceTests;
 public partial class GameTests
 {
     [Fact]
-    public void GetByGameKeyShouldReturnGameDto()
+    public async Task GetByGameKeyShouldReturnGameDto()
     {
         // Arrange
         string gameKey = "TestKey";
@@ -17,10 +17,10 @@ public partial class GameTests
         var genres = new List<Genre>();
 
         var game = new Game(Guid.NewGuid(), "TestName", gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
-        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(game);
+        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
 
         // Act
-        GameDto gameDto = _gameService.GetGameByKey(gameKey);
+        GameDto gameDto = await _gameService.GetGameByKey(gameKey);
 
         // Assert
         Assert.NotNull(gameDto);
@@ -29,18 +29,18 @@ public partial class GameTests
     }
 
     [Fact]
-    public void GetByGameKeyIncorrectKeyProvidedShouldThrowException()
+    public async Task GetByGameKeyIncorrectKeyProvidedShouldThrowException()
     {
         // Arrange
         string gameKey = "TestKey";
-        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns((Game)null);
+        _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(Task.FromResult<Game>(null));
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _gameService.GetGameByKey(gameKey));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _gameService.GetGameByKey(gameKey));
     }
 
     [Fact]
-    public void GetByGameIdShouldReturnGameDto()
+    public async Task GetByGameIdShouldReturnGameDto()
     {
         // Arrange
         Guid gameId = Guid.NewGuid();
@@ -49,30 +49,30 @@ public partial class GameTests
         var genres = new List<Genre>();
 
         var game = new Game(gameId, "TestName", "TestKey", 5, 5, 5, Guid.NewGuid(), genres, platforms);
-        _gameRepositoryMock.Setup(x => x.GetGame(gameId)).Returns(game);
+        _gameRepositoryMock.Setup(x => x.Get(gameId)).ReturnsAsync(game);
 
         // Act
-        GameDto gameDto = _gameService.GetGameById(gameId);
+        GameDto gameDto = await _gameService.GetGameById(gameId);
 
         // Assert
         Assert.NotNull(gameDto);
         Assert.Equal(gameId, gameDto.Id);
-        _gameRepositoryMock.Verify(x => x.GetGame(gameId), Times.Once);
+        _gameRepositoryMock.Verify(x => x.Get(gameId), Times.Once);
     }
 
     [Fact]
-    public void GetByGameIdIncorrectKeyProvidedShouldThrowException()
+    public async Task GetByGameIdIncorrectKeyProvidedShouldThrowException()
     {
         // Arrange
         Guid gameId = Guid.NewGuid();
-        _gameRepositoryMock.Setup(x => x.GetGame(gameId)).Returns((Game)null);
+        _gameRepositoryMock.Setup(x => x.Get(gameId)).Returns(Task.FromResult<Game>(null));
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _gameService.GetGameById(gameId));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _gameService.GetGameById(gameId));
     }
 
     [Fact]
-    public void GetGameByKeyWithRelationsShouldReturnCorrectObject()
+    public async Task GetGameByKeyWithRelationsShouldReturnCorrectObject()
     {
         // Arrange
         string gameKey = "TestKey";
@@ -83,10 +83,10 @@ public partial class GameTests
 
         var game = new Game(Guid.NewGuid(), "Test Name", gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
 
-        _gamesSearchCriteriaMock.Setup(x => x.GetByKeyWithRelations(gameKey)).Returns(game);
+        _gamesSearchCriteriaMock.Setup(x => x.GetByKeyWithRelations(gameKey)).ReturnsAsync(game);
 
         // Act
-        var result = _gameService.GetGameByKeyWithRelations(gameKey);
+        var result = await _gameService.GetGameByKeyWithRelations(gameKey);
 
         // Assert
         Assert.NotNull(result);

@@ -4,5 +4,5 @@ namespace GameStore.Domain.ISearchCriterias;
 
 public interface IPlatformsSearchCriteria
 {
-    public List<Platform> GetByGameKey(string gameKey);
+    public Task<IEnumerable<Platform>> GetByGameKey(string gameKey);
 }

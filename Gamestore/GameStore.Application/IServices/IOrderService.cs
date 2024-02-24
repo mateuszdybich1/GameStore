@@ -5,19 +5,19 @@ namespace GameStore.Application.IServices;
 
 public interface IOrderService
 {
-    public Guid AddOrder(Guid customerId, string gameKey);
+    public Task<Guid> AddOrder(Guid customerId, string gameKey);
 
-    public Guid UpdateOrder(Guid orderId, OrderStatus orderStatus);
+    public Task<Guid> UpdateOrder(Guid orderId, OrderStatus orderStatus);
 
-    public Guid RemoveOrder(Guid customerId, string gameKey);
+    public Task<Guid> RemoveOrder(Guid customerId, string gameKey);
 
-    public List<OrderDto> GetPaidAndCancelledOrders();
+    public Task<IEnumerable<OrderDto>> GetPaidAndCancelledOrders();
 
-    public OrderDto GetOrder(Guid orderId);
+    public Task<OrderDto> GetOrder(Guid orderId);
 
-    public List<OrderGameDto> GetOrderDetails(Guid orderId);
+    public Task<IEnumerable<OrderGameDto>> GetOrderDetails(Guid orderId);
 
-    public List<OrderGameDto> GetCart(Guid customerId);
+    public Task<IEnumerable<OrderGameDto>> GetCart(Guid customerId);
 
-    public OrderInformation GetOrderInformation(Guid customerId);
+    public Task<OrderInformation> GetOrderInformation(Guid customerId);
 }

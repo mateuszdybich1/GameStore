@@ -12,38 +12,38 @@ public class PublishersController(IPublisherService publisherService, IGameServi
     private readonly IGameService _gameService = gameService;
 
     [HttpPost]
-    public IActionResult AddPublisher([FromBody] PublisherDtoDto publisherDto)
+    public async Task<IActionResult> AddPublisher([FromBody] PublisherDtoDto publisherDto)
     {
-        return Ok(_publisherService.AddPublisher(publisherDto.Publisher));
+        return Ok(await _publisherService.AddPublisher(publisherDto.Publisher));
     }
 
     [HttpPut]
-    public IActionResult UpdatePublisher([FromBody] PublisherDtoDto publisherDto)
+    public async Task<IActionResult> UpdatePublisher([FromBody] PublisherDtoDto publisherDto)
     {
-        return Ok(_publisherService.UpdatePublisher(publisherDto.Publisher));
+        return Ok(await _publisherService.UpdatePublisher(publisherDto.Publisher));
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeletePublisher([FromRoute] Guid id)
+    public async Task<IActionResult> DeletePublisher([FromRoute] Guid id)
     {
-        return Ok(_publisherService.DeletePublisher(id));
+        return Ok(await _publisherService.DeletePublisher(id));
     }
 
     [HttpGet("{companyName}")]
-    public IActionResult GetPublisher([FromRoute] string companyName)
+    public async Task<IActionResult> GetPublisher([FromRoute] string companyName)
     {
-        return Ok(_publisherService.GetPublisherByCompanyName(companyName));
+        return Ok(await _publisherService.GetPublisherByCompanyName(companyName));
     }
 
     [HttpGet]
-    public IActionResult GetAllPublishers()
+    public async Task<IActionResult> GetAllPublishers()
     {
-        return Ok(_publisherService.GetAll());
+        return Ok(await _publisherService.GetAll());
     }
 
     [HttpGet("{companyName}/games")]
-    public IActionResult GetPublisherGames([FromRoute] string companyName)
+    public async Task<IActionResult> GetPublisherGames([FromRoute] string companyName)
     {
-        return Ok(_gameService.GetGamesByPublisherName(companyName));
+        return Ok(await _gameService.GetGamesByPublisherName(companyName));
     }
 }

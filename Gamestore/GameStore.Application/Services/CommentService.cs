@@ -12,9 +12,9 @@ public class CommentService(ICommentRepository commentRepository, IGamesSearchCr
     private readonly ICommentRepository _commentRepository = commentRepository;
     private readonly IGamesSearchCriteria _gamesSearchCriteria = gamesSearchCriteria;
 
-    public Guid AddComment(string gameKey, CommentDtoDto commentDto)
+    public async Task<Guid> AddComment(string gameKey, CommentDtoDto commentDto)
     {
-        Game game = GetGame(gameKey);
+        Game game = await GetGame(gameKey);
 
         Guid commentId = Guid.NewGuid();
 
@@ -23,41 +23,41 @@ public class CommentService(ICommentRepository commentRepository, IGamesSearchCr
 
         if (commentDto.ParentId != null && commentDto.ParentId != Guid.Empty && commentDto.Action != null)
         {
-            Comment parentComment = GetComment((Guid)commentDto.ParentId, game.Id);
+            Comment parentComment = await GetComment((Guid)commentDto.ParentId, game.Id);
             comment.ParentComment = parentComment;
         }
 
-        _commentRepository.AddComment(comment);
+        await _commentRepository.AddComment(comment);
 
         return commentId;
     }
 
-    public Guid DeleteComment(string gameKey, Guid commentId)
+    public async Task<Guid> DeleteComment(string gameKey, Guid commentId)
     {
-        Game game = GetGame(gameKey);
+        Game game = await GetGame(gameKey);
 
-        Comment comment = GetComment(commentId, game.Id);
+        Comment comment = await GetComment(commentId, game.Id);
         comment.Body = "A comment/quote was deleted";
         comment.ModificationDate = DateTime.Now;
 
-        _commentRepository.UpdateComment(comment);
+        await _commentRepository.UpdateComment(comment);
 
         return comment.Id;
     }
 
-    public List<CommentModel> GetComments(string gameKey)
+    public async Task<IEnumerable<CommentModel>> GetComments(string gameKey)
     {
-        Game game = GetGame(gameKey);
-        return _commentRepository.GetGamesComments(game.Id);
+        Game game = await GetGame(gameKey);
+        return await _commentRepository.GetGamesComments(game.Id);
     }
 
-    private Game GetGame(string gameKey)
+    private async Task<Game> GetGame(string gameKey)
     {
-        return _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        return await _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
     }
 
-    private Comment GetComment(Guid commentId, Guid gameId)
+    private async Task<Comment> GetComment(Guid commentId, Guid gameId)
     {
-        return _commentRepository.GetComment(commentId, gameId) ?? throw new EntityNotFoundException($"Game: {gameId} Comment with ID: {commentId} not found");
+        return await _commentRepository.GetComment(commentId, gameId) ?? throw new EntityNotFoundException($"Game: {gameId} Comment with ID: {commentId} not found");
     }
 }

@@ -11,44 +11,44 @@ public class GenresController(IGenreService genreService, IGameService gameServi
     private readonly IGameService _gameService = gameService;
 
     [HttpPost]
-    public IActionResult AddGenre([FromBody] GenreDtoDto genreDto)
+    public async Task<IActionResult> AddGenre([FromBody] GenreDtoDto genreDto)
     {
-        return Ok(_genreService.AddGenre(genreDto.Genre));
+        return Ok(await _genreService.AddGenre(genreDto.Genre));
     }
 
     [HttpPut]
-    public IActionResult UpdateGenre([FromBody] GenreDtoDto genreDto)
+    public async Task<IActionResult> UpdateGenre([FromBody] GenreDtoDto genreDto)
     {
-        return Ok(_genreService.UpdateGenre(genreDto.Genre));
+        return Ok(await _genreService.UpdateGenre(genreDto.Genre));
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteGenre([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteGenre([FromRoute] Guid id)
     {
-        return Ok(_genreService.DeleteGenre(id));
+        return Ok(await _genreService.DeleteGenre(id));
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetGenre([FromRoute] Guid id)
+    public async Task<IActionResult> GetGenre([FromRoute] Guid id)
     {
-        return Ok(_genreService.GetGenre(id));
+        return Ok(await _genreService.GetGenre(id));
     }
 
     [HttpGet]
-    public IActionResult GetGenres()
+    public async Task<IActionResult> GetGenres()
     {
-        return Ok(_genreService.GetAll());
+        return Ok(await _genreService.GetAll());
     }
 
     [HttpGet("{id}/genres")]
-    public IActionResult GetSubGenres([FromRoute] Guid id)
+    public async Task<IActionResult> GetSubGenres([FromRoute] Guid id)
     {
-        return Ok(_genreService.GetSubGenres(id));
+        return Ok(await _genreService.GetSubGenres(id));
     }
 
     [HttpGet("{id}/games")]
-    public IActionResult GetGenreGames([FromRoute] Guid id)
+    public async Task<IActionResult> GetGenreGames([FromRoute] Guid id)
     {
-        return Ok(_gameService.GetGamesByGenreId(id));
+        return Ok(await _gameService.GetGamesByGenreId(id));
     }
 }

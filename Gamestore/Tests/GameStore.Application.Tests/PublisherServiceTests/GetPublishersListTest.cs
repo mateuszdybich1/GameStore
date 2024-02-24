@@ -1,12 +1,12 @@
-﻿using GameStore.Application.Dtos;
-using GameStore.Domain.Entities;
+﻿using GameStore.Domain.Entities;
+using Moq;
 using Xunit;
 
 namespace GameStore.Application.Tests.PublisherServiceTests;
 public partial class PublisherTests
 {
     [Fact]
-    public void GetPublisherListShouldGetList()
+    public async Task GetPublisherListShouldGetList()
     {
         var publishers = new List<Publisher>();
 
@@ -15,9 +15,10 @@ public partial class PublisherTests
             publishers.Add(new Publisher(Guid.NewGuid(), $"CompanyName-{i}", string.Empty, string.Empty));
         }
 
-        _publisherRepositoryMock.Setup(x => x.GetAllPublishers()).Returns(publishers);
+        _publisherRepositoryMock.Setup(x => x.GetAllPublishers()).ReturnsAsync(publishers.AsEnumerable);
 
-        List<PublisherDto> publishersDto = _publisherService.GetAll();
+        var result = await _publisherService.GetAll();
+        var publishersDto = result.ToList();
 
         Assert.Equal(5, publishersDto.Count);
         for (int i = 0; i < 5; ++i)

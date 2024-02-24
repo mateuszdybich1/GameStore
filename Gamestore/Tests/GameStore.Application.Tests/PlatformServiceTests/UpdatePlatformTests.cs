@@ -8,7 +8,7 @@ namespace GameStore.Application.Tests.PlatformServiceTests;
 public partial class PlatformTests
 {
     [Fact]
-    public void UpdatePlatformShouldUpdatePlatofrmOnce()
+    public async Task UpdatePlatformShouldUpdatePlatofrmOnce()
     {
         // Arrange
         Guid platformId = Guid.NewGuid();
@@ -16,7 +16,7 @@ public partial class PlatformTests
 
         Platform platform = new(platformId, platformType);
 
-        _platformRepositoryMock.Setup(x => x.GetPlatform(platformId)).Returns(platform);
+        _platformRepositoryMock.Setup(x => x.Get(platformId)).ReturnsAsync(platform);
 
         string platformUpdatedType = "UpdatedType";
 
@@ -27,15 +27,15 @@ public partial class PlatformTests
         };
 
         // Act
-        _platformService.UpdatePlatform(platformDto);
+        await _platformService.UpdatePlatform(platformDto);
 
         // Assert
-        _platformRepositoryMock.Verify(x => x.GetPlatform(platformId), Times.Once);
-        _platformRepositoryMock.Verify(x => x.UpdatePlatform(It.Is<Platform>(p => p.Id == platformId && p.Type == platformUpdatedType)), Times.Once);
+        _platformRepositoryMock.Verify(x => x.Get(platformId), Times.Once);
+        _platformRepositoryMock.Verify(x => x.Update(It.Is<Platform>(p => p.Id == platformId && p.Type == platformUpdatedType)), Times.Once);
     }
 
     [Fact]
-    public void UpdatePlatformIncorrectPlatformIdProvidedShouldThrowException()
+    public async Task UpdatePlatformIncorrectPlatformIdProvidedShouldThrowException()
     {
         // Arrange
         Guid platformId = Guid.NewGuid();
@@ -46,9 +46,9 @@ public partial class PlatformTests
             Type = "UpdatedPlatform",
         };
 
-        _platformRepositoryMock.Setup(x => x.GetPlatform(platformId)).Returns((Platform)null);
+        _platformRepositoryMock.Setup(x => x.Get(platformId)).Returns(Task.FromResult<Platform>(null));
 
         // Act and Assert
-        Assert.Throws<EntityNotFoundException>(() => _platformService.UpdatePlatform(platformDto));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _platformService.UpdatePlatform(platformDto));
     }
 }

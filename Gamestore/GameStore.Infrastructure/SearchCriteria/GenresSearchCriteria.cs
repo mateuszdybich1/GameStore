@@ -8,21 +8,13 @@ public class GenresSearchCriteria(AppDbContext appDbContext) : IGenresSearchCrit
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public List<Genre> GetByGameKey(string gameKey)
+    public async Task<IEnumerable<Genre>> GetByGameKey(string gameKey)
     {
-        List<Genre> genres =
-        [
-            .. _appDbContext.Genres
-                    .Include(x => x.ParentGenre)
-                    .Include(x => x.Games)
-                    .Where(x => x.Games.Any(y => y.Key == gameKey)),
-        ];
-
-        return genres;
+        return await _appDbContext.Genres.Include(x => x.ParentGenre).Include(x => x.Games).Where(x => x.Games.Any(y => y.Key == gameKey)).ToListAsync();
     }
 
-    public List<Genre> GetByParentId(Guid parentId)
+    public async Task<IEnumerable<Genre>> GetByParentId(Guid parentId)
     {
-        return [.. _appDbContext.Genres.Include(x => x.ParentGenre).Where(x => x.ParentGenre.Id == parentId)];
+        return await _appDbContext.Genres.Include(x => x.ParentGenre).Where(x => x.ParentGenre.Id == parentId).ToListAsync();
     }
 }
