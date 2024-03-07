@@ -1,4 +1,5 @@
 using GameStore.Infrastructure;
+using GameStore.Infrastructure.Repositories;
 using GameStore.Web;
 using GameStore.Web.Middlewares;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,8 @@ services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreDatabase"));
 });
+
+services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 
 services.AddHttpClient("PaymentMicroservice", client =>
 {

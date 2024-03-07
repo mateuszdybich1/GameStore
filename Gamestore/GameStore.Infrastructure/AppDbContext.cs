@@ -41,6 +41,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Genre>().Property(e => e.Id).IsRequired(true);
         modelBuilder.Entity<Genre>().Property(e => e.Name).IsRequired(true);
         modelBuilder.Entity<Genre>().HasIndex(e => e.Name).IsUnique(true);
+        modelBuilder.Entity<Genre>().Property(e => e.Description).IsRequired(false);
+        modelBuilder.Entity<Genre>().Property(e => e.Picture).IsRequired(false);
 
         modelBuilder.Entity<Platform>().HasKey(e => e.Id);
         modelBuilder.Entity<Platform>().HasIndex(e => e.Id).IsUnique(true);

@@ -6,6 +6,8 @@ public interface IGameRepository : IRepository<Game>
 {
     public Task<Game> GetGameWithRelations(Guid gameId);
 
+    public Task<Game> GetGameWithRelations(string gameKey);
+
     public Task<IEnumerable<Game>> GetAllGames();
 
     public Task<int> GetAllGamesCount();

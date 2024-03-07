@@ -1,4 +1,5 @@
-﻿using GameStore.Application.Dtos;
+﻿using System.Web;
+using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,7 +33,7 @@ public class PublishersController(IPublisherService publisherService, IGameServi
     [HttpGet("{companyName}")]
     public async Task<IActionResult> GetPublisher([FromRoute] string companyName)
     {
-        return Ok(await _publisherService.GetPublisherByCompanyName(companyName));
+        return Ok(await _publisherService.GetPublisherByCompanyName(HttpUtility.UrlDecode(companyName)));
     }
 
     [HttpGet]
@@ -44,6 +45,6 @@ public class PublishersController(IPublisherService publisherService, IGameServi
     [HttpGet("{companyName}/games")]
     public async Task<IActionResult> GetPublisherGames([FromRoute] string companyName)
     {
-        return Ok(await _gameService.GetGamesByPublisherName(companyName));
+        return Ok(await _gameService.GetGamesByPublisherName(HttpUtility.UrlDecode(companyName)));
     }
 }

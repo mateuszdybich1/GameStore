@@ -8,6 +8,32 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
+    public override async Task Add(Game entity)
+    {
+        var existingPublisher = await _appDbContext.Publishers.FirstOrDefaultAsync(x => x.Id == entity.PublisherId);
+
+        if (existingPublisher == null)
+        {
+            _appDbContext.Publishers.Add(entity.Publisher);
+        }
+
+        if (entity.Genres != null)
+        {
+            foreach (var genre in entity.Genres)
+            {
+                var tempGenre = await _appDbContext.Genres.FirstOrDefaultAsync(x => x.Id == genre.Id);
+
+                if (tempGenre == null)
+                {
+                    _appDbContext.Genres.Add(genre);
+                }
+            }
+        }
+
+        _appDbContext.Games.Add(entity);
+        await _appDbContext.SaveChangesAsync();
+    }
+
     public async Task<IEnumerable<Game>> GetAllGames()
     {
         return await _appDbContext.Games.ToListAsync();
@@ -16,84 +42,27 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
     public async Task<IEnumerable<Game>> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
     {
         IQueryable<Game>? games = _appDbContext.Games.Where(x => x.Price >= minPrice && x.Price <= maxPrice);
-        if (publisherIds != null)
-        {
-            games = games.Include(x => x.Publisher).Where(x => publisherIds.Contains(x.PublisherId));
-        }
-
-        if (genreIds != null)
-        {
-            games = games.Include(x => x.Genres).Where(x => x.Genres.Any(g => genreIds.Contains(g.Id)));
-        }
-
-        if (platformIds != null)
-        {
-            games = games.Include(x => x.Platforms).Where(x => x.Platforms.Any(p => platformIds.Contains(p.Id)));
-        }
-
         if (name != null)
         {
             games = games.Where(x => x.Name.Contains(name));
         }
 
-        if (publishDate != null)
+        if (publisherIds != null && publisherIds.Count > 0)
         {
-            DateTime from = DateTime.Now;
-
-            switch (publishDate)
-            {
-                case PublishDateFilteringMode.LastWeek:
-                    from = from.AddDays(-7);
-                    break;
-                case PublishDateFilteringMode.LastMonth:
-                    from = from.AddMonths(-1);
-                    break;
-                case PublishDateFilteringMode.LastYear:
-                    from = from.AddYears(-1);
-                    break;
-                case PublishDateFilteringMode.TwoYears:
-                    from = from.AddYears(-2);
-                    break;
-                case PublishDateFilteringMode.ThreeYears:
-                    from = from.AddYears(-3);
-                    break;
-                default:
-                    break;
-            }
-
-            games = games.Where(x => x.CreationDate >= from);
+            games = games.Include(x => x.Publisher).Where(x => publisherIds.Any(y => y == x.PublisherId));
         }
 
-        if (numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All)
+        if (genreIds != null && genreIds.Count > 0)
         {
-            games = games.Skip(((int)page - 1) * (int)numberOfGamesOnPage).Take((int)numberOfGamesOnPage);
+            games = games.Include(x => x.Genres).Where(game => game.Genres.Any(genre => genreIds.Contains(genre.Id)));
         }
 
-        if (sortMode != null)
+        if (platformIds != null && platformIds.Count > 0)
         {
-            switch (sortMode)
-            {
-                case GameSortingMode.MostPopular:
-                    games = games.OrderByDescending(x => x.NumberOfViews);
-                    break;
-                case GameSortingMode.MostCommented:
-                    games = games.Include(x => x.Comments).OrderByDescending(x => x.Comments.Count);
-                    break;
-                case GameSortingMode.PriceASC:
-                    games = games.OrderBy(x => x.Price);
-                    break;
-                case GameSortingMode.PriceDESC:
-                    games = games.OrderByDescending(x => x.Price);
-                    break;
-                case GameSortingMode.New:
-                    games = games.OrderByDescending(x => x.CreationDate);
-                    break;
-                default:
-                    break;
-            }
+            games = games.Include(x => x.Platforms).Where(x => x.Platforms.Any(p => platformIds.Contains(p.Id)));
         }
 
-        return await games.ToListAsync();
+        return await games.Include(x => x.Comments).ToListAsync();
     }
 
     public async Task<int> GetAllGamesCount()
@@ -104,6 +73,11 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
     public async Task<Game> GetGameWithRelations(Guid gameId)
     {
         return await _appDbContext.Games.Where(x => x.Id == gameId).Include(x => x.Genres).Include(x => x.Platforms).SingleOrDefaultAsync();
+    }
+
+    public async Task<Game> GetGameWithRelations(string gameId)
+    {
+        return await _appDbContext.Games.Where(x => x.Key == gameId).Include(x => x.Genres).Include(x => x.Platforms).SingleOrDefaultAsync();
     }
 
     public async Task<int> GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage)

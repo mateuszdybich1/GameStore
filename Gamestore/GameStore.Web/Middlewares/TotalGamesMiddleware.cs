@@ -6,9 +6,15 @@ public class TotalGamesMiddleware(RequestDelegate next)
 {
     private readonly RequestDelegate _next = next;
 
-    public async Task InvokeAsync(HttpContext context, IGameRepository gameRepository)
+    public async Task InvokeAsync(HttpContext context, Func<RepositoryTypes, IGameRepository> gameRepositoryFactory)
     {
-        int totalGames = await gameRepository.GetAllGamesCount();
+        IGameRepository sqlGameRepository = gameRepositoryFactory(RepositoryTypes.Sql);
+        IGameRepository mongoGameRepository = gameRepositoryFactory(RepositoryTypes.Mongo);
+        var games = await sqlGameRepository.GetAllGames();
+        var mongoGames = await mongoGameRepository.GetAllGames();
+        mongoGames = mongoGames.Where(x => !games.Any(y => y.Key == x.Key));
+
+        var totalGames = games.Count() + mongoGames.Count();
         context.Response.OnStarting(() =>
         {
             context.Response.Headers.Append("x-total-numbers-of-games", totalGames.ToString());

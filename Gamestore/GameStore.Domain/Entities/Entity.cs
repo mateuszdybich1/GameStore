@@ -1,4 +1,7 @@
-﻿namespace GameStore.Domain.Entities;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace GameStore.Domain.Entities;
 public class Entity
 {
     public Entity()
@@ -12,6 +15,8 @@ public class Entity
         ModificationDate = null;
     }
 
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
     public Guid Id { get; private set; }
 
     public DateTime CreationDate { get; private set; }

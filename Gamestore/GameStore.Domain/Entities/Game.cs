@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using GameStore.Domain.MongoEntities;
 
 namespace GameStore.Domain.Entities;
 public enum NumberOfGamesOnPageFilteringMode
@@ -49,7 +50,7 @@ public class Game : Entity
     {
     }
 
-    public Game(Guid id, string name, string key, double price, int unitInStock, int discount, Guid publisherId, List<Genre> genres, List<Platform> platforms)
+    public Game(Guid id, string name, string key, double price, int unitInStock, int discount, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
         : base(id)
     {
         Name = name;
@@ -60,9 +61,10 @@ public class Game : Entity
         PublisherId = publisherId;
         Genres = genres;
         Platforms = platforms;
+        Publisher = publisher;
     }
 
-    public Game(Guid id, string name, string key, double price, int unitInStock, int discount, string description, Guid publisherId, List<Genre> genres, List<Platform> platforms)
+    public Game(Guid id, string name, string key, double price, int unitInStock, int discount, string description, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
         : base(id)
     {
         Name = name;
@@ -74,6 +76,19 @@ public class Game : Entity
         PublisherId = publisherId;
         Genres = genres;
         Platforms = platforms;
+        Publisher = publisher;
+    }
+
+    public Game(MongoGame mongoGame)
+        : base(mongoGame.Id.AsGuid())
+    {
+        Name = mongoGame.ProductName;
+        Key = mongoGame.ProductKey;
+        Description = mongoGame.QuantityPerUnit;
+        Price = mongoGame.UnitPrice;
+        UnitInStock = mongoGame.UnitsInStock;
+        Discount = mongoGame.Discontinued;
+        NumberOfViews = (ulong)mongoGame.NumberOfViews;
     }
 
     public string Name { get; set; }
@@ -98,5 +113,5 @@ public class Game : Entity
 
     public List<Comment> Comments { get; set; }
 
-    public Publisher Publisher { get; private set; }
+    public Publisher Publisher { get; set; }
 }

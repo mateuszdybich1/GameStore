@@ -1,6 +1,7 @@
 ﻿using GameStore.Domain.Entities;
 using GameStore.Domain.ISearchCriterias;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace GameStore.Infrastructure.SearchCriteria;
 

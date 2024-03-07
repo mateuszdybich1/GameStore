@@ -13,6 +13,8 @@ public class GenreDto
     {
         Id = genre.Id;
         Name = genre.Name;
+        Description = genre.Description;
+        Picture = genre.Picture;
         ParentGenreId = genre.ParentGenre?.Id;
     }
 
@@ -20,6 +22,10 @@ public class GenreDto
 
     [Required]
     public string Name { get; set; }
+
+    public string? Description { get; set; }
+
+    public string? Picture { get; set; }
 
     public Guid? ParentGenreId { get; set; }
 }

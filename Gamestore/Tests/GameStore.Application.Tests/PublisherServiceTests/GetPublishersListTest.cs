@@ -15,7 +15,7 @@ public partial class PublisherTests
             publishers.Add(new Publisher(Guid.NewGuid(), $"CompanyName-{i}", string.Empty, string.Empty));
         }
 
-        _publisherRepositoryMock.Setup(x => x.GetAllPublishers()).ReturnsAsync(publishers.AsEnumerable);
+        _repositoryFactory.Setup(x => x("Default").GetAllPublishers()).ReturnsAsync(publishers.AsEnumerable);
 
         var result = await _publisherService.GetAll();
         var publishersDto = result.ToList();

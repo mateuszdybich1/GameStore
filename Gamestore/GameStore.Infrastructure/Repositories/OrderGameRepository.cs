@@ -10,11 +10,11 @@ public class OrderGameRepository(AppDbContext appDbContext) : Repository<OrderGa
 
     public async Task<OrderGame> GetOrderGame(Guid orderId, Guid gameId)
     {
-        return await _appDbContext.OrderGames.AsNoTracking().SingleOrDefaultAsync(x => x.OrderId == orderId && x.ProductId == gameId);
+        return await _appDbContext.OrderGames.SingleOrDefaultAsync(x => x.OrderId == orderId && x.ProductId == gameId);
     }
 
     public async Task<IEnumerable<OrderGame>> GetOrderGames(Guid orderId)
     {
-        return await _appDbContext.OrderGames.AsNoTracking().Where(x => x.OrderId == orderId).ToListAsync();
+        return await _appDbContext.OrderGames.Where(x => x.OrderId == orderId).ToListAsync();
     }
 }

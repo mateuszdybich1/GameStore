@@ -28,7 +28,7 @@ internal class PredefinedObjects(AppDbContext appDbContext)
             Genre genre = _appDbContext.Genres.FirstOrDefault(x => x.Name == parentGenreName);
             if (genre == null)
             {
-                genre = new(Guid.NewGuid(), parentGenreName);
+                genre = new(Guid.NewGuid(), parentGenreName, null, null);
                 _appDbContext.Genres.Add(genre);
             }
 
@@ -72,7 +72,7 @@ internal class PredefinedObjects(AppDbContext appDbContext)
     {
         foreach (var missingChild in childs)
         {
-            _appDbContext.Genres.Add(new Genre(Guid.NewGuid(), missingChild, genre));
+            _appDbContext.Genres.Add(new Genre(Guid.NewGuid(), missingChild, null, null, genre));
         }
     }
 }

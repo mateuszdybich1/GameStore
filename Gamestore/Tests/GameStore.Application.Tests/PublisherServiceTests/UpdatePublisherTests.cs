@@ -16,14 +16,14 @@ public partial class PublisherTests
         Publisher updatedPublisher = new(publisherId, "UpdatedCompany", "TestHomePage", "TestDescription");
         PublisherDto publisherDto = new(updatedPublisher);
 
-        _publisherRepositoryMock.Setup(x => x.Get(publisherId)).ReturnsAsync(publisher);
+        _repositoryFactory.Setup(x => x("Default").Get(publisherId)).ReturnsAsync(publisher);
 
         // Act
         await _publisherService.UpdatePublisher(publisherDto);
 
         // Assert
-        _publisherRepositoryMock.Verify(x => x.Get(publisherId), Times.Once);
-        _publisherRepositoryMock.Verify(x => x.Update(It.Is<Publisher>(x => x.Id == publisherId && x.CompanyName == publisherDto.CompanyName && x.HomePage == publisherDto.HomePage && x.Description == publisherDto.Description)), Times.Once);
+        _repositoryFactory.Verify(x => x("Default").Get(publisherId), Times.Once);
+        _repositoryFactory.Verify(x => x("Default").Update(It.Is<Publisher>(x => x.Id == publisherId && x.CompanyName == publisherDto.CompanyName && x.HomePage == publisherDto.HomePage && x.Description == publisherDto.Description)), Times.Once);
     }
 
     [Fact]

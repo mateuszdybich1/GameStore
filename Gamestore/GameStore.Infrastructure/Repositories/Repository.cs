@@ -7,7 +7,7 @@ public class Repository<T>(AppDbContext appDbContext) : IRepository<T>
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    public async Task Add(T entity)
+    public virtual async Task Add(T entity)
     {
         _appDbContext.Set<T>().Add(entity);
         await _appDbContext.SaveChangesAsync();

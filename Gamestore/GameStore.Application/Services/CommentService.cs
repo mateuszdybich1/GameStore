@@ -7,10 +7,10 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class CommentService(ICommentRepository commentRepository, IGamesSearchCriteria gamesSearchCriteria) : ICommentService
+public class CommentService(ICommentRepository commentRepository, Func<RepositoryTypes, IGamesSearchCriteria> gameRepositoryFactory) : ICommentService
 {
     private readonly ICommentRepository _commentRepository = commentRepository;
-    private readonly IGamesSearchCriteria _gamesSearchCriteria = gamesSearchCriteria;
+    private readonly IGamesSearchCriteria _gamesSearchCriteria = gameRepositoryFactory(RepositoryTypes.Sql);
 
     public async Task<Guid> AddComment(string gameKey, CommentDtoDto commentDto)
     {

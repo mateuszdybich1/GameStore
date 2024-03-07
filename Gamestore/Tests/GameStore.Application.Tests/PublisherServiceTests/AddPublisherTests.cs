@@ -11,15 +11,14 @@ namespace GameStore.Application.Tests.PublisherServiceTests;
 public partial class PublisherTests
 {
     private readonly PublisherService _publisherService;
-    private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
+    private readonly Mock<Func<string, IPublisherRepository>> _repositoryFactory;
     private readonly Mock<IPublisherSearchCriteria> _publisherSearchCriteriaMock;
 
     public PublisherTests()
     {
-        _publisherRepositoryMock = new();
         _publisherSearchCriteriaMock = new();
 
-        _publisherService = new(_publisherRepositoryMock.Object, _publisherSearchCriteriaMock.Object);
+        _publisherService = new(_repositoryFactory.Object, _publisherSearchCriteriaMock.Object);
     }
 
     [Fact]
@@ -34,7 +33,7 @@ public partial class PublisherTests
 
         // Assert
         Assert.True(publisherId != Guid.Empty);
-        _publisherRepositoryMock.Verify(x => x.Add(It.Is<Publisher>(x => x.Id == publisherDto.Id && x.CompanyName == publisherDto.CompanyName)), Times.Once());
+        _repositoryFactory.Verify(x => x("Default").Add(It.Is<Publisher>(x => x.Id == publisherDto.Id && x.CompanyName == publisherDto.CompanyName)), Times.Once());
     }
 
     [Fact]
@@ -49,7 +48,7 @@ public partial class PublisherTests
         // Act
         Publisher existingPublisher = new((Guid)publisherDto.Id, "ExistingCompany", string.Empty, string.Empty);
 
-        _publisherRepositoryMock.Setup(x => x.Get((Guid)publisherDto.Id)).ReturnsAsync(existingPublisher);
+        _repositoryFactory.Setup(x => x("Default").Get((Guid)publisherDto.Id)).ReturnsAsync(existingPublisher);
 
         // Assert
         await Assert.ThrowsAsync<ExistingFieldException>(() => _publisherService.AddPublisher(publisherDto));
