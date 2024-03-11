@@ -17,7 +17,7 @@ internal static class Bootstrapper
 
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IGameRepository, MongoGameRepository>();
-        services.AddTransient<Func<RepositoryTypes, IGameRepository>>(provider => key =>
+        services.AddScoped<Func<RepositoryTypes, IGameRepository>>(provider => key =>
         {
             var allservices = provider.GetServices<IGameRepository>();
             return key switch
@@ -30,7 +30,7 @@ internal static class Bootstrapper
 
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IGenreRepository, MongoGenreRepository>();
-        services.AddTransient<Func<RepositoryTypes, IGenreRepository>>(provider => key =>
+        services.AddScoped<Func<RepositoryTypes, IGenreRepository>>(provider => key =>
         {
             var allservices = provider.GetServices<IGenreRepository>();
             return key switch
@@ -45,7 +45,7 @@ internal static class Bootstrapper
 
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IPublisherRepository, MongoPublisherRepository>();
-        services.AddTransient<Func<RepositoryTypes, IPublisherRepository>>(provider => key =>
+        services.AddScoped<Func<RepositoryTypes, IPublisherRepository>>(provider => key =>
         {
             var allservices = provider.GetServices<IPublisherRepository>();
             return key switch
@@ -57,12 +57,36 @@ internal static class Bootstrapper
         });
 
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderRepository, MongoOrderRepository>();
+        services.AddScoped<Func<RepositoryTypes, IOrderRepository>>(provider => key =>
+        {
+            var allservices = provider.GetServices<IOrderRepository>();
+            return key switch
+            {
+                RepositoryTypes.Sql => allservices.First(o => o.GetType() == typeof(OrderRepository)),
+                RepositoryTypes.Mongo => allservices.First(o => o.GetType() == typeof(MongoOrderRepository)),
+                _ => throw new ArgumentException($"Unknown key: {key}"),
+            };
+        });
+
         services.AddScoped<IOrderGameRepository, OrderGameRepository>();
+        services.AddScoped<IOrderGameRepository, MongoOrderGameRepository>();
+        services.AddScoped<Func<RepositoryTypes, IOrderGameRepository>>(provider => key =>
+        {
+            var allservices = provider.GetServices<IOrderGameRepository>();
+            return key switch
+            {
+                RepositoryTypes.Sql => allservices.First(o => o.GetType() == typeof(OrderGameRepository)),
+                RepositoryTypes.Mongo => allservices.First(o => o.GetType() == typeof(MongoOrderGameRepository)),
+                _ => throw new ArgumentException($"Unknown key: {key}"),
+            };
+        });
+
         services.AddScoped<ICommentRepository, CommentRepository>();
 
         services.AddScoped<IGamesSearchCriteria, GamesSearchCirteria>();
         services.AddScoped<IGamesSearchCriteria, MongoGameSearchCriteria>();
-        services.AddTransient<Func<RepositoryTypes, IGamesSearchCriteria>>(provider => key =>
+        services.AddScoped<Func<RepositoryTypes, IGamesSearchCriteria>>(provider => key =>
         {
             var allservices = provider.GetServices<IGamesSearchCriteria>();
             return key switch
@@ -75,7 +99,7 @@ internal static class Bootstrapper
 
         services.AddScoped<IGenresSearchCriteria, GenresSearchCriteria>();
         services.AddScoped<IGenresSearchCriteria, MongoGenreSearchCriteria>();
-        services.AddTransient<Func<RepositoryTypes, IGenresSearchCriteria>>(provider => key =>
+        services.AddScoped<Func<RepositoryTypes, IGenresSearchCriteria>>(provider => key =>
         {
             var allservices = provider.GetServices<IGenresSearchCriteria>();
             return key switch
@@ -90,7 +114,7 @@ internal static class Bootstrapper
 
         services.AddScoped<IPublisherSearchCriteria, PublisherSearchCriteria>();
         services.AddScoped<IPublisherSearchCriteria, MongoPublisherSearchCriteria>();
-        services.AddTransient<Func<RepositoryTypes, IPublisherSearchCriteria>>(provider => key =>
+        services.AddScoped<Func<RepositoryTypes, IPublisherSearchCriteria>>(provider => key =>
         {
             var allservices = provider.GetServices<IPublisherSearchCriteria>();
             return key switch

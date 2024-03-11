@@ -50,7 +50,7 @@ public class Game : Entity
     {
     }
 
-    public Game(Guid id, string name, string key, double price, int unitInStock, int discount, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
+    public Game(Guid id, string name, string key, double price, int unitInStock, double discount, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
         : base(id)
     {
         Name = name;
@@ -64,7 +64,7 @@ public class Game : Entity
         Publisher = publisher;
     }
 
-    public Game(Guid id, string name, string key, double price, int unitInStock, int discount, string description, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
+    public Game(Guid id, string name, string key, double price, int unitInStock, double discount, string description, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
         : base(id)
     {
         Name = name;
@@ -101,7 +101,7 @@ public class Game : Entity
 
     public int UnitInStock { get; set; }
 
-    public int Discount { get; set; }
+    public double Discount { get; set; }
 
     public ulong NumberOfViews { get; set; }
 

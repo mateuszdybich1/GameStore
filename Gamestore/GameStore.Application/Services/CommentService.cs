@@ -7,14 +7,25 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class CommentService(ICommentRepository commentRepository, Func<RepositoryTypes, IGamesSearchCriteria> gameRepositoryFactory) : ICommentService
+public class CommentService(ICommentRepository commentRepository, Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteriaRepositoryFactory, Func<RepositoryTypes, IGameRepository> gameRepositoryFactory) : ICommentService
 {
     private readonly ICommentRepository _commentRepository = commentRepository;
-    private readonly IGamesSearchCriteria _gamesSearchCriteria = gameRepositoryFactory(RepositoryTypes.Sql);
+    private readonly IGamesSearchCriteria _mongoGamesSearchCriteria = gameSearchCriteriaRepositoryFactory(RepositoryTypes.Mongo);
+    private readonly IGamesSearchCriteria _sqlGamesSearchCriteria = gameSearchCriteriaRepositoryFactory(RepositoryTypes.Sql);
+    private readonly IGameRepository _sqlGamesRepository = gameRepositoryFactory(RepositoryTypes.Sql);
+    private readonly IGameRepository _mongoGamesRepository = gameRepositoryFactory(RepositoryTypes.Mongo);
 
     public async Task<Guid> AddComment(string gameKey, CommentDtoDto commentDto)
     {
-        Game game = await GetGame(gameKey);
+        Game game = await _sqlGamesSearchCriteria.GetByKey(gameKey);
+
+        if (game == null)
+        {
+            var mongoGame = await _mongoGamesRepository.GetGameWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+
+            await _sqlGamesRepository.Add(mongoGame);
+            game = mongoGame;
+        }
 
         Guid commentId = Guid.NewGuid();
 
@@ -47,13 +58,25 @@ public class CommentService(ICommentRepository commentRepository, Func<Repositor
 
     public async Task<IEnumerable<CommentModel>> GetComments(string gameKey)
     {
-        Game game = await GetGame(gameKey);
-        return await _commentRepository.GetGamesComments(game.Id);
+        Game game = await _sqlGamesSearchCriteria.GetByKey(gameKey);
+        if (game == null)
+        {
+            var mongoGame = await _mongoGamesSearchCriteria.GetByKey(gameKey);
+            if (mongoGame != null)
+            {
+            }
+            else
+            {
+                throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+            }
+        }
+
+        return game != null ? await _commentRepository.GetGamesComments(game.Id) : new List<CommentModel>();
     }
 
     private async Task<Game> GetGame(string gameKey)
     {
-        return await _gamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        return await _sqlGamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
     }
 
     private async Task<Comment> GetComment(Guid commentId, Guid gameId)

@@ -8,5 +8,5 @@ public class OrderDto(Order order)
 
     public Guid CustomerId { get; set; } = order.CustomerId;
 
-    public DateTime Date { get; set; } = order.Date;
+    public DateTime Date { get; set; } = order.CreationDate;
 }

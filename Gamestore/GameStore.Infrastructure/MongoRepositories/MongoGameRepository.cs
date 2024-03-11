@@ -189,9 +189,42 @@ public class MongoGameRepository : IGameRepository
         return null;
     }
 
-    public Task<Game> GetGameWithRelations(string gameKey)
+    public async Task<Game> GetGameWithRelations(string gameKey)
     {
-        throw new NotImplementedException();
+        var mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).FirstOrDefaultAsync();
+        Game game = null;
+        if (mongoGame != null && mongoGame.SupplierID is int)
+        {
+            game = new(mongoGame);
+            var mongoPublisher = await _publisherCollection.Find(x => x.SupplierID == (mongoGame.SupplierID as int?)).FirstOrDefaultAsync();
+            if (mongoPublisher != null)
+            {
+                var publisher = new Publisher(mongoPublisher);
+                game.Publisher = publisher;
+                game.PublisherId = publisher.Id;
+            }
+
+            var mongoGameGenres = await _gameGenresCollection.Find(x => x.ProductID == mongoGame.ProductID).ToListAsync();
+
+            var genres = new List<Genre>();
+
+            foreach (var mongoGameGenre in mongoGameGenres)
+            {
+                if (mongoGameGenre.CategoryID is int)
+                {
+                    var localGenre = await _genreCollection.Find(x => x.CategoryID == (mongoGameGenre.CategoryID as int?)).SingleOrDefaultAsync();
+
+                    if (localGenre != null)
+                    {
+                        genres.Add(new Genre(localGenre));
+                    }
+                }
+            }
+
+            game.Genres = genres;
+        }
+
+        return game;
     }
 
     public async Task<int> GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage)

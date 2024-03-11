@@ -8,6 +8,11 @@ public class OrderRepository(AppDbContext appDbContext) : Repository<Order>(appD
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
+    public async Task<IEnumerable<Order>> GetAllOrders(DateTime startDate, DateTime dateTo)
+    {
+        return await _appDbContext.Orders.Where(x => x.CreationDate >= startDate && x.CreationDate <= dateTo).ToListAsync();
+    }
+
     public async Task<Order> GetCustomerOpenOrder(Guid customerId)
     {
         return await _appDbContext.Orders.SingleOrDefaultAsync(x => x.CustomerId == customerId && x.Status == OrderStatus.Open);

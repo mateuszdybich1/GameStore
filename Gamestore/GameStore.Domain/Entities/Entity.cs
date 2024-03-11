@@ -15,6 +15,13 @@ public class Entity
         ModificationDate = null;
     }
 
+    public Entity(Guid id, DateTime creationDate)
+    {
+        Id = id;
+        CreationDate = creationDate;
+        ModificationDate = null;
+    }
+
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public Guid Id { get; private set; }

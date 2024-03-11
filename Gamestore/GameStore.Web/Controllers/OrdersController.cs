@@ -5,6 +5,7 @@ using GameStore.Application.IServices;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace GameStore.Web.Controllers;
@@ -138,11 +139,11 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetOrder([FromRoute] Guid id)
+    public async Task<IActionResult> GetOrder([FromRoute] Guid id)
     {
         try
         {
-            return Ok(_orderService.GetOrder(id));
+            return Ok(await _orderService.GetOrder(id));
         }
         catch (EntityNotFoundException ex)
         {
@@ -162,6 +163,37 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
         try
         {
             return Ok(await _orderService.GetCart(_customerId));
+        }
+        catch (EntityNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("history")]
+    public async Task<IActionResult> GetOrdersHistory([FromQuery] string? start, [FromQuery] string? end)
+    {
+        try
+        {
+            DateTime? startDate = null;
+            DateTime? endDate = null;
+            if (!start.IsNullOrEmpty())
+            {
+                int endIndex = start.IndexOf('G') - 1;
+
+                startDate = DateTime.Parse(start[..endIndex]);
+            }
+
+            if (!end.IsNullOrEmpty())
+            {
+                int endIndex = end.IndexOf('G') - 1;
+
+                endDate = DateTime.Parse(end[..endIndex]);
+            }
+
+            var orderHistory = await _orderService.GetOrderHistory(startDate, endDate);
+
+            return Ok(orderHistory);
         }
         catch (EntityNotFoundException ex)
         {

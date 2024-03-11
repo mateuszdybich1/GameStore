@@ -38,7 +38,7 @@ public class GameDto
     public int UnitInStock { get; set; }
 
     [Required]
-    public int Discount { get; set; }
+    public double Discount { get; set; }
 
     public ulong NumberOfViews { get; private set; }
 }

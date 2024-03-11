@@ -24,9 +24,9 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
     {
         Guid gameId = (gameDto.Game.Id == null || gameDto.Game.Id == Guid.Empty) ? Guid.NewGuid() : (Guid)gameDto.Game.Id;
 
-        if (gameDto.Game.Discount > gameDto.Game.Price)
+        if (gameDto.Game.Discount is < 0 or > 1)
         {
-            throw new ArgumentException("Discount cannot be greater than price");
+            throw new ArgumentException("Discount must be in range 0 to 1");
         }
 
         if (gameDto.Publisher == null)
@@ -87,11 +87,24 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
     public async Task<Guid> DeleteGame(string gameKey)
     {
         Game game = await _sqlGamesSearchCriteria.GetByKey(gameKey);
+        Game mongoGame = await _mongoGamesSearchCriteria.GetByKey(gameKey);
 
-        // Game mongoGame = await TODO
-        await _sqlGameRepository.Delete(game);
+        if (game == null && mongoGame == null)
+        {
+            throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        }
 
-        return game.Id;
+        if (game != null)
+        {
+            await _sqlGameRepository.Delete(game);
+        }
+
+        if (mongoGame != null)
+        {
+            await _mongoGameRepository.Delete(mongoGame);
+        }
+
+        return game == null ? mongoGame.Id : game.Id;
     }
 
     public async Task<GameDto> GetGameById(Guid gameId)
@@ -341,6 +354,11 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
 
     public async Task<Guid> UpdateGame(GameDtoDto gameDto)
     {
+        if (gameDto.Game.Discount is < 0 or > 1)
+        {
+            throw new ArgumentException("Discount must be in range 0 to 1");
+        }
+
         if (gameDto.Game.Id == null)
         {
             gameDto.Game.Id = Guid.NewGuid();

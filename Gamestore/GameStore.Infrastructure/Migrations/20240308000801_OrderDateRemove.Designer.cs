@@ -4,6 +4,7 @@ using GameStore.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameStore.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240308000801_OrderDateRemove")]
+    partial class OrderDateRemove
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,8 +108,8 @@ namespace GameStore.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
+                    b.Property<int>("Discount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Key")
                         .IsRequired()
@@ -219,8 +222,8 @@ namespace GameStore.Infrastructure.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
+                    b.Property<int>("Discount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");

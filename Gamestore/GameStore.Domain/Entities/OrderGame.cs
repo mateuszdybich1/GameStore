@@ -5,7 +5,7 @@ public class OrderGame : Entity
     {
     }
 
-    public OrderGame(Guid id, Guid orderId, Guid productId, double price, int quantity, int discount)
+    public OrderGame(Guid id, Guid orderId, Guid productId, double price, int quantity, double discount)
         : base(id)
     {
         OrderId = orderId;
@@ -23,5 +23,5 @@ public class OrderGame : Entity
 
     public int Quantity { get; set; }
 
-    public int Discount { get; set; }
+    public double Discount { get; set; }
 }

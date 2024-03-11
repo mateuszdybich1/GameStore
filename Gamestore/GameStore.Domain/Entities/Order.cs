@@ -19,10 +19,14 @@ public class Order : Entity
     {
         CustomerId = custoimerId;
         Status = status;
-        Date = DateTime.Now;
     }
 
-    public DateTime Date { get; private set; }
+    public Order(Guid id, Guid custoimerId, DateTime creationDate, OrderStatus status)
+        : base(id, creationDate)
+    {
+        CustomerId = custoimerId;
+        Status = status;
+    }
 
     public Guid CustomerId { get; private set; }
 

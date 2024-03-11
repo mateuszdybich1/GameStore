@@ -20,4 +20,6 @@ public interface IOrderService
     public Task<IEnumerable<OrderGameDto>> GetCart(Guid customerId);
 
     public Task<OrderInformation> GetOrderInformation(Guid customerId);
+
+    public Task<IEnumerable<OrderDto>> GetOrderHistory(DateTime? startDate, DateTime? dateTo);
 }

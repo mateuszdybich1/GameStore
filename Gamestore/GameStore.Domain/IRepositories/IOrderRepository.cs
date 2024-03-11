@@ -8,4 +8,6 @@ public interface IOrderRepository : IRepository<Order>
     public Task<IEnumerable<Order>> GetOrdersByCustomerId(Guid customerId);
 
     public Task<IEnumerable<Order>> GetPaidAndCancelledOrders();
+
+    public Task<IEnumerable<Order>> GetAllOrders(DateTime startDate, DateTime dateTo);
 }

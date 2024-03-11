@@ -10,5 +10,5 @@ public class OrderGameDto(OrderGame orderGame)
 
     public int Quantity { get; set; } = orderGame.Quantity;
 
-    public int Discount { get; set; } = orderGame.Discount;
+    public double Discount { get; set; } = orderGame.Discount;
 }
