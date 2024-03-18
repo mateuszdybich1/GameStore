@@ -79,6 +79,21 @@ public class Game : Entity
         Publisher = publisher;
     }
 
+    public Game(Game game)
+        : base(game.Id, game.CreationDate, game.ModificationDate)
+    {
+        Name = game.Name;
+        Key = game.Key;
+        Price = game.Price;
+        UnitInStock = game.UnitInStock;
+        Discount = game.Discount;
+        Description = game.Key;
+        PublisherId = game.PublisherId;
+        Genres = game.Genres;
+        Platforms = game.Platforms;
+        Publisher = game.Publisher;
+    }
+
     public Game(MongoGame mongoGame)
         : base(mongoGame.Id.AsGuid())
     {

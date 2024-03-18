@@ -22,6 +22,13 @@ public class Entity
         ModificationDate = null;
     }
 
+    public Entity(Guid id, DateTime creationDate, DateTime? modificationDate)
+    {
+        Id = id;
+        CreationDate = creationDate;
+        ModificationDate = modificationDate;
+    }
+
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public Guid Id { get; private set; }

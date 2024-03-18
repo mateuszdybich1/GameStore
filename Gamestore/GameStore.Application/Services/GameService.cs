@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.Extensions;
@@ -8,7 +9,7 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFactory, Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteria, IPlatformRepository platformRepository, Func<RepositoryTypes, IGenreRepository> genreRepository, Func<RepositoryTypes, IPublisherRepository> publisherRepository) : IGameService
+public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFactory, Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteria, IPlatformRepository platformRepository, Func<RepositoryTypes, IGenreRepository> genreRepository, Func<RepositoryTypes, IPublisherRepository> publisherRepository, IChangeLogService gameChangeLogService) : IGameService
 {
     private readonly IGameRepository _sqlGameRepository = gameRepositoryFactory(RepositoryTypes.Sql);
     private readonly IGameRepository _mongoGameRepository = gameRepositoryFactory(RepositoryTypes.Mongo);
@@ -19,6 +20,7 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
     private readonly IGenreRepository _mongoGenreRepository = genreRepository(RepositoryTypes.Mongo);
     private readonly IPublisherRepository _sqlPublisherRepository = publisherRepository(RepositoryTypes.Sql);
     private readonly IPublisherRepository _mongoPublisherRepository = publisherRepository(RepositoryTypes.Mongo);
+    private readonly IChangeLogService _gameChangeLogService = gameChangeLogService;
 
     public async Task<Guid> AddGame(GameDtoDto gameDto)
     {
@@ -412,7 +414,7 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
             throw new EntityNotFoundException("You must provide at least one platform");
         }
 
-        var tempGame = await _sqlGameRepository.Get((Guid)gameDto.Game.Id);
+        Game tempGame = await _sqlGameRepository.Get((Guid)gameDto.Game.Id);
         Game mongoGame = await _mongoGameRepository.Get((Guid)gameDto.Game.Id);
         bool isSameKey = false;
         if (tempGame == null && mongoGame == null)
@@ -421,8 +423,21 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
         }
         else
         {
+            Game oldGame = new();
+            Game newGame = new();
+
+            if (tempGame != null)
+            {
+                oldGame = await _sqlGameRepository.GetGameWithRelations(tempGame.Id);
+            }
+
             if (mongoGame != null)
             {
+                if (tempGame == null)
+                {
+                    oldGame = await _mongoGameRepository.GetGameWithRelations(mongoGame.Id);
+                }
+
                 if (gameDto.Game.Key.Equals(mongoGame.Key))
                 {
                     isSameKey = true;
@@ -474,14 +489,24 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
                 {
                     await _sqlGameRepository.Add(mongoGame);
                 }
+
+                newGame = mongoGame;
             }
 
             if (tempGame != null)
             {
                 Game game = new((Guid)gameDto.Game.Id, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, publisher.Id, genres, platforms, publisher);
+
+                if (mongoGame == null)
+                {
+                    newGame = new(game);
+                }
+
                 await _sqlGameRepository.Delete(tempGame);
                 await _sqlGameRepository.Add(game);
             }
+
+            await _gameChangeLogService.LogEntityChanges(LogActionType.Update, EntityType.Game, oldGame, newGame);
         }
 
         return tempGame != null ? tempGame.Id : mongoGame.Id;
@@ -497,21 +522,36 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
         }
         else
         {
+            Game oldGame = new();
+            Game newGame = new();
             if (game != null)
             {
+                oldGame = new(game);
                 game.Description = updatedDesc;
                 game.ModificationDate = DateTime.Now;
 
                 await _sqlGameRepository.Update(game);
+                newGame = new(game);
             }
 
             if (mongoGame != null)
             {
+                if (game == null)
+                {
+                    oldGame = new(mongoGame);
+                }
+
                 mongoGame.Description = updatedDesc;
                 mongoGame.ModificationDate = DateTime.Now;
 
                 await _mongoGameRepository.Update(mongoGame);
+                if (game == null)
+                {
+                    newGame = new(mongoGame);
+                }
             }
+
+            await _gameChangeLogService.LogEntityChanges(LogActionType.Update, EntityType.Game, oldGame, newGame);
         }
 
         return game != null ? game.Id : mongoGame.Id;

@@ -1,7 +1,9 @@
 ﻿using GameStore.Application.IServices;
 using GameStore.Application.Services;
+using GameStore.Domain;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.ISearchCriterias;
+using GameStore.Infrastructure;
 using GameStore.Infrastructure.MongoRepositories;
 using GameStore.Infrastructure.Repositories;
 using GameStore.Infrastructure.SearchCriteria;
@@ -14,6 +16,7 @@ internal static class Bootstrapper
     internal static void RegisterServices(this IServiceCollection services)
     {
         services.AddSingleton<IMongoClient, MongoClient>();
+        services.AddScoped<IChangeLogService, ChangeLogService>();
 
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IGameRepository, MongoGameRepository>();

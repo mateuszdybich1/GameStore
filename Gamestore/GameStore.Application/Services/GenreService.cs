@@ -162,7 +162,11 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
                 }
             }
 
-            await _sqlGenreRepository.Add(mongoGenre);
+            if (genre == null)
+            {
+                await _sqlGenreRepository.Add(mongoGenre);
+            }
+
             await _mongoGenreRepository.Update(mongoGenre);
         }
 

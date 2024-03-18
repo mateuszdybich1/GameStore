@@ -22,13 +22,24 @@ public class Comment : Entity
         Game = game;
     }
 
-    public Comment(Guid id, string name, string body, Game game, Comment parentComment)
+    public Comment(Guid id, string name, string body, CommentActionType type, Game game, Comment parentComment)
         : base(id)
     {
         Name = name;
         Body = body;
+        Type = type;
         Game = game;
         ParentComment = parentComment;
+    }
+
+    public Comment(Comment comment)
+        : base(comment.Id, comment.CreationDate, comment.ModificationDate)
+    {
+        Name = comment.Name;
+        Body = comment.Body;
+        Type = comment.Type;
+        Game = comment.Game;
+        ParentComment = comment.ParentComment;
     }
 
     public string Name { get; set; }
