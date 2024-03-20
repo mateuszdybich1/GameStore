@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.IRepositories;
@@ -7,12 +8,13 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class PublisherService(Func<RepositoryTypes, IPublisherRepository> publisherFactory, Func<RepositoryTypes, IPublisherSearchCriteria> criteriaFactory) : IPublisherService
+public class PublisherService(Func<RepositoryTypes, IPublisherRepository> publisherFactory, Func<RepositoryTypes, IPublisherSearchCriteria> criteriaFactory, IChangeLogService changeLogService) : IPublisherService
 {
     private readonly IPublisherSearchCriteria _sqlPublisherSearchCriteria = criteriaFactory(RepositoryTypes.Sql);
     private readonly IPublisherSearchCriteria _mongoPublisherSearchCriteria = criteriaFactory(RepositoryTypes.Mongo);
     private readonly IPublisherRepository _sqlPublisherRepository = publisherFactory(RepositoryTypes.Sql);
     private readonly IPublisherRepository _mongoPublisherRepository = publisherFactory(RepositoryTypes.Mongo);
+    private readonly IChangeLogService _changeLogService = changeLogService;
 
     public async Task<Guid> AddPublisher(PublisherDto publisherDto)
     {
@@ -98,7 +100,7 @@ public class PublisherService(Func<RepositoryTypes, IPublisherRepository> publis
 
         Publisher publisher = await _sqlPublisherRepository.Get((Guid)publisherDto.Id);
         Publisher mongoPublisher = await _mongoPublisherRepository.Get((Guid)publisherDto.Id);
-
+        Publisher oldPublisher;
         bool sameCompanyname;
 
         if (publisher == null && mongoPublisher == null)
@@ -107,6 +109,7 @@ public class PublisherService(Func<RepositoryTypes, IPublisherRepository> publis
         }
         else
         {
+            oldPublisher = publisher != null ? new(publisher) : new(mongoPublisher);
             sameCompanyname = publisher != null ? publisher.CompanyName == publisherDto.CompanyName : mongoPublisher.CompanyName == publisherDto.CompanyName;
             if (publisher != null)
             {
@@ -150,6 +153,9 @@ public class PublisherService(Func<RepositoryTypes, IPublisherRepository> publis
             throw new ExistingFieldException("Please provide unique company name");
         }
 
+        Publisher newPublisher = publisher ?? mongoPublisher;
+
+        await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Publisher, oldPublisher, newPublisher!);
         return publisher == null ? mongoPublisher.Id : publisher.Id;
     }
 

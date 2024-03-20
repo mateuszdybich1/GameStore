@@ -15,6 +15,16 @@ public class OrderGame : Entity
         Discount = discount;
     }
 
+    public OrderGame(OrderGame orderGame)
+        : base(orderGame.Id, orderGame.CreationDate, orderGame.ModificationDate)
+    {
+        OrderId = orderGame.OrderId;
+        ProductId = orderGame.ProductId;
+        Price = orderGame.Price;
+        Quantity = orderGame.Quantity;
+        Discount = orderGame.Discount;
+    }
+
     public Guid OrderId { get; private set; }
 
     public Guid ProductId { get; private set; }

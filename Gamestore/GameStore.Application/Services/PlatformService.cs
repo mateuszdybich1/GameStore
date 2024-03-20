@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.IRepositories;
@@ -7,10 +8,11 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class PlatformService(IPlatformRepository platformRepository, IPlatformsSearchCriteria platformsSearchCriteria) : IPlatformService
+public class PlatformService(IPlatformRepository platformRepository, IPlatformsSearchCriteria platformsSearchCriteria, IChangeLogService changeLogService) : IPlatformService
 {
     private readonly IPlatformRepository _platformRepository = platformRepository;
     private readonly IPlatformsSearchCriteria _platformsSearchCriteria = platformsSearchCriteria;
+    private readonly IChangeLogService _changeLogService = changeLogService;
 
     public async Task<Guid> AddPlatform(PlatformDto platformDto)
     {
@@ -66,7 +68,7 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
         }
 
         Platform platform = await _platformRepository.Get((Guid)platformDto.Id) ?? throw new EntityNotFoundException($"Couldn't find platform by ID: {platformDto.Id}");
-
+        Platform oldPlatform = new(platform);
         platform.Type = platformDto.Type;
         platform.ModificationDate = DateTime.Now;
 
@@ -78,6 +80,8 @@ public class PlatformService(IPlatformRepository platformRepository, IPlatformsS
         {
             throw new ExistingFieldException("Please provide unique platform type");
         }
+
+        await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Platform, oldPlatform, platform);
 
         return platform.Id;
     }

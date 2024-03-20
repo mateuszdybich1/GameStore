@@ -60,4 +60,9 @@ public class MongoGenreSearchCriteria : IGenresSearchCriteria
     {
         throw new NotImplementedException();
     }
+
+    public Task<Genre> GetWithParent(Guid genreId)
+    {
+        throw new NotImplementedException();
+    }
 }

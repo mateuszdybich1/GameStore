@@ -23,6 +23,13 @@ public class Platform : Entity
         Type = type;
     }
 
+    public Platform(Platform platform)
+        : base(platform.Id, platform.CreationDate, platform.ModificationDate)
+    {
+        Type = platform.Type;
+        Games = platform.Games;
+    }
+
     public string Type { get; set; }
 
     public List<Game> Games { get; set; }

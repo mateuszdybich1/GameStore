@@ -28,6 +28,13 @@ public class Order : Entity
         Status = status;
     }
 
+    public Order(Order order)
+        : base(order.Id, order.CreationDate, order.ModificationDate)
+    {
+        CustomerId = order.CustomerId;
+        Status = order.Status;
+    }
+
     public Guid CustomerId { get; private set; }
 
     public OrderStatus Status { get; set; }

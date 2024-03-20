@@ -25,6 +25,16 @@ public class Genre : Entity
         Picture = picture;
     }
 
+    public Genre(Genre genre)
+        : base(genre.Id, genre.CreationDate, genre.ModificationDate)
+    {
+        Name = genre.Name;
+        Description = genre.Description;
+        Picture = genre.Picture;
+        ParentGenre = genre.ParentGenre;
+        Games = genre.Games;
+    }
+
     public Genre(MongoGenre mongoGenre)
         : base(mongoGenre.Id.AsGuid())
     {

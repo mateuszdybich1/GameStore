@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.IRepositories;
@@ -7,7 +8,7 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<RepositoryTypes, IOrderRepository> orderRepositoryFactory, Func<RepositoryTypes, IOrderGameRepository> orderGameRepositoryFactory, IGameRepository gameRepository) : IOrderService
+public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<RepositoryTypes, IOrderRepository> orderRepositoryFactory, Func<RepositoryTypes, IOrderGameRepository> orderGameRepositoryFactory, IGameRepository gameRepository, IChangeLogService changeLogService) : IOrderService
 {
     private readonly IGamesSearchCriteria _gameSearchCriteria = gameSearchCriteria;
     private readonly IOrderRepository _sqlOrderRepository = orderRepositoryFactory(RepositoryTypes.Sql);
@@ -15,6 +16,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
     private readonly IOrderGameRepository _sqlOrderGameRepository = orderGameRepositoryFactory(RepositoryTypes.Sql);
     private readonly IOrderGameRepository _mongoOrderGameRepository = orderGameRepositoryFactory(RepositoryTypes.Mongo);
     private readonly IGameRepository _gameRepository = gameRepository;
+    private readonly IChangeLogService _changeLogService = changeLogService;
 
     public async Task<Guid> AddOrder(Guid customerId, string gameKey)
     {
@@ -45,6 +47,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
             }
             else
             {
+                OrderGame oldOrderGame = new(orderGame);
                 orderGame.Quantity += 1;
                 orderGame.ModificationDate = DateTime.Now;
 
@@ -54,6 +57,8 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
                 }
 
                 await _sqlOrderGameRepository.Update(orderGame);
+
+                await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.OrderGame, oldOrderGame, orderGame);
             }
         }
 
@@ -141,10 +146,13 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
 
         if (orderGame.Quantity > 1)
         {
+            OrderGame oldOrderGame = new(orderGame);
             orderGame.Quantity -= 1;
             orderGame.ModificationDate = DateTime.Now;
 
             await _sqlOrderGameRepository.Update(orderGame);
+
+            await _changeLogService.LogEntityChanges(LogActionType.Delete, EntityType.OrderGame, oldOrderGame, orderGame);
         }
         else
         {
@@ -161,6 +169,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
     public async Task<Guid> UpdateOrder(Guid orderId, OrderStatus orderStatus)
     {
         Order order = await _sqlOrderRepository.Get(orderId) ?? throw new EntityNotFoundException($"Couldn't find order by ID: {orderId}");
+        Order oldOrder = new(order);
 
         if (orderStatus == OrderStatus.Paid)
         {
@@ -169,8 +178,11 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
             foreach (OrderGame orderGame in orderGames)
             {
                 Game game = await _gameRepository.Get(orderGame.ProductId);
+                Game oldGame = new(game);
                 game.UnitInStock -= orderGame.Quantity;
                 await _gameRepository.Update(game);
+
+                await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Game, oldGame, game);
             }
         }
 
@@ -178,6 +190,8 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
         order.ModificationDate = DateTime.Now;
 
         await _sqlOrderRepository.Update(order);
+
+        await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Order, oldOrder, order);
         return order.Id;
     }
 

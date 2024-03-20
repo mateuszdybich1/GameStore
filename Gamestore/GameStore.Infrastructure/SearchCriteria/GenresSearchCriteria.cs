@@ -22,4 +22,9 @@ public class GenresSearchCriteria(AppDbContext appDbContext) : IGenresSearchCrit
     {
         return await _appDbContext.Genres.Include(x => x.ParentGenre).Where(x => x.ParentGenre.Id == parentId).ToListAsync();
     }
+
+    public async Task<Genre> GetWithParent(Guid genreId)
+    {
+        return await _appDbContext.Genres.Include(x => x.ParentGenre).Where(x => x.Id == genreId).FirstOrDefaultAsync();
+    }
 }

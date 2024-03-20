@@ -15,6 +15,15 @@ public class Publisher : Entity
         Description = description;
     }
 
+    public Publisher(Publisher publisher)
+        : base(publisher.Id, publisher.CreationDate, publisher.ModificationDate)
+    {
+        CompanyName = publisher.CompanyName;
+        HomePage = publisher.HomePage;
+        Description = publisher.Description;
+        Games = publisher.Games;
+    }
+
     public Publisher(MongoPublisher supplier)
         : base(supplier.Id.AsGuid())
     {

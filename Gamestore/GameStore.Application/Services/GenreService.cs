@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.IRepositories;
@@ -7,12 +8,13 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepository, Func<RepositoryTypes, IGenresSearchCriteria> genreSearchCriteria) : IGenreService
+public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepository, Func<RepositoryTypes, IGenresSearchCriteria> genreSearchCriteria, IChangeLogService gameChangeLogService) : IGenreService
 {
     private readonly IGenreRepository _sqlGenreRepository = genreRepository(RepositoryTypes.Sql);
     private readonly IGenreRepository _mongoGenreRepository = genreRepository(RepositoryTypes.Mongo);
     private readonly IGenresSearchCriteria _sqlGenresSearchCriteria = genreSearchCriteria(RepositoryTypes.Sql);
     private readonly IGenresSearchCriteria _mongoGenresSearchCriteria = genreSearchCriteria(RepositoryTypes.Mongo);
+    private readonly IChangeLogService _changeLogService = gameChangeLogService;
 
     public async Task<Guid> AddGenre(GenreDto genreDto)
     {
@@ -104,17 +106,23 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
             throw new ArgumentNullException("Cannot update genre. Id is null");
         }
 
-        Genre genre = await _sqlGenreRepository.Get((Guid)genreDto.Id);
+        Genre genre = await _sqlGenresSearchCriteria.GetWithParent((Guid)genreDto.Id);
         Genre mongoGenre = await _mongoGenreRepository.Get((Guid)genreDto.Id);
+        Genre oldGenre = genre != null ? new(genre) : new(mongoGenre);
 
         if (genre == null && mongoGenre == null)
         {
             throw new EntityNotFoundException($"Couldn't find genre by ID: {genreDto.Id}");
         }
 
+        Genre? sqlParentGenre = null;
+        Genre? mongoParentGenre = null;
+
         if (genreDto.ParentGenreId != null && genreDto.ParentGenreId != Guid.Empty)
         {
-            Genre parentGenre = await _sqlGenreRepository.Get((Guid)genreDto.ParentGenreId) ?? await _mongoGenreRepository.Get((Guid)genreDto.ParentGenreId) ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGenreId}");
+            sqlParentGenre = await _sqlGenreRepository.Get((Guid)genreDto.ParentGenreId);
+            mongoParentGenre = await _mongoGenreRepository.Get((Guid)genreDto.ParentGenreId);
+            Genre parentGenre = sqlParentGenre ?? mongoParentGenre ?? throw new EntityNotFoundException($"Couldn't find parent genre by ID: {genreDto.ParentGenreId}");
 
             if (genre != null)
             {
@@ -127,6 +135,8 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
             }
         }
 
+        Genre newGenre = new();
+
         if (genre != null)
         {
             genre.Name = genreDto.Name;
@@ -136,7 +146,13 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
 
             try
             {
+                if (mongoParentGenre != null && sqlParentGenre == null)
+                {
+                    await _sqlGenreRepository.Add(mongoParentGenre);
+                }
+
                 await _sqlGenreRepository.Update(genre);
+                newGenre = genre;
             }
             catch (Exception)
             {
@@ -165,9 +181,12 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
             if (genre == null)
             {
                 await _sqlGenreRepository.Add(mongoGenre);
+                newGenre = mongoGenre;
             }
 
             await _mongoGenreRepository.Update(mongoGenre);
+
+            await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Genre, oldGenre, newGenre);
         }
 
         return genre != null ? genre.Id : mongoGenre.Id;

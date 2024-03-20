@@ -59,11 +59,17 @@ public class ChangeLogService : IChangeLogService
                         i++;
                     }
                 }
-                else if (value is not null)
+                else
                 {
-                    var objectProps = value.GetType().Name;
-                    var objectId = value.GetType().GetProperty("Id").GetValue(value);
-                    logEntry.Add($"{entityKind}.{objectProps}", objectId.ToString());
+                    if (value is not null)
+                    {
+                        var objectId = value.GetType().GetProperty("Id").GetValue(value);
+                        logEntry.Add($"{entityKind}.{property.Name}", objectId.ToString());
+                    }
+                    else if (value is null)
+                    {
+                        logEntry.Add($"{entityKind}.{property.Name}", "Null");
+                    }
                 }
             }
         }
