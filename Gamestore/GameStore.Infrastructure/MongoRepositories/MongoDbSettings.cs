@@ -1,4 +1,4 @@
-﻿namespace GameStore.Infrastructure.Repositories;
+﻿namespace GameStore.Infrastructure.MongoRepositories;
 
 public class MongoDbSettings
 {

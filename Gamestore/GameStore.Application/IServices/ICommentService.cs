@@ -9,5 +9,7 @@ public interface ICommentService
 
     public Task<Guid> DeleteComment(string gameKey, Guid commentId);
 
+    public Task<Comment> GetComment(Guid id);
+
     public Task<IEnumerable<CommentModel>> GetComments(string gameKey);
 }

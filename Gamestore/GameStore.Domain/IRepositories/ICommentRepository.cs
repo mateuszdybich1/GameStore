@@ -9,5 +9,7 @@ public interface ICommentRepository
 
     public Task<Comment> GetComment(Guid commentId, Guid gameId);
 
+    public Task<Comment> GetComment(Guid commentId);
+
     public Task<IEnumerable<CommentModel>> GetGamesComments(Guid gameId);
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Reflection;
 using GameStore.Domain;
-using GameStore.Infrastructure.Repositories;
+using GameStore.Infrastructure.MongoRepositories;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;

@@ -1,13 +1,12 @@
 ﻿using GameStore.Domain.Entities;
-using GameStore.Infrastructure;
 
-namespace GameStore.Web;
+namespace GameStore.Infrastructure;
 
-internal class PredefinedObjects(AppDbContext appDbContext)
+public class PredefinedObjects(AppDbContext appDbContext)
 {
     private readonly AppDbContext _appDbContext = appDbContext;
 
-    internal void AddPlatforms()
+    public void AddPlatforms()
     {
         List<string> missing = Enum.GetNames(typeof(PlatformType)).Except(_appDbContext.Platforms.Select(x => x.Type)).ToList();
 
@@ -19,7 +18,7 @@ internal class PredefinedObjects(AppDbContext appDbContext)
         _appDbContext.SaveChanges();
     }
 
-    internal void AddGenres()
+    public void AddGenres()
     {
         var parentGenres = new[] { "Strategy", "RPG", "Sports", "Races", "Action", "Adventure", "Puzzle & Skill" };
 

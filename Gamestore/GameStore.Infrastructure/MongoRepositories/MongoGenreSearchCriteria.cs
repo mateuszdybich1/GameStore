@@ -1,7 +1,6 @@
 ﻿using GameStore.Domain.Entities;
 using GameStore.Domain.ISearchCriterias;
 using GameStore.Domain.MongoEntities;
-using GameStore.Infrastructure.Repositories;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 

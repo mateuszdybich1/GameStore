@@ -2,7 +2,6 @@
 using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.MongoEntities;
-using GameStore.Infrastructure.Repositories;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;

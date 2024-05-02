@@ -3,15 +3,27 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Application.IUserServices;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameStore.Web.Controllers;
+
 [Route("api/games")]
 [ApiController]
-public class GamesController(IGameService gamesService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService, IOrderService orderService, ICommentService commentService) : ControllerBase
+public class GamesController(IGameService gamesService,
+    IGenreService genreService,
+    IPlatformService platformService,
+    IPublisherService publisherService,
+    IOrderService orderService,
+    ICommentService commentService,
+    IUserContext userContext,
+    IUserCheckService userCheckService) : ControllerBase
 {
     private readonly IGameService _gamesService = gamesService;
     private readonly IGenreService _genreService = genreService;
@@ -19,8 +31,8 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
     private readonly IPublisherService _publisherService = publisherService;
     private readonly IOrderService _orderService = orderService;
     private readonly ICommentService _commentService = commentService;
-
-    private readonly Guid _customerId = Guid.Parse("3fa85f6457174562b3fc2c963f66afa6");
+    private readonly IUserContext _userContext = userContext;
+    private readonly IUserCheckService _userCheckService = userCheckService;
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -28,10 +40,13 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost]
     public async Task<IActionResult> AddGame(GameDtoDto gameDto)
     {
-        return Ok(await _gamesService.AddGame(gameDto));
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.AddGame })
+            ? Ok(await _gamesService.AddGame(gameDto))
+            : Unauthorized();
     }
 
     [HttpGet("{key}")]
@@ -46,16 +61,22 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         return Ok(await _gamesService.GetGameById(id));
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPut]
     public async Task<IActionResult> UpdateGame(GameDtoDto gameDto)
     {
-        return Ok(await _gamesService.UpdateGame(gameDto));
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateGame })
+            ? Ok(await _gamesService.UpdateGame(gameDto))
+            : Unauthorized();
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpDelete("{key}")]
     public async Task<IActionResult> DeleteGame([FromRoute] string key)
     {
-        return Ok(await _gamesService.DeleteGame(key));
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.DeleteGame })
+            ? Ok(await _gamesService.DeleteGame(key))
+            : Unauthorized();
     }
 
     [HttpGet]
@@ -98,12 +119,13 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         return Ok(await _platformService.GetGamesPlatforms(key));
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost("{key}/buy")]
     public async Task<IActionResult> AddToCart([FromRoute] string key)
     {
         try
         {
-            return Ok(await _orderService.AddOrder(_customerId, key));
+            return Ok(await _orderService.AddOrder(_userContext.CurrentUserId, key));
         }
         catch (EntityNotFoundException ex)
         {
@@ -115,10 +137,20 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         }
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost("{key}/comments")]
     public async Task<IActionResult> AddComment([FromRoute] string key, [FromBody] CommentDtoDto commentDto)
     {
-        return Ok(await _commentService.AddComment(key, commentDto));
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.AddComment }))
+        {
+            var userName = _userContext.UserName;
+            commentDto.Comment.Name = userName;
+            return Ok(await _commentService.AddComment(key, commentDto));
+        }
+        else
+        {
+            return Unauthorized();
+        }
     }
 
     [HttpGet("{key}/comments")]
@@ -127,10 +159,15 @@ public class GamesController(IGameService gamesService, IGenreService genreServi
         return Ok(await _commentService.GetComments(key));
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpDelete("{key}/comments/{id}")]
     public async Task<IActionResult> Delete([FromRoute] string key, [FromRoute] Guid id)
     {
-        return Ok(await _commentService.DeleteComment(key, id));
+        var comment = await _commentService.GetComment(id);
+
+        return comment.Name == _userContext.UserName || _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.DeleteComment })
+            ? Ok(await _commentService.DeleteComment(key, id))
+            : Unauthorized();
     }
 
     [HttpGet("pagination-options")]

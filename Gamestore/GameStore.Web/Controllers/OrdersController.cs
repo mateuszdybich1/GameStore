@@ -2,22 +2,28 @@
 using System.Text;
 using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
+using GameStore.Application.IUserServices;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace GameStore.Web.Controllers;
+
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/orders")]
 [ApiController]
-public class OrdersController(IOrderService orderService, IHttpClientFactory httpClientFactory) : ControllerBase
+public class OrdersController(IOrderService orderService, IHttpClientFactory httpClientFactory, IUserContext userContext, IUserCheckService userCheckService) : ControllerBase
 {
     private readonly IOrderService _orderService = orderService;
+    private readonly IUserContext _userContext = userContext;
+    private readonly IUserCheckService _userCheckService = userCheckService;
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("PaymentMicroservice");
-
-    private readonly Guid _customerId = Guid.Parse("3fa85f6457174562b3fc2c963f66afa6");
 
     private static readonly Dictionary<string, string> PaymentTypes = new()
     {
@@ -34,14 +40,16 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
             return BadRequest("Invalid payment method for this endpoint.");
         }
 
-        OrderInformation orderInformation = await _orderService.GetOrderInformation(_customerId);
+        var currentUserId = _userContext.CurrentUserId;
+
+        OrderInformation orderInformation = await _orderService.GetOrderInformation(currentUserId);
         string route;
         object apiObj;
         HttpResponseMessage response;
 
         if (request.Method == PaymentTypes.First().Value)
         {
-            var invoice = InvoiceGenerator.GenerateInvoice(_customerId, orderInformation.OrderId, orderInformation.Sum);
+            var invoice = InvoiceGenerator.GenerateInvoice(currentUserId, orderInformation.OrderId, orderInformation.Sum);
 
             await _orderService.UpdateOrder(orderInformation.OrderId, OrderStatus.Checkout);
 
@@ -73,7 +81,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
             apiObj = new
             {
                 transactionAmount = orderInformation.Sum,
-                accountNumber = _customerId,
+                accountNumber = currentUserId,
                 invoiceNumber = orderInformation.OrderId,
             };
         }
@@ -93,7 +101,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
 
         var returnObj = new
         {
-            UserId = _customerId,
+            UserId = currentUserId,
             OrderId = orderInformation.OrderId,
             PaymentDate = orderInformation.CreationDate,
             Sum = orderInformation.Sum,
@@ -102,6 +110,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
         return Ok(returnObj);
     }
 
+    [AllowAnonymous]
     [HttpGet("payment-methods")]
     public IActionResult GetPaymentMethods()
     {
@@ -124,7 +133,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     {
         try
         {
-            return Ok(await _orderService.RemoveOrder(_customerId, key));
+            return Ok(await _orderService.RemoveOrder(_userContext.CurrentUserId, key));
         }
         catch (EntityNotFoundException ex)
         {
@@ -135,26 +144,37 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     [HttpGet]
     public async Task<IActionResult> GetPaidAndCancelledOrders()
     {
-        return Ok(await _orderService.GetPaidAndCancelledOrders());
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Orders })
+            ? Ok(await _orderService.GetPaidAndCancelledOrders())
+            : Unauthorized();
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOrder([FromRoute] Guid id)
     {
-        try
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Order }))
         {
-            return Ok(await _orderService.GetOrder(id));
+            try
+            {
+                return Ok(await _orderService.GetOrder(id));
+            }
+            catch (EntityNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-        catch (EntityNotFoundException ex)
+        else
         {
-            return BadRequest(ex.Message);
+            return Unauthorized();
         }
     }
 
     [HttpGet("{id}/details")]
     public async Task<IActionResult> GetOrderDetails([FromRoute] Guid id)
     {
-        return Ok(await _orderService.GetOrderDetails(id));
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Order })
+            ? Ok(await _orderService.GetOrderDetails(id))
+            : Unauthorized();
     }
 
     [HttpGet("cart")]
@@ -162,7 +182,7 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     {
         try
         {
-            return Ok(await _orderService.GetCart(_customerId));
+            return Ok(await _orderService.GetCart(_userContext.CurrentUserId));
         }
         catch (EntityNotFoundException ex)
         {
@@ -173,31 +193,38 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
     [HttpGet("history")]
     public async Task<IActionResult> GetOrdersHistory([FromQuery] string? start, [FromQuery] string? end)
     {
-        try
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.History }))
         {
-            DateTime? startDate = null;
-            DateTime? endDate = null;
-            if (!start.IsNullOrEmpty())
+            try
             {
-                int endIndex = start.IndexOf('G') - 1;
+                DateTime? startDate = null;
+                DateTime? endDate = null;
+                if (!start.IsNullOrEmpty())
+                {
+                    int endIndex = start.IndexOf('G') - 1;
 
-                startDate = DateTime.Parse(start[..endIndex]);
+                    startDate = DateTime.Parse(start[..endIndex]);
+                }
+
+                if (!end.IsNullOrEmpty())
+                {
+                    int endIndex = end.IndexOf('G') - 1;
+
+                    endDate = DateTime.Parse(end[..endIndex]);
+                }
+
+                var orderHistory = await _orderService.GetOrderHistory(startDate, endDate);
+
+                return Ok(orderHistory);
             }
-
-            if (!end.IsNullOrEmpty())
+            catch (EntityNotFoundException ex)
             {
-                int endIndex = end.IndexOf('G') - 1;
-
-                endDate = DateTime.Parse(end[..endIndex]);
+                return BadRequest(ex.Message);
             }
-
-            var orderHistory = await _orderService.GetOrderHistory(startDate, endDate);
-
-            return Ok(orderHistory);
         }
-        catch (EntityNotFoundException ex)
+        else
         {
-            return BadRequest(ex.Message);
+            return Unauthorized();
         }
     }
 }

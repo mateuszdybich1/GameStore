@@ -19,6 +19,11 @@ public class CommentRepository(AppDbContext appDbContext) : ICommentRepository
         return await _appDbContext.Comments.FirstOrDefaultAsync(x => x.Id == commentId && x.Game.Id == gameId);
     }
 
+    public async Task<Comment> GetComment(Guid commentId)
+    {
+        return await _appDbContext.Comments.FirstOrDefaultAsync(x => x.Id == commentId);
+    }
+
     public async Task<IEnumerable<CommentModel>> GetGamesComments(Guid gameId)
     {
         var parentComments = await _appDbContext.Comments.Include(x => x.ParentComment).Where(x => x.Game.Id == gameId && x.ParentComment == null).ToListAsync();

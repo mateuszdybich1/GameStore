@@ -1,12 +1,17 @@
 ﻿using GameStore.Application.IServices;
+using GameStore.Application.IUserServices;
 using GameStore.Application.Services;
+using GameStore.Application.UserServices;
 using GameStore.Domain;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.ISearchCriterias;
+using GameStore.Domain.IUserRepositories;
 using GameStore.Infrastructure;
 using GameStore.Infrastructure.MongoRepositories;
 using GameStore.Infrastructure.Repositories;
 using GameStore.Infrastructure.SearchCriteria;
+using GameStore.Users;
+using GameStore.Users.Repositories;
 using MongoDB.Driver;
 
 namespace GameStore.Web;
@@ -127,12 +132,22 @@ internal static class Bootstrapper
                 _ => throw new ArgumentException($"Unknown key: {key}"),
             };
         });
+        services.AddScoped<IPermissionsRepository, PermissionsRepository>();
+        services.AddScoped<IRoleRepository, RolesRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
+        services.AddScoped<IUserContext, HttpUserContext>();
+        services.AddScoped<IAuthRepository, AuthRepository>();
+
+        services.AddScoped<IUserCheckService, UserCheckService>();
         services.AddScoped<IGameService, GameService>();
         services.AddScoped<IGenreService, GenreService>();
         services.AddScoped<IPlatformService, PlatformService>();
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<IPermissionsService, PermissionsService>();
+        services.AddScoped<IRolesService, RolesService>();
+        services.AddScoped<IUserService, UserService>();
     }
 }

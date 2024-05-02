@@ -1,18 +1,38 @@
+using System.Text;
+using GameStore.Domain.UserEntities;
 using GameStore.Infrastructure;
-using GameStore.Infrastructure.Repositories;
+using GameStore.Infrastructure.MongoRepositories;
+using GameStore.Users;
 using GameStore.Web;
 using GameStore.Web.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 
+services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
 services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreDatabase"));
 });
+
+services.AddDbContext<IdentityDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreUsers"));
+});
+
+services.AddIdentity<PersonModel, RoleModel>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<IdentityDbContext>()
+.AddDefaultTokenProviders();
 
 services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 
@@ -22,6 +42,31 @@ services.AddHttpClient("PaymentMicroservice", client =>
     client.BaseAddress = new Uri(connString);
 });
 
+services.AddHttpClient("AuthMicroservice", client =>
+{
+    var connString = builder.Configuration.GetConnectionString("AuthApiBaseUrl").ToString();
+    client.BaseAddress = new Uri(connString);
+});
+
+var xd = builder.Configuration.GetSection("JwtSettings:SecretKey");
+services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(xd.Value!)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+    };
+});
+
 services.RegisterServices();
 services.AddCors();
 services.AddControllers().AddNewtonsoftJson();
@@ -29,6 +74,15 @@ services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true) // allow any origin
+    .AllowCredentials());
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -41,12 +95,18 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.Migrate();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
 
-    PredefinedObjects predefined = new(context);
+    PredefinedObjects predefined = new(dbContext);
     predefined.AddGenres();
     predefined.AddPlatforms();
+
+    var identityDbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+    identityDbContext.Database.Migrate();
+
+    PredefinedUserRoles predefinedUserRoles = new(identityDbContext);
+    predefinedUserRoles.AddDefaultUserRoles();
 }
 
 app.UseDeveloperExceptionPage();
@@ -59,14 +119,6 @@ app.UseMiddleware<LoggingMiddleware>(infoLogsPath, errorLogsPath);
 app.UseMiddleware<TotalGamesMiddleware>();
 
 app.UseHttpsRedirection();
-
-app.UseCors(x => x
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-    .SetIsOriginAllowed(origin => true) // allow any origin
-    .AllowCredentials());
-
-app.UseAuthorization();
 
 app.MapControllers();
 
