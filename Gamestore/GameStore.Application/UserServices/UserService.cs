@@ -20,7 +20,7 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
 
     public async Task<List<RoleModelDto>> GetUserRoles(Guid userId)
     {
-        var userModel = await Get(userId);
+        var userModel = await _userRepository.GetUserWithRoles(userId) ?? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}");
 
         return userModel.Roles.Select(x => new RoleModelDto(x)).ToList();
     }
@@ -92,6 +92,31 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
     public async Task<List<UserModelDto>> GetAllUsers()
     {
         return (await _userRepository.GetAllUsers()).Select(x => new UserModelDto(x)).ToList();
+    }
+
+    public async Task<Guid> BanUser(UserBanDto userBanDto)
+    {
+        var user = await _userRepository.GetUser(userBanDto.User) ?? throw new EntityNotFoundException($"Couldn't find user: {userBanDto.User}");
+
+        user.IsBanned = true;
+        user.BanTime = DateTime.UtcNow;
+        user.BanDuration = userBanDto.Duration;
+        await _userRepository.Update(user);
+
+        return user.Id;
+    }
+
+    public async Task<Guid> UnBanUser(Guid id)
+    {
+        var user = await Get(id);
+
+        user.IsBanned = false;
+        user.BanTime = null;
+        user.BanDuration = string.Empty;
+
+        await _userRepository.Update(user);
+
+        return user.Id;
     }
 
     private async Task<PersonModel> Get(Guid? userId)

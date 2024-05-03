@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GameStore.Web.Controllers;
 
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Route("api/roles")]
 public class RolesController(IRolesService rolesService, IUserCheckService userCheckService, IPermissionsService permissionsService) : ControllerBase
 {
     private readonly IRolesService _rolesService = rolesService;
@@ -109,7 +110,7 @@ public class RolesController(IRolesService rolesService, IUserCheckService userC
         {
             try
             {
-                return Ok(await _permissionsService.GetRolePermissions(id));
+                return Ok((await _permissionsService.GetRolePermissions(id)).Select(x => x.ToString()));
             }
             catch (EntityNotFoundException ex)
             {
@@ -126,7 +127,7 @@ public class RolesController(IRolesService rolesService, IUserCheckService userC
     public async Task<IActionResult> GetAllPermissions()
     {
         return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Permisssions })
-            ? Ok(await _permissionsService.GetAllPermissions())
+            ? Ok((await _permissionsService.GetAllPermissions()).Select(x => x.ToString()))
             : Unauthorized();
     }
 }

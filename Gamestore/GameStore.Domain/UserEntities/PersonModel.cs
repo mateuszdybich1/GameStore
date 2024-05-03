@@ -31,5 +31,11 @@ public class PersonModel : Microsoft.AspNetCore.Identity.IdentityUser<Guid>
 
     public string Password { get; set; }
 
+    public bool IsBanned { get; set; }
+
+    public DateTime? BanTime { get; set; }
+
+    public string BanDuration { get; set; }
+
     public List<RoleModel> Roles { get; set; }
 }

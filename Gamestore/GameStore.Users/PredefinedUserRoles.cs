@@ -81,6 +81,8 @@ public class PredefinedUserRoles(IdentityDbContext identityDbContext)
             new(ClaimType.Permission.ToString(), Permissions.Orders.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.Comments.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.AddComment.ToString()),
+            new(ClaimType.Permission.ToString(), Permissions.QuoteComment.ToString()),
+            new(ClaimType.Permission.ToString(), Permissions.ReplyComment.ToString()),
         };
         return permissions;
     }
@@ -91,6 +93,7 @@ public class PredefinedUserRoles(IdentityDbContext identityDbContext)
         {
             new(ClaimType.Permission.ToString(), Permissions.DeleteComment.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.BanUser.ToString()),
+            new(ClaimType.Permission.ToString(), Permissions.BanComment.ToString()),
         };
         permissions.AddRange(GetUserPermissions());
         return permissions;

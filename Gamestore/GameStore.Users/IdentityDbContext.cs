@@ -21,6 +21,8 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : Id
         builder.Entity<PersonModel>().Property(p => p.NormalizedUserName).IsRequired(false);
         builder.Entity<PersonModel>().Property(p => p.Email).IsRequired(false);
         builder.Entity<PersonModel>().Property(p => p.NormalizedEmail).IsRequired(false);
+        builder.Entity<PersonModel>().Property(p => p.IsBanned).HasDefaultValue(false);
+        builder.Entity<PersonModel>().Property(p => p.BanDuration).HasDefaultValue(string.Empty);
 
         builder.Entity<PersonModel>().HasMany(x => x.Roles).WithMany(x => x.Users);
 

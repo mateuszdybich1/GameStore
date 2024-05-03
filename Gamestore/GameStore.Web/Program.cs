@@ -68,6 +68,12 @@ services.AddAuthentication(options =>
 });
 
 services.RegisterServices();
+
+services.AddHostedService(provider =>
+{
+    return new UserUnbanService(builder.Configuration.GetConnectionString("GameStoreUsers")!);
+});
+
 services.AddCors();
 services.AddControllers().AddNewtonsoftJson();
 services.AddEndpointsApiExplorer();
@@ -115,7 +121,6 @@ string infoLogsPath = builder.Configuration.GetValue("FilePaths:InfoLogs", "defa
 string errorLogsPath = builder.Configuration.GetValue("FilePaths:ErrorLogs", "default/error.log");
 
 app.UseMiddleware<LoggingMiddleware>(infoLogsPath, errorLogsPath);
-
 app.UseMiddleware<TotalGamesMiddleware>();
 
 app.UseHttpsRedirection();

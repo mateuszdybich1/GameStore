@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameStore.Users.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20240502145920_Users")]
+    [Migration("20240503201803_Users")]
     partial class Users
     {
         /// <inheritdoc />
@@ -34,6 +34,15 @@ namespace GameStore.Users.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("BanDuration")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("");
+
+                    b.Property<DateTime?>("BanTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -47,6 +56,11 @@ namespace GameStore.Users.Migrations
 
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsBanned")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");

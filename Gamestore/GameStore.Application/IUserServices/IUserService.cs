@@ -19,4 +19,8 @@ public interface IUserService
     public Task<List<RoleModelDto>> GetUserRoles(Guid userId);
 
     public Task<bool> UserExists(string username);
+
+    public Task<Guid> BanUser(UserBanDto userBanDto);
+
+    public Task<Guid> UnBanUser(Guid id);
 }

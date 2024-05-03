@@ -6,7 +6,11 @@ public interface IUserRepository : IRepository<PersonModel>
 {
     Task<bool> UserExists(string username);
 
+    Task<PersonModel> GetUser(string username);
+
     Task<PersonModel> GetUserWithRoles(string username, string password);
+
+    Task<PersonModel> GetUserWithRoles(Guid id);
 
     Task<List<PersonModel>> GetAllUsers();
 }

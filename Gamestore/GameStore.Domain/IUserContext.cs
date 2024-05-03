@@ -9,5 +9,7 @@ public interface IUserContext
 
     string UserName { get; }
 
+    bool IsBanned { get; }
+
     List<Permissions> Permissions { get; }
 }

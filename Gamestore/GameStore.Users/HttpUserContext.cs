@@ -29,6 +29,8 @@ public class HttpUserContext : IUserContext
 
     public string UserName => _user.Identity.Name;
 
+    public bool IsBanned => _user.FindFirst("IsBanned").Value == "True";
+
     public List<Permissions> Permissions
     {
         get

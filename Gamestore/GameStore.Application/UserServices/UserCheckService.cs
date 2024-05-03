@@ -15,7 +15,9 @@ public class UserCheckService(IUserContext userContext) : IUserCheckService
         {
             Guid userId = _userContext.CurrentUserId;
 
-            return userId != Guid.Empty && _userContext.Permissions.Contains(accessPageDto.TargetPage);
+            return userId != Guid.Empty && (accessPageDto.TargetPage is Permissions.AddComment or Permissions.ReplyComment or Permissions.QuoteComment
+                    ? !_userContext.IsBanned
+                    : _userContext.Permissions.Contains(accessPageDto.TargetPage));
         }
         else
         {

@@ -37,6 +37,7 @@ public class AuthRepository(IOptions<JwtSettings> jwtSettings, IdentityDbContext
         {
                 new(ClaimTypes.NameIdentifier, userModel.Id.ToString()),
                 new(ClaimTypes.Name, userModel.Name),
+                new("IsBanned", userModel.IsBanned.ToString()),
         };
 
         claims.AddRange(permissions);
