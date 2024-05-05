@@ -8,13 +8,13 @@ namespace GameStore.Application.Tests.GameServiceTests;
 public partial class GameTests
 {
     [Fact]
-    public async Task UpdateGameShouldUpdateGameOnce()
+    public async Task UpdateSqlGameShouldUpdateGameOnce()
     {
         // Arrange
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", "HomePage", "Description");
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         List<Genre> genres = new([genre]);
 
@@ -27,7 +27,7 @@ public partial class GameTests
         string gameName = "TestName";
         string gameKey = "GameKey";
 
-        Game game = new(gameId, gameName, gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
+        Game game = new(gameId, gameName, gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms, new());
 
         _publisherRepositoryMock.Setup(x => x.Get(publisher.Id)).ReturnsAsync(publisher);
         _genreRepositoryMock.Setup(x => x.Get(genre.Id)).ReturnsAsync(genre);
@@ -46,7 +46,7 @@ public partial class GameTests
                 Key = updatedKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 10,
+                Discount = 0.2,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
@@ -61,7 +61,8 @@ public partial class GameTests
         _publisherRepositoryMock.Verify(x => x.Get(publisher.Id), Times.Once);
         _genreRepositoryMock.Verify(x => x.Get(genre.Id), Times.Once);
         _platformRepositoryMock.Verify(x => x.Get(platform.Id), Times.Once);
-        _gameRepositoryMock.Verify(x => x.Update(It.Is<Game>(g => g.Id == gameId && g.Name == updatedName && g.Key == updatedKey && g.Genres.Select(genre => genre.Id).SequenceEqual(gameDto.Genres) && g.Platforms.Select(platform => platform.Id).SequenceEqual(gameDto.Platforms))), Times.Once);
+        _gameRepositoryMock.Verify(x => x.Delete(It.Is<Game>(g => g.Id == gameId)), Times.Once);
+        _gameRepositoryMock.Verify(x => x.Add(It.Is<Game>(g => g.Id == gameId)), Times.Once);
     }
 
     [Fact]
@@ -74,7 +75,7 @@ public partial class GameTests
         Platform platform = new(Guid.NewGuid(), platformName);
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         string gameName = "TestGame";
         string gameKey = "TestKey";
@@ -87,7 +88,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 10,
+                Discount = 0.2,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
@@ -112,7 +113,7 @@ public partial class GameTests
         Platform platform = new(Guid.NewGuid(), platformName);
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         string gameName = "TestGame";
         string gameKey = "TestKey";
@@ -125,7 +126,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 10,
+                Discount = 0.2,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
@@ -147,7 +148,7 @@ public partial class GameTests
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", null, null);
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         string gameName = "TestGame";
         string gameKey = "TestKey";
@@ -160,7 +161,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 10,
+                Discount = 0.2,
             },
             Genres = new([genre.Id]),
             Publisher = publisher.Id,
@@ -179,7 +180,7 @@ public partial class GameTests
         Guid gameId = Guid.NewGuid();
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         List<Genre> genres = new([genre]);
 
@@ -191,7 +192,7 @@ public partial class GameTests
         string gameName = "TestName";
         string gameKey = "GameKey";
 
-        Game game = new(gameId, gameName, gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms);
+        Game game = new(gameId, gameName, gameKey, 5, 5, 0.2, Guid.NewGuid(), genres, platforms, new());
 
         string updatedDescription = "Updated description";
 

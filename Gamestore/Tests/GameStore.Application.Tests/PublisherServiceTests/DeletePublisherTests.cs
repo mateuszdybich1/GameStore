@@ -13,15 +13,16 @@ public partial class PublisherTests
         Guid publisherId = Guid.NewGuid();
         Publisher publisher = new(publisherId, "TestCompanyName", string.Empty, string.Empty);
 
-        _repositoryFactory.Setup(x => x("Default").Get(publisherId)).ReturnsAsync(publisher);
+        _publisherRepositoryMock.Setup(x => x.Get(publisherId)).ReturnsAsync(publisher);
+        _mongoPublisherRepositoryMock.Setup(x => x.Get(publisherId)).Returns(Task.FromResult<Publisher>(null));
 
         // Act
         Guid deletedPublisherId = await _publisherService.DeletePublisher(publisherId);
 
         // Assert
         Assert.Equal(publisherId, deletedPublisherId);
-        _repositoryFactory.Verify(x => x("Default").Get(publisherId), Times.Once);
-        _repositoryFactory.Verify(x => x("Default").Delete(It.Is<Publisher>(x => x == publisher)), Times.Once);
+        _publisherRepositoryMock.Verify(x => x.Get(publisherId), Times.Once);
+        _publisherRepositoryMock.Verify(x => x.Delete(It.Is<Publisher>(x => x == publisher)), Times.Once);
     }
 
     [Fact]
@@ -29,7 +30,8 @@ public partial class PublisherTests
     {
         // Arrange
         Guid publisherId = Guid.NewGuid();
-        _repositoryFactory.Setup(x => x("Default").Get(publisherId)).Returns(Task.FromResult<Publisher>(null));
+        _publisherRepositoryMock.Setup(x => x.Get(publisherId)).Returns(Task.FromResult<Publisher>(null));
+        _mongoPublisherRepositoryMock.Setup(x => x.Get(publisherId)).Returns(Task.FromResult<Publisher>(null));
 
         // Act and Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _publisherService.DeletePublisher(publisherId));

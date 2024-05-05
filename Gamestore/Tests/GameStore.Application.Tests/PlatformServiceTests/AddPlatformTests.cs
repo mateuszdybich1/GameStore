@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.Services;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.ISearchCriterias;
@@ -12,13 +13,15 @@ public partial class PlatformTests
     private readonly PlatformService _platformService;
     private readonly Mock<IPlatformRepository> _platformRepositoryMock;
     private readonly Mock<IPlatformsSearchCriteria> _platformsSearchCriteriaMock;
+    private readonly Mock<IChangeLogService> _changeLogService;
 
     public PlatformTests()
     {
         _platformRepositoryMock = new();
         _platformsSearchCriteriaMock = new();
+        _changeLogService = new();
 
-        _platformService = new(_platformRepositoryMock.Object, _platformsSearchCriteriaMock.Object);
+        _platformService = new(_platformRepositoryMock.Object, _platformsSearchCriteriaMock.Object, _changeLogService.Object);
     }
 
     [Fact]

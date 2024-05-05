@@ -18,9 +18,9 @@ public interface IGameService
 
     public Task<GameDto> GetGameById(Guid gameId);
 
-    public Task<object> GetGames();
+    public Task<GameListDto> GetGames();
 
-    public Task<object> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice);
+    public Task<GameListDto> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice);
 
     public Task<IEnumerable<GameDto>> GetGamesByPlatformId(Guid platformId);
 

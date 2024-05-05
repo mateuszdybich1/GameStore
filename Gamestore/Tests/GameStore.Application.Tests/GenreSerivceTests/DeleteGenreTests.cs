@@ -13,7 +13,48 @@ public partial class GenreTests
         Guid genreId = Guid.NewGuid();
         string genreName = "TestGenre";
 
-        Genre genre = new(genreId, genreName);
+        Genre genre = new(genreId, genreName, null, null);
+        _genreRepositoryMock.Setup(x => x.Get(genreId)).ReturnsAsync(genre);
+        _mongoGenreRepositoryMock.Setup(x => x.Get(genreId)).Returns(Task.FromResult<Genre>(null));
+
+        // Act
+        await _genreService.DeleteGenre(genreId);
+
+        // Assert
+        _genreRepositoryMock.Verify(x => x.Get(genreId), Times.Once);
+        _mongoGenreRepositoryMock.Verify(x => x.Get(genreId), Times.Once);
+        _genreRepositoryMock.Verify(x => x.Delete(It.Is<Genre>(g => g == genre)), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteMongoGenreShouldDeleteGenreOnce()
+    {
+        // Arrange
+        Guid genreId = Guid.NewGuid();
+        string genreName = "TestGenre";
+
+        Genre genre = new(genreId, genreName, null, null);
+        _mongoGenreRepositoryMock.Setup(x => x.Get(genreId)).ReturnsAsync(genre);
+        _genreRepositoryMock.Setup(x => x.Get(genreId)).Returns(Task.FromResult<Genre>(null));
+
+        // Act
+        await _genreService.DeleteGenre(genreId);
+
+        // Assert
+        _genreRepositoryMock.Verify(x => x.Get(genreId), Times.Once);
+        _mongoGenreRepositoryMock.Verify(x => x.Get(genreId), Times.Once);
+        _mongoGenreRepositoryMock.Verify(x => x.Delete(It.Is<Genre>(g => g == genre)), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteGenreAndMongoGenreShouldDeleteGenreOnce()
+    {
+        // Arrange
+        Guid genreId = Guid.NewGuid();
+        string genreName = "TestGenre";
+
+        Genre genre = new(genreId, genreName, null, null);
+        _mongoGenreRepositoryMock.Setup(x => x.Get(genreId)).ReturnsAsync(genre);
         _genreRepositoryMock.Setup(x => x.Get(genreId)).ReturnsAsync(genre);
 
         // Act
@@ -21,6 +62,8 @@ public partial class GenreTests
 
         // Assert
         _genreRepositoryMock.Verify(x => x.Get(genreId), Times.Once);
+        _mongoGenreRepositoryMock.Verify(x => x.Get(genreId), Times.Once);
+        _mongoGenreRepositoryMock.Verify(x => x.Delete(It.Is<Genre>(g => g == genre)), Times.Once);
         _genreRepositoryMock.Verify(x => x.Delete(It.Is<Genre>(g => g == genre)), Times.Once);
     }
 
@@ -31,6 +74,7 @@ public partial class GenreTests
         Guid genreId = Guid.NewGuid();
 
         _genreRepositoryMock.Setup(x => x.Get(genreId)).Returns(Task.FromResult<Genre>(null));
+        _mongoGenreRepositoryMock.Setup(x => x.Get(genreId)).Returns(Task.FromResult<Genre>(null));
 
         // Act and Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _genreService.DeleteGenre(genreId));

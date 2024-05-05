@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.Services;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.IRepositories;
@@ -13,20 +14,39 @@ public partial class GameTests
 {
     private readonly GameService _gameService;
     private readonly Mock<IGameRepository> _gameRepositoryMock;
+    private readonly Mock<IGameRepository> _mongoGameRepositoryMock;
     private readonly Mock<IGamesSearchCriteria> _gamesSearchCriteriaMock;
+    private readonly Mock<IGamesSearchCriteria> _mongoGamesSearchCriteriaMock;
     private readonly Mock<IPlatformRepository> _platformRepositoryMock;
     private readonly Mock<IGenreRepository> _genreRepositoryMock;
+    private readonly Mock<IGenreRepository> _mongoGenreRepositoryMock;
     private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
+    private readonly Mock<IPublisherRepository> _mongoPublisherRepositoryMock;
+    private readonly Mock<IChangeLogService> _changeLogServiceMock;
 
     public GameTests()
     {
         _gameRepositoryMock = new();
-        _gamesSearchCriteriaMock = new();
-        _platformRepositoryMock = new();
-        _genreRepositoryMock = new();
-        _publisherRepositoryMock = new();
+        _mongoGameRepositoryMock = new();
+        Mock<Func<RepositoryTypes, IGameRepository>> mockGameRepositoryFactory = new MockRepositoryFactory<IGameRepository>().GetGamesRepository(_gameRepositoryMock, _mongoGameRepositoryMock);
 
-        _gameService = new(_gameRepositoryMock.Object, _gamesSearchCriteriaMock.Object, _platformRepositoryMock.Object, _genreRepositoryMock.Object, _publisherRepositoryMock.Object);
+        _gamesSearchCriteriaMock = new();
+        _mongoGamesSearchCriteriaMock = new();
+        Mock<Func<RepositoryTypes, IGamesSearchCriteria>> mockGameSearchCriteriaRepositoryFactory = new MockRepositoryFactory<IGamesSearchCriteria>().GetGamesRepository(_gamesSearchCriteriaMock, _mongoGamesSearchCriteriaMock);
+
+        _platformRepositoryMock = new();
+
+        _genreRepositoryMock = new();
+        _mongoGenreRepositoryMock = new();
+        Mock<Func<RepositoryTypes, IGenreRepository>> mockGenreRepositoryFactory = new MockRepositoryFactory<IGenreRepository>().GetGamesRepository(_genreRepositoryMock, _mongoGenreRepositoryMock);
+
+        _publisherRepositoryMock = new();
+        _mongoPublisherRepositoryMock = new();
+        Mock<Func<RepositoryTypes, IPublisherRepository>> mockPublisherRepositoryFactory = new MockRepositoryFactory<IPublisherRepository>().GetGamesRepository(_publisherRepositoryMock, _mongoPublisherRepositoryMock);
+
+        _changeLogServiceMock = new();
+
+        _gameService = new(mockGameRepositoryFactory.Object, mockGameSearchCriteriaRepositoryFactory.Object, _platformRepositoryMock.Object, mockGenreRepositoryFactory.Object, mockPublisherRepositoryFactory.Object, _changeLogServiceMock.Object);
     }
 
     [Fact]
@@ -36,7 +56,7 @@ public partial class GameTests
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", "TestHomePage", "TestDescription");
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         string platformName = "TestPlatform";
         Platform platform = new(Guid.NewGuid(), platformName);
@@ -53,7 +73,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 1,
+                Discount = 0.2,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
@@ -82,7 +102,7 @@ public partial class GameTests
         Platform platform = new(Guid.NewGuid(), platformName);
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         string gameName = "TestGame";
         string gameKey = "TestKey";
@@ -95,7 +115,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 1,
+                Discount = 0.2,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),
@@ -117,7 +137,7 @@ public partial class GameTests
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", "TestHomePage", "TestDescription");
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         string gameName = "TestGame";
         string gameKey = "TestKey";
@@ -130,7 +150,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 1,
+                Discount = 0.2,
             },
             Genres = new([genre.Id]),
             Publisher = publisher.Id,
@@ -151,7 +171,7 @@ public partial class GameTests
         Platform platform = new(Guid.NewGuid(), platformName);
 
         string genreName = "TestGenre";
-        Genre genre = new(Guid.NewGuid(), genreName);
+        Genre genre = new(Guid.NewGuid(), genreName, null, null);
 
         string gameName = "TestGame";
         string gameKey = "TestKey";
@@ -166,7 +186,7 @@ public partial class GameTests
                 Key = gameKey,
                 Price = 3.14,
                 UnitInStock = 5,
-                Discount = 1,
+                Discount = 0.2,
             },
             Platforms = new([platform.Id]),
             Genres = new([genre.Id]),

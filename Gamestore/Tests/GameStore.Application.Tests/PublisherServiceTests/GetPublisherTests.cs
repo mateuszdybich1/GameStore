@@ -15,6 +15,7 @@ public partial class PublisherTests
 
         Publisher publisher = new(Guid.NewGuid(), companyName, string.Empty, string.Empty);
         _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).ReturnsAsync(publisher);
+        _mongoPublisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).Returns(Task.FromResult<Publisher>(null));
 
         // Act
         PublisherDto publisherDto = await _publisherService.GetPublisherByCompanyName(companyName);
@@ -34,6 +35,7 @@ public partial class PublisherTests
         // Arrange
         string companyName = "RandomCompanyName";
         _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).Returns(Task.FromResult<Publisher>(null));
+        _mongoPublisherSearchCriteriaMock.Setup(x => x.GetPublisherByCompanyName(companyName)).Returns(Task.FromResult<Publisher>(null));
 
         // Act and Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _publisherService.GetPublisherByCompanyName(companyName));
@@ -47,6 +49,7 @@ public partial class PublisherTests
         Publisher publisher = new(Guid.NewGuid(), "TestCompany", string.Empty, string.Empty);
 
         _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).ReturnsAsync(publisher);
+        _mongoPublisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).Returns(Task.FromResult<Publisher>(null));
 
         // Act
         PublisherDto publisherDto = await _publisherService.GetPublisherByGameKey(gameKey);
@@ -66,6 +69,7 @@ public partial class PublisherTests
         // Arrange
         string gameKey = "TestKey";
         _publisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).Returns(Task.FromResult<Publisher>(null));
+        _mongoPublisherSearchCriteriaMock.Setup(x => x.GetPublisherByGameKey(gameKey)).Returns(Task.FromResult<Publisher>(null));
 
         // Act and Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _publisherService.GetPublisherByCompanyName(gameKey));

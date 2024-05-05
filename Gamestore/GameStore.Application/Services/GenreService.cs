@@ -108,12 +108,13 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
 
         Genre genre = await _sqlGenresSearchCriteria.GetWithParent((Guid)genreDto.Id);
         Genre mongoGenre = await _mongoGenreRepository.Get((Guid)genreDto.Id);
-        Genre oldGenre = genre != null ? new(genre) : new(mongoGenre);
 
         if (genre == null && mongoGenre == null)
         {
             throw new EntityNotFoundException($"Couldn't find genre by ID: {genreDto.Id}");
         }
+
+        Genre oldGenre = genre != null ? new(genre) : new(mongoGenre);
 
         Genre? sqlParentGenre = null;
         Genre? mongoParentGenre = null;
@@ -137,28 +138,7 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
 
         Genre newGenre = new();
 
-        if (genre != null)
-        {
-            genre.Name = genreDto.Name;
-            genre.Description = genreDto.Description;
-            genre.Picture = genreDto.Picture;
-            genre.ModificationDate = DateTime.Now;
-
-            try
-            {
-                if (mongoParentGenre != null && sqlParentGenre == null)
-                {
-                    await _sqlGenreRepository.Add(mongoParentGenre);
-                }
-
-                await _sqlGenreRepository.Update(genre);
-                newGenre = genre;
-            }
-            catch (Exception)
-            {
-                throw new ExistingFieldException("Please provide unique genre name");
-            }
-        }
+        var logChanges = false;
 
         if (mongoGenre != null)
         {
@@ -185,7 +165,35 @@ public class GenreService(Func<RepositoryTypes, IGenreRepository> genreRepositor
             }
 
             await _mongoGenreRepository.Update(mongoGenre);
+            logChanges = true;
+        }
 
+        if (genre != null)
+        {
+            genre.Name = genreDto.Name;
+            genre.Description = genreDto.Description;
+            genre.Picture = genreDto.Picture;
+            genre.ModificationDate = DateTime.Now;
+
+            try
+            {
+                if (mongoParentGenre != null && sqlParentGenre == null)
+                {
+                    await _sqlGenreRepository.Add(mongoParentGenre);
+                }
+
+                await _sqlGenreRepository.Update(genre);
+                newGenre = genre;
+                logChanges = true;
+            }
+            catch (Exception)
+            {
+                throw new ExistingFieldException("Please provide unique genre name");
+            }
+        }
+
+        if (logChanges)
+        {
             await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Genre, oldGenre, newGenre);
         }
 

@@ -11,14 +11,15 @@ public partial class GenreTests
         // Arrange
         var genres = new List<Genre>();
 
-        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre");
+        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre", null, null);
 
         for (int i = 1; i <= 5; ++i)
         {
-            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenre));
+            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", null, null, parentGenre));
         }
 
         _genreRepositoryMock.Setup(x => x.GetAllGenre()).ReturnsAsync(genres.AsEnumerable);
+        _mongoGenreRepositoryMock.Setup(x => x.GetAllGenre()).ReturnsAsync(new List<Genre>());
 
         // Act
         var result = await _genreService.GetAll();
@@ -37,16 +38,17 @@ public partial class GenreTests
     public async Task GetByParentGenreShouldReturnChildGenreDtosList()
     {
         // Arrange
-        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre");
+        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre", null, null);
 
         var genres = new List<Genre>();
 
         for (int i = 1; i <= 5; ++i)
         {
-            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenre));
+            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", null, null, parentGenre));
         }
 
         _genresSearchCriteriaMock.Setup(x => x.GetByParentId(parentGenre.Id)).ReturnsAsync(genres.AsEnumerable);
+        _mongoGenresSearchCriteriaMock.Setup(x => x.GetByParentId(parentGenre.Id)).ReturnsAsync(new List<Genre>());
 
         // Act
         var result = await _genreService.GetSubGenres(parentGenre.Id);
@@ -67,16 +69,17 @@ public partial class GenreTests
         // Arrange
         string gameKey = "TestGame";
 
-        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre");
+        Genre parentGenre = new(Guid.NewGuid(), "ParentGenre", null, null);
 
         var genres = new List<Genre>();
 
         for (int i = 1; i <= 5; ++i)
         {
-            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", parentGenre));
+            genres.Add(new Genre(Guid.NewGuid(), $"Name-{i}", null, null, parentGenre));
         }
 
         _genresSearchCriteriaMock.Setup(x => x.GetByGameKey(gameKey)).ReturnsAsync(genres.AsEnumerable);
+        _mongoGenresSearchCriteriaMock.Setup(x => x.GetByGameKey(gameKey)).ReturnsAsync(new List<Genre>());
 
         // Act
         var result = await _genreService.GetGamesGenres(gameKey);

@@ -14,7 +14,8 @@ public partial class GenreTests
         Guid genreId = Guid.NewGuid();
         string genreName = "TestName";
 
-        _genreRepositoryMock.Setup(x => x.Get(genreId)).ReturnsAsync(new Genre(genreId, genreName));
+        _genreRepositoryMock.Setup(x => x.Get(genreId)).ReturnsAsync(new Genre(genreId, genreName, null, null));
+        _mongoGenreRepositoryMock.Setup(x => x.Get(genreId)).Returns(Task.FromResult<Genre>(null));
 
         // Act
         GenreDto genreDto = await _genreService.GetGenre(genreId);
@@ -32,6 +33,7 @@ public partial class GenreTests
         Guid genreId = Guid.NewGuid();
 
         _genreRepositoryMock.Setup(x => x.Get(genreId)).Returns(Task.FromResult<Genre>(null));
+        _mongoGenreRepositoryMock.Setup(x => x.Get(genreId)).Returns(Task.FromResult<Genre>(null));
 
         // Act and Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _genreService.GetGenre(genreId));

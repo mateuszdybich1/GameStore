@@ -174,15 +174,15 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
         return await _sqlGamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? await _mongoGamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
     }
 
-    public async Task<object> GetGames()
+    public async Task<GameListDto> GetGames()
     {
         var games = await _sqlGameRepository.GetAllGames();
         var mongoGames = await _mongoGameRepository.GetAllGames();
         mongoGames = mongoGames.Where(x => !games.Any(y => y.Key == x.Key));
 
-        object returnObj = new
+        GameListDto returnObj = new()
         {
-            Games = games.Concat(mongoGames).Select(x => new GameDto(x)),
+            Games = games.Concat(mongoGames).Select(x => new GameDto(x)).ToList(),
             TotalPages = 1,
             CurrentPage = 1,
         };
@@ -190,7 +190,7 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
         return returnObj;
     }
 
-    public async Task<object> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice)
+    public async Task<GameListDto> GetGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, string? datePublishing, string? sort, uint page, string pageCount, int minPrice, int maxPrice)
     {
         if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name) || name.Length < 3)
         {
@@ -311,11 +311,11 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
             }
         }
 
-        object returnObj = new
+        GameListDto returnObj = new()
         {
-            Games = gameDtos,
+            Games = gameDtos.ToList(),
             TotalPages = numberOfPages,
-            CurrentPage = page,
+            CurrentPage = (int)page,
         };
 
         return returnObj;
@@ -414,7 +414,7 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
             throw new EntityNotFoundException("You must provide at least one platform");
         }
 
-        Game tempGame = await _sqlGameRepository.Get((Guid)gameDto.Game.Id);
+        Game tempGame = await _sqlGameRepository.GetGameWithRelations((Guid)gameDto.Game.Id);
         Game mongoGame = await _mongoGameRepository.Get((Guid)gameDto.Game.Id);
         bool isSameKey = false;
         if (tempGame == null && mongoGame == null)
@@ -428,7 +428,7 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
 
             if (tempGame != null)
             {
-                oldGame = await _sqlGameRepository.GetGameWithRelations(tempGame.Id);
+                oldGame = tempGame;
             }
 
             if (mongoGame != null)
