@@ -4,7 +4,7 @@ namespace GameStore.Application.IUserServices;
 
 public interface IPermissionsService
 {
-    public Task<List<Permissions>> GetAllPermissions();
+    Task<IEnumerable<Permissions>> GetAllPermissions();
 
-    public Task<List<Permissions>> GetRolePermissions(Guid roleId);
+    Task<IEnumerable<Permissions>> GetRolePermissions(Guid roleId);
 }

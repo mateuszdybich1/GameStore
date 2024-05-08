@@ -4,7 +4,7 @@ namespace GameStore.Application.IUserServices;
 
 public interface IUserCheckService
 {
-    public bool CanUserAccess(AccessPageDto accessPageDto);
+    bool CanUserAccess(AccessPageDto accessPageDto);
 
-    public bool IsCurrentUser(Guid? userId);
+    bool IsCurrentUser(Guid? userId);
 }

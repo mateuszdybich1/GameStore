@@ -261,3 +261,4 @@ Logs/ErrorLogs.txt
 Logs/InfoLogs.txt
 GameStore.Web/Logs/ErrorLogs.txt
 GameStore.Web/Logs/InfoLogs.txt
+GameStore.Application/obj/

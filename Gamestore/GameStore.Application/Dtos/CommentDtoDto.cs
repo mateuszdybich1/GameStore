@@ -10,5 +10,5 @@ public class CommentDtoDto
 
     public Guid? ParentId { get; set; }
 
-    public CommentActionType? Action { get; set; }
+    public CommentActionType? Action { get; set; } = CommentActionType.Normal;
 }

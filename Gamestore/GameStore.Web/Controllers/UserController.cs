@@ -109,9 +109,9 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     {
         if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Users }))
         {
+            IEnumerable<UserModelMicroserviceDto> response = await _httpClient.GetFromJsonAsync<IEnumerable<UserModelMicroserviceDto>>($"{_httpClient.BaseAddress}/users");
             try
             {
-                IEnumerable<UserModelMicroserviceDto> response = await _httpClient.GetFromJsonAsync<IEnumerable<UserModelMicroserviceDto>>($"{_httpClient.BaseAddress}/users");
                 var users = await _userService.GetAllUsers();
 
                 if (response != null)

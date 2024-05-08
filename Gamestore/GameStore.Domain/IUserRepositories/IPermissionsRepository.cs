@@ -4,11 +4,11 @@ namespace GameStore.Domain.IUserRepositories;
 
 public interface IPermissionsRepository
 {
-    public Task<List<IdentityRoleClaim<Guid>>> GetAllPermissions();
+    Task<IEnumerable<IdentityRoleClaim<Guid>>> GetAllPermissions();
 
-    public Task<List<IdentityRoleClaim<Guid>>> GetRolesPermissions(Guid roleId);
+    Task<IEnumerable<IdentityRoleClaim<Guid>>> GetRolesPermissions(Guid roleId);
 
-    public Task AddPermission(IdentityRoleClaim<Guid> permission);
+    Task AddPermission(IdentityRoleClaim<Guid> permission);
 
-    public Task RemovePermission(IdentityRoleClaim<Guid> permission);
+    Task RemovePermission(IdentityRoleClaim<Guid> permission);
 }

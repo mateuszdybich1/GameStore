@@ -4,5 +4,5 @@ namespace GameStore.Domain.IRepositories;
 
 public interface IPlatformRepository : IRepository<Platform>
 {
-    public Task<IEnumerable<Platform>> GetAllPlatforms();
+    Task<IEnumerable<Platform>> GetAllPlatforms();
 }

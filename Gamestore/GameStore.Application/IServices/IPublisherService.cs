@@ -4,15 +4,15 @@ namespace GameStore.Application.IServices;
 
 public interface IPublisherService
 {
-    public Task<Guid> AddPublisher(PublisherDto publisherDto);
+    Task<Guid> AddPublisher(PublisherDto publisherDto);
 
-    public Task<PublisherDto> GetPublisherByCompanyName(string companyName);
+    Task<PublisherDto> GetPublisherByCompanyName(string companyName);
 
-    public Task<PublisherDto> GetPublisherByGameKey(string gameKey);
+    Task<PublisherDto> GetPublisherByGameKey(string gameKey);
 
-    public Task<Guid> UpdatePublisher(PublisherDto publisherDto);
+    Task<Guid> UpdatePublisher(PublisherDto publisherDto);
 
-    public Task<Guid> DeletePublisher(Guid publisherId);
+    Task<Guid> DeletePublisher(Guid publisherId);
 
-    public Task<IEnumerable<PublisherDto>> GetAll();
+    Task<IEnumerable<PublisherDto>> GetAll();
 }

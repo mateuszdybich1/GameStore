@@ -4,15 +4,15 @@ namespace GameStore.Application.IServices;
 
 public interface IPlatformService
 {
-    public Task<Guid> AddPlatform(PlatformDto platformDto);
+    Task<Guid> AddPlatform(PlatformDto platformDto);
 
-    public Task<Guid> UpdatePlatform(PlatformDto platformDto);
+    Task<Guid> UpdatePlatform(PlatformDto platformDto);
 
-    public Task<Guid> DeletePlatform(Guid platformId);
+    Task<Guid> DeletePlatform(Guid platformId);
 
-    public Task<PlatformDto> GetPlatform(Guid platformId);
+    Task<PlatformDto> GetPlatform(Guid platformId);
 
-    public Task<IEnumerable<PlatformDto>> GetAll();
+    Task<IEnumerable<PlatformDto>> GetAll();
 
-    public Task<IEnumerable<PlatformDto>> GetGamesPlatforms(string gameKey);
+    Task<IEnumerable<PlatformDto>> GetGamesPlatforms(string gameKey);
 }

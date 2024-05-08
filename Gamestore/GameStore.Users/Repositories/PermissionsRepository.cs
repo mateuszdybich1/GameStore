@@ -15,12 +15,12 @@ public class PermissionsRepository(IdentityDbContext identityDbContext) : IPermi
         await _identityDbContext.SaveChangesAsync();
     }
 
-    public async Task<List<IdentityRoleClaim<Guid>>> GetAllPermissions()
+    public async Task<IEnumerable<IdentityRoleClaim<Guid>>> GetAllPermissions()
     {
         return await _identityDbContext.RoleClaims.Where(x => x.ClaimType == ClaimType.Permission.ToString()).ToListAsync();
     }
 
-    public async Task<List<IdentityRoleClaim<Guid>>> GetRolesPermissions(Guid roleId)
+    public async Task<IEnumerable<IdentityRoleClaim<Guid>>> GetRolesPermissions(Guid roleId)
     {
         return await _identityDbContext.RoleClaims.Where(x => x.ClaimType == ClaimType.Permission.ToString() && x.RoleId == roleId).ToListAsync();
     }

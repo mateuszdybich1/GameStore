@@ -8,7 +8,7 @@ public class RolesRepository(IdentityDbContext identityDbContext) : Repository<R
 {
     private readonly IdentityDbContext _identityDbContext = identityDbContext;
 
-    public async Task<List<RoleModel>> GetAllRoles()
+    public async Task<IEnumerable<RoleModel>> GetAllRoles()
     {
         return await _identityDbContext.Roles.ToListAsync();
     }
@@ -18,7 +18,7 @@ public class RolesRepository(IdentityDbContext identityDbContext) : Repository<R
         return await _identityDbContext.Roles.SingleOrDefaultAsync(x => x.Name == defaultRole.ToString());
     }
 
-    public async Task<List<RoleModel>> GetUserRoles(Guid userId)
+    public async Task<IEnumerable<RoleModel>> GetUserRoles(Guid userId)
     {
         return await _identityDbContext.Roles.Include(x => x.Users).Where(x => x.Users.Any(y => y.Id == userId)).ToListAsync();
     }

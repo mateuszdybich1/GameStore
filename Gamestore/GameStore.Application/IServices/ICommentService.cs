@@ -5,11 +5,11 @@ namespace GameStore.Application.IServices;
 
 public interface ICommentService
 {
-    public Task<Guid> AddComment(string gameKey, CommentDtoDto commentDto);
+    Task<Guid> AddComment(string gameKey, CommentDtoDto commentDto);
 
-    public Task<Guid> DeleteComment(string gameKey, Guid commentId);
+    Task<Guid> DeleteComment(string gameKey, Guid commentId);
 
-    public Task<Comment> GetComment(Guid id);
+    Task<Comment> GetComment(Guid id);
 
-    public Task<IEnumerable<CommentModel>> GetComments(string gameKey);
+    Task<IEnumerable<CommentModel>> GetComments(string gameKey);
 }

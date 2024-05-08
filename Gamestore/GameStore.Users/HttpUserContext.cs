@@ -16,14 +16,7 @@ public class HttpUserContext : IUserContext
         }
     }
 
-    public Guid CurrentUserId
-    {
-        get
-        {
-            string id = GetIdFromClaims();
-            return Guid.Parse(id);
-        }
-    }
+    public Guid CurrentUserId => GetIdFromClaims();
 
     public bool IsAuthenticated => _user.Identity.IsAuthenticated;
 
@@ -56,8 +49,10 @@ public class HttpUserContext : IUserContext
         }
     }
 
-    public string GetIdFromClaims()
+    private Guid GetIdFromClaims()
     {
-        return _user.FindFirst(ClaimTypes.NameIdentifier).Value;
+        var id = _user.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+        return Guid.Parse(id);
     }
 }

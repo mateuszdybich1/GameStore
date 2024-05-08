@@ -18,7 +18,7 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
         return new(await Get(userId));
     }
 
-    public async Task<List<RoleModelDto>> GetUserRoles(Guid userId)
+    public async Task<IEnumerable<RoleModelDto>> GetUserRoles(Guid userId)
     {
         var userModel = await _userRepository.GetUserWithRoles(userId) ?? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}");
 
@@ -89,7 +89,7 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
         return await _userRepository.UserExists(username);
     }
 
-    public async Task<List<UserModelDto>> GetAllUsers()
+    public async Task<IEnumerable<UserModelDto>> GetAllUsers()
     {
         return (await _userRepository.GetAllUsers()).Select(x => new UserModelDto(x)).ToList();
     }

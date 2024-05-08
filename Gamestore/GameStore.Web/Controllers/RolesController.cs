@@ -16,7 +16,7 @@ public class RolesController(IRolesService rolesService, IUserCheckService userC
     private readonly IPermissionsService _permissionsService = permissionsService;
 
     [HttpPost]
-    public async Task<IActionResult> AddRole(RoleModelDtoDto roleModelDtoDto)
+    public async Task<IActionResult> AddRole([FromBody] RoleModelDtoDto roleModelDtoDto)
     {
         if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.AddRole }))
         {
@@ -36,7 +36,7 @@ public class RolesController(IRolesService rolesService, IUserCheckService userC
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateRoleRole(RoleModelDtoDto roleModelDtoDto)
+    public async Task<IActionResult> UpdateRoleRole([FromBody] RoleModelDtoDto roleModelDtoDto)
     {
         if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateRole }))
         {

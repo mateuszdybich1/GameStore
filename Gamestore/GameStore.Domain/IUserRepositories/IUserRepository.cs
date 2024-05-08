@@ -12,5 +12,5 @@ public interface IUserRepository : IRepository<PersonModel>
 
     Task<PersonModel> GetUserWithRoles(Guid id);
 
-    Task<List<PersonModel>> GetAllUsers();
+    Task<IEnumerable<PersonModel>> GetAllUsers();
 }

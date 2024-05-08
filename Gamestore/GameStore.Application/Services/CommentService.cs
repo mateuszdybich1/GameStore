@@ -31,8 +31,7 @@ public class CommentService(ICommentRepository commentRepository, Func<Repositor
 
         Guid commentId = Guid.NewGuid();
 
-        var actionType = commentDto.Action != null ? commentDto.Action : CommentActionType.Normal;
-        Comment comment = new(commentId, commentDto.Comment.Name!, commentDto.Comment.Body, (CommentActionType)actionType, game);
+        Comment comment = new(commentId, commentDto.Comment.Name!, commentDto.Comment.Body, (CommentActionType)commentDto.Action!, game);
 
         if (commentDto.ParentId != null && commentDto.ParentId != Guid.Empty && commentDto.Action != null)
         {
@@ -74,7 +73,7 @@ public class CommentService(ICommentRepository commentRepository, Func<Repositor
             }
         }
 
-        return game != null ? await _commentRepository.GetGamesComments(game.Id) : new List<CommentModel>();
+        return game != null ? await _commentRepository.GetGamesComments(game.Id) : [];
     }
 
     public async Task<Comment> GetComment(Guid id)

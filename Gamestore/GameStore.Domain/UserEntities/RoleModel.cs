@@ -14,13 +14,7 @@ public class RoleModel : Microsoft.AspNetCore.Identity.IdentityRole<Guid>
     {
         get => base.Name;
 
-        set
-        {
-            if (value != null)
-            {
-                base.Name = value;
-            }
-        }
+        set => base.Name = value ?? string.Empty;
     }
 
     public List<PersonModel> Users { get; set; }

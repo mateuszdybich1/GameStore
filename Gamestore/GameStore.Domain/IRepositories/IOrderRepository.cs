@@ -3,11 +3,11 @@
 namespace GameStore.Domain.IRepositories;
 public interface IOrderRepository : IRepository<Order>
 {
-    public Task<Order> GetCustomerOpenOrder(Guid customerId);
+    Task<Order> GetCustomerOpenOrder(Guid customerId);
 
-    public Task<IEnumerable<Order>> GetOrdersByCustomerId(Guid customerId);
+    Task<IEnumerable<Order>> GetOrdersByCustomerId(Guid customerId);
 
-    public Task<IEnumerable<Order>> GetPaidAndCancelledOrders();
+    Task<IEnumerable<Order>> GetPaidAndCancelledOrders();
 
-    public Task<IEnumerable<Order>> GetAllOrders(DateTime startDate, DateTime dateTo);
+    Task<IEnumerable<Order>> GetAllOrders(DateTime startDate, DateTime dateTo);
 }

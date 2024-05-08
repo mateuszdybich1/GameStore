@@ -7,7 +7,7 @@ public class UserRepository(IdentityDbContext identityDbContext) : Repository<Pe
 {
     private readonly IdentityDbContext _identityDbContext = identityDbContext;
 
-    public async Task<List<PersonModel>> GetAllUsers()
+    public async Task<IEnumerable<PersonModel>> GetAllUsers()
     {
         return await _identityDbContext.Users.ToListAsync();
     }

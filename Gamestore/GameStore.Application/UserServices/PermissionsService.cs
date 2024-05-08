@@ -9,21 +9,21 @@ public class PermissionsService(IPermissionsRepository permissionsRepository) : 
 {
     private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
 
-    public async Task<List<Permissions>> GetAllPermissions()
+    public async Task<IEnumerable<Permissions>> GetAllPermissions()
     {
         var allPermissions = await _permissionsRepository.GetAllPermissions();
 
         return GetEnumPermissionsFromModel(allPermissions);
     }
 
-    public async Task<List<Permissions>> GetRolePermissions(Guid roleId)
+    public async Task<IEnumerable<Permissions>> GetRolePermissions(Guid roleId)
     {
         var allPermissions = await _permissionsRepository.GetRolesPermissions(roleId);
 
         return GetEnumPermissionsFromModel(allPermissions);
     }
 
-    private static List<Permissions> GetEnumPermissionsFromModel(List<IdentityRoleClaim<Guid>> allPermissions)
+    private static List<Permissions> GetEnumPermissionsFromModel(IEnumerable<IdentityRoleClaim<Guid>> allPermissions)
     {
         var uniquePermissions = allPermissions.ToHashSet();
 

@@ -30,12 +30,20 @@ public class RolesService(IRoleRepository roleRepository, IPermissionsRepository
     public async Task<Guid> DeleteRole(Guid id)
     {
         var role = await _roleRepository.Get(id);
-        await _roleRepository.Delete(role);
+        var rolePermissions = await _permissionsRepository.GetRolesPermissions(role.Id);
+
+        var roleTasks = new List<Task>() { _roleRepository.Delete(role) };
+        foreach (var permission in rolePermissions)
+        {
+            roleTasks.Add(_permissionsRepository.RemovePermission(permission));
+        }
+
+        await Task.WhenAll(roleTasks);
 
         return role.Id;
     }
 
-    public async Task<List<RoleModelDto>> GetAllRoles()
+    public async Task<IEnumerable<RoleModelDto>> GetAllRoles()
     {
         var allRoles = await _roleRepository.GetAllRoles();
 

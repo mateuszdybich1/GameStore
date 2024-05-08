@@ -7,7 +7,7 @@ public interface IUserContext
 
     Guid CurrentUserId { get; }
 
-    string UserName { get; }
+    string? UserName { get; }
 
     bool IsBanned { get; }
 
