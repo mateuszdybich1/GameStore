@@ -17,6 +17,8 @@ var services = builder.Services;
 
 services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
+services.Configure<BlobStorageConfiguration>(builder.Configuration.GetSection("BlobStorage"));
+
 services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreDatabase"));

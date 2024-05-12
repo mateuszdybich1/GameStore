@@ -27,7 +27,7 @@ public partial class GameTests
         string gameName = "TestName";
         string gameKey = "GameKey";
 
-        Game game = new(gameId, gameName, gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms, new());
+        Game game = new(gameId, gameName, gameKey, 5, 5, 5, null, Guid.NewGuid(), genres, platforms, new());
 
         _publisherRepositoryMock.Setup(x => x.Get(publisher.Id)).ReturnsAsync(publisher);
         _genreRepositoryMock.Setup(x => x.Get(genre.Id)).ReturnsAsync(genre);
@@ -192,7 +192,7 @@ public partial class GameTests
         string gameName = "TestName";
         string gameKey = "GameKey";
 
-        Game game = new(gameId, gameName, gameKey, 5, 5, 0.2, Guid.NewGuid(), genres, platforms, new());
+        Game game = new(gameId, gameName, gameKey, 5, 5, 0.2, null, Guid.NewGuid(), genres, platforms, new());
 
         string updatedDescription = "Updated description";
 

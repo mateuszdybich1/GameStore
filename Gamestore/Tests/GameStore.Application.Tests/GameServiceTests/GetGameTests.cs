@@ -16,7 +16,7 @@ public partial class GameTests
         var platforms = new List<Platform>();
         var genres = new List<Genre>();
 
-        var game = new Game(Guid.NewGuid(), "TestName", gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms, new());
+        var game = new Game(Guid.NewGuid(), "TestName", gameKey, 5, 5, 5, null, Guid.NewGuid(), genres, platforms, new());
         _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
         _mongoGamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(Task.FromResult<Game>(null));
 
@@ -38,7 +38,7 @@ public partial class GameTests
         var platforms = new List<Platform>();
         var genres = new List<Genre>();
 
-        var game = new Game(Guid.NewGuid(), "TestName", gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms, new());
+        var game = new Game(Guid.NewGuid(), "TestName", gameKey, 5, 5, 5, null, Guid.NewGuid(), genres, platforms, new());
         _mongoGamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
         _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(Task.FromResult<Game>(null));
 
@@ -72,7 +72,7 @@ public partial class GameTests
         var platforms = new List<Platform>();
         var genres = new List<Genre>();
 
-        var game = new Game(gameId, "TestName", "TestKey", 5, 5, 5, Guid.NewGuid(), genres, platforms, new());
+        var game = new Game(gameId, "TestName", "TestKey", 5, 5, 5, null, Guid.NewGuid(), genres, platforms, new());
         _gameRepositoryMock.Setup(x => x.Get(gameId)).ReturnsAsync(game);
         _mongoGameRepositoryMock.Setup(x => x.Get(gameId)).Returns(Task.FromResult<Game>(null));
 
@@ -107,7 +107,7 @@ public partial class GameTests
         var platforms = new List<Platform> { new(Guid.NewGuid(), "type1"), new(Guid.NewGuid(), "type2") };
         var publisher = new Publisher(Guid.NewGuid(), "TestCompany", string.Empty, string.Empty);
 
-        var game = new Game(Guid.NewGuid(), "Test Name", gameKey, 5, 5, 5, Guid.NewGuid(), genres, platforms, new());
+        var game = new Game(Guid.NewGuid(), "Test Name", gameKey, 5, 5, 5, null, Guid.NewGuid(), genres, platforms, new());
 
         _gamesSearchCriteriaMock.Setup(x => x.GetByKeyWithRelations(gameKey)).ReturnsAsync(game);
         _mongoGamesSearchCriteriaMock.Setup(x => x.GetByKeyWithRelations(gameKey)).Returns(Task.FromResult<object>(null));

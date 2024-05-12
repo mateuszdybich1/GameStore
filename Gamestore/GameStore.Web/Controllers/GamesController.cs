@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Azure.Core;
 using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
 using GameStore.Application.IUserServices;
@@ -11,6 +12,11 @@ using GameStore.Domain.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace GameStore.Web.Controllers;
 
@@ -23,7 +29,9 @@ public class GamesController(IGameService gamesService,
     IOrderService orderService,
     ICommentService commentService,
     IUserContext userContext,
-    IUserCheckService userCheckService) : ControllerBase
+    IUserCheckService userCheckService,
+    IOptions<BlobStorageConfiguration> blobStorageConfiguration,
+    IMemoryCache cache) : ControllerBase
 {
     private readonly IGameService _gamesService = gamesService;
     private readonly IGenreService _genreService = genreService;
@@ -33,6 +41,8 @@ public class GamesController(IGameService gamesService,
     private readonly ICommentService _commentService = commentService;
     private readonly IUserContext _userContext = userContext;
     private readonly IUserCheckService _userCheckService = userCheckService;
+    private readonly BlobStorageConfiguration _blobStorageConfiguration = blobStorageConfiguration.Value;
+    private readonly IMemoryCache _cache = cache;
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -44,9 +54,38 @@ public class GamesController(IGameService gamesService,
     [HttpPost]
     public async Task<IActionResult> AddGame(GameDtoDto gameDto)
     {
-        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.AddGame })
-            ? Ok(await _gamesService.AddGame(gameDto))
-            : Unauthorized();
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.AddGame }))
+        {
+            if (!gameDto.Image.IsNullOrEmpty())
+            {
+                try
+                {
+                    string imageName = Guid.NewGuid().ToString();
+
+                    var addGameTasks = new List<Task>() { UploadImage(gameDto.Image!, imageName) };
+
+                    gameDto.Image = imageName;
+
+                    addGameTasks.Add(_gamesService.AddGame(gameDto));
+
+                    await Task.WhenAll(addGameTasks);
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                await _gamesService.AddGame(gameDto);
+                return Ok();
+            }
+        }
+        else
+        {
+            return Unauthorized();
+        }
     }
 
     [HttpGet("{key}")]
@@ -65,9 +104,38 @@ public class GamesController(IGameService gamesService,
     [HttpPut]
     public async Task<IActionResult> UpdateGame(GameDtoDto gameDto)
     {
-        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateGame })
-            ? Ok(await _gamesService.UpdateGame(gameDto))
-            : Unauthorized();
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateGame }))
+        {
+            if (!gameDto.Image.IsNullOrEmpty())
+            {
+                try
+                {
+                    string imageName = Guid.NewGuid().ToString();
+
+                    var updateGameTasks = new List<Task>() { UploadImage(gameDto.Image!, imageName) };
+
+                    gameDto.Image = imageName;
+
+                    updateGameTasks.Add(_gamesService.UpdateGame(gameDto));
+
+                    await Task.WhenAll(updateGameTasks);
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                await _gamesService.UpdateGame(gameDto);
+                return Ok();
+            }
+        }
+        else
+        {
+            return Unauthorized();
+        }
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -85,6 +153,14 @@ public class GamesController(IGameService gamesService,
         return genres == null && platforms == null && publishers == null && name == null && datePublishing == null && sort == null && page == 1 && pageCount == "All" && minPrice == 0 && maxPrice == int.MaxValue
             ? Ok(await _gamesService.GetGames())
             : Ok(await _gamesService.GetGames(genres, platforms, publishers, name, datePublishing, sort, page, pageCount, (int)minPrice!, (int)maxPrice!));
+    }
+
+    [HttpGet("{key}/image")]
+    public async Task<IActionResult> GetGamesImage([FromRoute] string key)
+    {
+        var imageId = await _gamesService.GetGameImageId(key);
+
+        return imageId != null ? File(await GetImage((Guid)imageId!), "image/png") : NotFound();
     }
 
     [HttpGet("{key}/file")]
@@ -219,5 +295,45 @@ public class GamesController(IGameService gamesService,
         }
 
         return Ok(publishDateList);
+    }
+
+    private async Task<string> UploadImage(string image, string imageName)
+    {
+        _cache.Remove(imageName);
+
+        byte[] imageData = Convert.FromBase64String(image.Split(",")[1]);
+
+        CloudBlockBlob blob = GetCloudBlockBlob(imageName);
+        await blob.UploadFromByteArrayAsync(imageData, 0, imageData.Length);
+
+        _cache.Set(imageName, imageData, TimeSpan.FromMinutes(30));
+
+        return blob.Name;
+    }
+
+    private async Task<byte[]> GetImage(Guid imageId)
+    {
+        var imageName = imageId.ToString();
+        if (!_cache.TryGetValue(imageName, out byte[] imageData))
+        {
+            CloudBlockBlob blob = GetCloudBlockBlob(imageName);
+
+            using MemoryStream memoryStream = new();
+            await blob.DownloadToStreamAsync(memoryStream);
+            imageData = memoryStream.ToArray();
+
+            _cache.Set(imageName, imageData, TimeSpan.FromMinutes(30));
+        }
+
+        return imageData;
+    }
+
+    private CloudBlockBlob GetCloudBlockBlob(string imageName)
+    {
+        CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_blobStorageConfiguration.ConnectionString);
+        CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+        CloudBlobContainer container = blobClient.GetContainerReference(_blobStorageConfiguration.ContainerName);
+
+        return container.GetBlockBlobReference($"{imageName}.png");
     }
 }

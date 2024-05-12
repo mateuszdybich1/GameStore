@@ -12,7 +12,7 @@ public partial class GameTests
         // Arrange
         string gameKey = "GameKey";
 
-        Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 0.2, Guid.NewGuid(), new([new()]), new([new()]), new());
+        Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 0.2, null, Guid.NewGuid(), new([new()]), new([new()]), new());
         _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
         _mongoGamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(Task.FromResult<Game>(null));
 
@@ -31,7 +31,7 @@ public partial class GameTests
         // Arrange
         string gameKey = "GameKey";
 
-        Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 0.2, Guid.NewGuid(), new([new()]), new([new()]), new());
+        Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 0.2, null, Guid.NewGuid(), new([new()]), new([new()]), new());
         _mongoGamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
         _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).Returns(Task.FromResult<Game>(null));
 
@@ -50,7 +50,7 @@ public partial class GameTests
         // Arrange
         string gameKey = "GameKey";
 
-        Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 0.2, Guid.NewGuid(), new([new()]), new([new()]), new());
+        Game game = new(Guid.NewGuid(), "Name", gameKey, 5, 5, 0.2, null, Guid.NewGuid(), new([new()]), new([new()]), new());
         _mongoGamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
         _gamesSearchCriteriaMock.Setup(x => x.GetByKey(gameKey)).ReturnsAsync(game);
 

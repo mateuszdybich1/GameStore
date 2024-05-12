@@ -70,9 +70,11 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
 
         string description = string.IsNullOrWhiteSpace(gameDto.Game.Description) ? null : gameDto.Game.Description;
 
+        Guid? gameImageId = string.IsNullOrEmpty(gameDto.Image) ? null : Guid.Parse(gameDto.Image);
+
         Game game = string.IsNullOrWhiteSpace(description)
-            ? new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, publisher.Id, genres, platforms, publisher)
-            : new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, description, publisher.Id, genres, platforms, publisher);
+            ? new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, gameImageId, publisher.Id, genres, platforms, publisher)
+            : new Game(gameId, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, description, gameImageId, publisher.Id, genres, platforms, publisher);
 
         try
         {
@@ -172,6 +174,13 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
     public async Task<object> GetGameByKeyWithRelations(string gameKey)
     {
         return await _sqlGamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? await _mongoGamesSearchCriteria.GetByKeyWithRelations(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+    }
+
+    public async Task<Guid?> GetGameImageId(string gameKey)
+    {
+        var game = await _sqlGamesSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+
+        return game.ImageId;
     }
 
     public async Task<GameListDto> GetGames()
@@ -495,7 +504,9 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
 
             if (tempGame != null)
             {
-                Game game = new((Guid)gameDto.Game.Id, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, publisher.Id, genres, platforms, publisher);
+                Guid? gameImageId = string.IsNullOrEmpty(gameDto.Image) ? null : Guid.Parse(gameDto.Image);
+
+                Game game = new((Guid)gameDto.Game.Id, gameDto.Game.Name, gameDto.Game.Key, gameDto.Game.Price, gameDto.Game.UnitInStock, gameDto.Game.Discount, gameImageId, publisher.Id, genres, platforms, publisher);
 
                 if (mongoGame == null)
                 {
