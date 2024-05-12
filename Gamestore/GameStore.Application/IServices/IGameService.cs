@@ -27,4 +27,6 @@ public interface IGameService
     Task<IEnumerable<GameDto>> GetGamesByGenreId(Guid genreId);
 
     Task<IEnumerable<GameDto>> GetGamesByPublisherName(string companyName);
+
+    Task Generate100kGames();
 }

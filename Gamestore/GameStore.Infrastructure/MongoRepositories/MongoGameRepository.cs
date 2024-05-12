@@ -3,6 +3,7 @@ using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.MongoEntities;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace GameStore.Infrastructure.MongoRepositories;
@@ -49,104 +50,77 @@ public class MongoGameRepository : IGameRepository
 
     public async Task<IEnumerable<Game>> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
     {
-        List<MongoGame> filteredMongoGames = null;
+        var filters = new List<FilterDefinition<MongoGame>>() { Builders<MongoGame>.Filter.Gte(game => game.UnitPrice, minPrice), Builders<MongoGame>.Filter.Lte(game => game.UnitPrice, maxPrice) };
 
         if (name != null)
         {
-            filteredMongoGames = await _gameCollection.Find(x => (x.ProductName as string).Contains(name)).ToListAsync();
-
-            if (publisherIds != null && publisherIds.Count > 0)
-            {
-                var existingGames = new List<MongoGame>();
-                foreach (var publisherId in publisherIds)
-                {
-                    var tempPublisher = await _publisherCollection.Find(x => x.Id == publisherId.AsObjectId()).FirstOrDefaultAsync();
-
-                    if (tempPublisher != null)
-                    {
-                        existingGames.AddRange(filteredMongoGames.Where(x => x.SupplierID == tempPublisher.SupplierID));
-                    }
-                }
-
-                filteredMongoGames = existingGames;
-            }
+            filters.Add(Builders<MongoGame>.Filter.Regex(game => game.ProductName as string, new BsonRegularExpression(name)));
         }
-        else
+
+        if (publisherIds != null && publisherIds.Count > 0)
         {
-            if (publisherIds != null && publisherIds.Count > 0)
+            foreach (var publisherId in publisherIds)
             {
-                filteredMongoGames = [];
-                foreach (var publisherId in publisherIds)
-                {
-                    var tempPublisher = await _publisherCollection.Find(x => x.Id == publisherId.AsObjectId()).FirstOrDefaultAsync();
+                var tempPublisher = await _publisherCollection.Find(x => x.Id == publisherId.AsObjectId()).FirstOrDefaultAsync();
 
-                    if (tempPublisher != null)
-                    {
-                        var mongoGames = await _gameCollection.Find(x => (x.SupplierID as int?) == tempPublisher.SupplierID).ToListAsync();
-                        filteredMongoGames.AddRange(mongoGames);
-                    }
+                if (tempPublisher != null)
+                {
+                    filters.Add(Builders<MongoGame>.Filter.Eq(doc => doc.SupplierID, tempPublisher));
                 }
             }
         }
 
-        if (filteredMongoGames == null)
+        if (genreIds != null && genreIds.Count > 0)
         {
-            if (genreIds != null && genreIds.Count > 0)
+            foreach (var genreId in genreIds)
             {
-                filteredMongoGames = [];
-                var filteredGamesFromGenres = new List<MongoGame>();
-                foreach (var genreId in genreIds)
+                var tempGenre = await _genreCollection.Find(x => x.Id == genreId.AsObjectId()).FirstOrDefaultAsync();
+
+                if (tempGenre != null)
                 {
-                    var tempGenre = await _genreCollection.Find(x => x.Id == genreId.AsObjectId()).FirstOrDefaultAsync();
+                    var mongoGamesGenres = await _gameGenresCollection.Find(x => (x.CategoryID as int?) == tempGenre.CategoryID).ToListAsync();
 
-                    if (tempGenre != null)
+                    foreach (var mongoGameGenre in mongoGamesGenres)
                     {
-                        var mongoGamesGenres = await _gameGenresCollection.Find(x => (x.CategoryID as int?) == tempGenre.CategoryID).ToListAsync();
-
-                        foreach (var mongoGameGenre in mongoGamesGenres)
-                        {
-                            var filteredGame = await _gameCollection.Find(x => x.ProductID == mongoGameGenre.ProductID).FirstOrDefaultAsync();
-                            if (filteredGame != null)
-                            {
-                                filteredGamesFromGenres.Add(filteredGame);
-                            }
-                        }
+                        filters.Add(Builders<MongoGame>.Filter.Eq(doc => doc.ProductID, mongoGameGenre.ProductID));
                     }
                 }
-
-                filteredMongoGames = filteredGamesFromGenres;
             }
-
-            filteredMongoGames = filteredMongoGames == null ? await _gameCollection.Find(x => x.UnitPrice >= minPrice && x.UnitPrice <= maxPrice).ToListAsync() : filteredMongoGames.Where(x => x.UnitPrice >= minPrice && x.UnitPrice <= maxPrice).ToList();
         }
-        else
+
+        SortDefinition<MongoGame> sortDefinition = null;
+        if (sortMode != null)
         {
-            filteredMongoGames = filteredMongoGames.Where(x => x.UnitPrice >= minPrice && x.UnitPrice <= maxPrice).ToList();
-            if (genreIds != null && genreIds.Count > 0)
+            switch (sortMode)
             {
-                var filteredGamesFromGenres = new List<MongoGame>();
-                foreach (var genreId in genreIds)
-                {
-                    var tempGenre = await _genreCollection.Find(x => x.Id == genreId.AsObjectId()).FirstOrDefaultAsync();
-
-                    if (tempGenre != null)
-                    {
-                        var mongoGamesGenres = await _gameGenresCollection.Find(x => (x.CategoryID as int?) == tempGenre.CategoryID).ToListAsync();
-
-                        foreach (var mongoGameGenre in mongoGamesGenres)
-                        {
-                            var tempGame = filteredMongoGames.FirstOrDefault(x => x.ProductID == mongoGameGenre.ProductID);
-                            if (tempGame != null)
-                            {
-                                filteredGamesFromGenres.Add(tempGame);
-                            }
-                        }
-                    }
-                }
-
-                filteredMongoGames = filteredGamesFromGenres;
+                case GameSortingMode.MostPopular:
+                    sortDefinition = Builders<MongoGame>.Sort.Descending(x => x.NumberOfViews);
+                    break;
+                case GameSortingMode.MostCommented:
+                    break;
+                case GameSortingMode.PriceASC:
+                    sortDefinition = Builders<MongoGame>.Sort.Ascending(x => x.UnitPrice);
+                    break;
+                case GameSortingMode.PriceDESC:
+                    sortDefinition = Builders<MongoGame>.Sort.Descending(x => x.UnitPrice);
+                    break;
+                case GameSortingMode.New:
+                    break;
+                default:
+                    break;
             }
         }
+
+        List<MongoGame> filteredMongoGames;
+        var filter = Builders<MongoGame>.Filter.And(filters);
+
+        filteredMongoGames = sortDefinition != null
+            ? numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All
+                ? await _gameCollection.Find(filter).Sort(sortDefinition).Skip(((int)page - 1) * (int)numberOfGamesOnPage).Limit((int)numberOfGamesOnPage).ToListAsync()
+                : await _gameCollection.Find(filter).Sort(sortDefinition).ToListAsync()
+            : numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All
+                ? await _gameCollection.Find(filter).Skip(((int)page - 1) * (int)numberOfGamesOnPage).Limit((int)numberOfGamesOnPage).ToListAsync()
+                : await _gameCollection.Find(filter).ToListAsync();
 
         return filteredMongoGames.Select(x => new Game(x));
     }

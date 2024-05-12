@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "4FeNoo7mTifrNIny6AUeqLbXLGO5krki/hDwD6a0dOiq7NWdFhAaL4banjePoAYRmfeYsKMMRGnVyql1b8SdqQ==",
+  "dgSpecHash": "HC8MbLV4i8lTgIVe0dnnuEfljwmGUQCfJcIaIELK7IzB/bT66awZUHfBQih94BUKRRWsTKToCGwtweF4Uoyhsg==",
   "success": true,
   "projectFilePath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\GIT\\Gamestore\\GameStore.Infrastructure\\GameStore.Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "C:\\Users\\mateu\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\bogus\\35.5.1\\bogus.35.5.1.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\dnsclient\\1.6.1\\dnsclient.1.6.1.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\8.0.4\\microsoft.aspnetcore.cryptography.internal.8.0.4.nupkg.sha512",

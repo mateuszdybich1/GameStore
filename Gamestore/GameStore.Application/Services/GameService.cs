@@ -9,7 +9,13 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFactory, Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteria, IPlatformRepository platformRepository, Func<RepositoryTypes, IGenreRepository> genreRepository, Func<RepositoryTypes, IPublisherRepository> publisherRepository, IChangeLogService gameChangeLogService) : IGameService
+public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFactory,
+    Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteria,
+    IPlatformRepository platformRepository,
+    Func<RepositoryTypes, IGenreRepository> genreRepository,
+    Func<RepositoryTypes, IPublisherRepository> publisherRepository,
+    IChangeLogService gameChangeLogService,
+    IFakeDataGenerator fakeDataGenerator) : IGameService
 {
     private readonly IGameRepository _sqlGameRepository = gameRepositoryFactory(RepositoryTypes.Sql);
     private readonly IGameRepository _mongoGameRepository = gameRepositoryFactory(RepositoryTypes.Mongo);
@@ -21,6 +27,7 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
     private readonly IPublisherRepository _sqlPublisherRepository = publisherRepository(RepositoryTypes.Sql);
     private readonly IPublisherRepository _mongoPublisherRepository = publisherRepository(RepositoryTypes.Mongo);
     private readonly IChangeLogService _gameChangeLogService = gameChangeLogService;
+    private readonly IFakeDataGenerator _fakeDataGenerator = fakeDataGenerator;
 
     public async Task<Guid> AddGame(GameDtoDto gameDto)
     {
@@ -555,5 +562,10 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
         }
 
         return game != null ? game.Id : mongoGame.Id;
+    }
+
+    public async Task Generate100kGames()
+    {
+        await _fakeDataGenerator.Add100kGames();
     }
 }

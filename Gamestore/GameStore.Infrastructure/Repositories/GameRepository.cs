@@ -1,4 +1,5 @@
-﻿using GameStore.Domain.Entities;
+﻿using System.Diagnostics;
+using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,7 +42,37 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
 
     public async Task<IEnumerable<Game>> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
     {
+        var watch = Stopwatch.StartNew();
         IQueryable<Game>? games = _appDbContext.Games.Where(x => x.Price >= minPrice && x.Price <= maxPrice);
+
+        if (publishDate != null)
+        {
+            DateTime from = DateTime.Now;
+
+            switch (publishDate)
+            {
+                case PublishDateFilteringMode.LastWeek:
+                    from = from.AddDays(-7);
+                    break;
+                case PublishDateFilteringMode.LastMonth:
+                    from = from.AddMonths(-1);
+                    break;
+                case PublishDateFilteringMode.LastYear:
+                    from = from.AddYears(-1);
+                    break;
+                case PublishDateFilteringMode.TwoYears:
+                    from = from.AddYears(-2);
+                    break;
+                case PublishDateFilteringMode.ThreeYears:
+                    from = from.AddYears(-3);
+                    break;
+                default:
+                    break;
+            }
+
+            games = games.Where(x => x.CreationDate >= from);
+        }
+
         if (name != null)
         {
             games = games.Where(x => x.Name.Contains(name));
@@ -62,7 +93,46 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
             games = games.Include(x => x.Platforms).Where(x => x.Platforms.Any(p => platformIds.Contains(p.Id)));
         }
 
-        return await games.Include(x => x.Comments).ToListAsync();
+        if (sortMode != null)
+        {
+            switch (sortMode)
+            {
+                case GameSortingMode.MostPopular:
+                    games = games.OrderByDescending(x => x.NumberOfViews);
+                    break;
+                case GameSortingMode.MostCommented:
+                    foreach (var game in games)
+                    {
+                        game.Comments ??= [];
+                    }
+
+                    games = games.OrderByDescending(x => x.Comments.Count);
+                    break;
+                case GameSortingMode.PriceASC:
+                    games = games.OrderBy(x => x.Price);
+                    break;
+                case GameSortingMode.PriceDESC:
+                    games = games.OrderByDescending(x => x.Price);
+                    break;
+                case GameSortingMode.New:
+                    games = games.OrderByDescending(x => x.CreationDate);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All)
+        {
+            games = games.Skip(((int)page - 1) * (int)numberOfGamesOnPage).Take((int)numberOfGamesOnPage);
+        }
+
+        var downloadedGames = await games.Include(x => x.Comments).ToListAsync();
+
+        watch.Stop();
+
+        Debug.WriteLine($"Get Games: {watch.ElapsedMilliseconds} ms");
+        return downloadedGames;
     }
 
     public async Task<int> GetAllGamesCount()

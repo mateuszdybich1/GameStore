@@ -139,6 +139,8 @@ internal static class Bootstrapper
         services.AddScoped<IUserContext, HttpUserContext>();
         services.AddScoped<IAuthRepository, AuthRepository>();
 
+        services.AddScoped<IFakeDataGenerator, FakeDataGenerator>();
+
         services.AddScoped<IUserCheckService, UserCheckService>();
         services.AddScoped<IGameService, GameService>();
         services.AddScoped<IGenreService, GenreService>();

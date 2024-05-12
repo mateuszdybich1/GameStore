@@ -23,6 +23,7 @@ public partial class GameTests
     private readonly Mock<IPublisherRepository> _publisherRepositoryMock;
     private readonly Mock<IPublisherRepository> _mongoPublisherRepositoryMock;
     private readonly Mock<IChangeLogService> _changeLogServiceMock;
+    private readonly Mock<IFakeDataGenerator> _fakeDataGeneratorMock;
 
     public GameTests()
     {
@@ -46,7 +47,9 @@ public partial class GameTests
 
         _changeLogServiceMock = new();
 
-        _gameService = new(mockGameRepositoryFactory.Object, mockGameSearchCriteriaRepositoryFactory.Object, _platformRepositoryMock.Object, mockGenreRepositoryFactory.Object, mockPublisherRepositoryFactory.Object, _changeLogServiceMock.Object);
+        _fakeDataGeneratorMock = new();
+
+        _gameService = new(mockGameRepositoryFactory.Object, mockGameSearchCriteriaRepositoryFactory.Object, _platformRepositoryMock.Object, mockGenreRepositoryFactory.Object, mockPublisherRepositoryFactory.Object, _changeLogServiceMock.Object, _fakeDataGeneratorMock.Object);
     }
 
     [Fact]

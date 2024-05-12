@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "hQ1i7tdCoAa/W0cFiMOTJW1LEdNVvCrVyeqRFYQzF4TSW3hKJ+rJ+Kt7jZA77z7yfxXKxMRijVQNkRyhxhT40g==",
+  "dgSpecHash": "vm/Mqlp31zAcao55ix+oj1kBCsjLgs1bZHQXbyxY47RGtGLOJh4flaZqFD/FYu2g5+EYnm+7FcRB6V4SjTMEkA==",
   "success": true,
   "projectFilePath": "C:\\Users\\mateu\\Desktop\\EPAM_PROJECT\\GIT\\Gamestore\\GameStore.Web\\GameStore.Web.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "C:\\Users\\mateu\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\bogus\\35.5.1\\bogus.35.5.1.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\dnsclient\\1.6.1\\dnsclient.1.6.1.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\harfbuzzsharp\\7.3.0.1\\harfbuzzsharp.7.3.0.1.nupkg.sha512",
     "C:\\Users\\mateu\\.nuget\\packages\\harfbuzzsharp.nativeassets.macos\\7.3.0.1\\harfbuzzsharp.nativeassets.macos.7.3.0.1.nupkg.sha512",
