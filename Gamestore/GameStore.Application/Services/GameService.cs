@@ -183,6 +183,13 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
         return game.ImageId;
     }
 
+    public async Task<Guid?> GetGameImageId(Guid gameId)
+    {
+        var game = await _sqlGameRepository.Get(gameId) ?? throw new EntityNotFoundException($"Couldn't find game by ID: {gameId}");
+
+        return game.ImageId;
+    }
+
     public async Task<GameListDto> GetGames()
     {
         var games = await _sqlGameRepository.GetAllGames();

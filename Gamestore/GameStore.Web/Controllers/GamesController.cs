@@ -111,8 +111,16 @@ public class GamesController(IGameService gamesService,
                 try
                 {
                     string imageName = Guid.NewGuid().ToString();
+                    if (gameDto.Game.Id != null)
+                    {
+                        var gameImageId = await _gamesService.GetGameImageId((Guid)gameDto.Game.Id!);
+                        if (gameImageId != null)
+                        {
+                            imageName = gameImageId.ToString();
+                        }
+                    }
 
-                    var updateGameTasks = new List<Task>() { UploadImage(gameDto.Image!, imageName) };
+                    var updateGameTasks = new List<Task>() { UploadImage(gameDto.Image!, imageName!) };
 
                     gameDto.Image = imageName;
 
@@ -371,7 +379,7 @@ public class GamesController(IGameService gamesService,
     {
         var imageName = imageId.ToString();
         CloudBlockBlob blob = GetCloudBlockBlob(imageName);
-        await blob.DeleteAsync();
+        await blob.DeleteIfExistsAsync();
 
         _cache.Remove(imageName);
     }
