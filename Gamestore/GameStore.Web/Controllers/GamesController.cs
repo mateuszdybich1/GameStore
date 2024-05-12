@@ -73,7 +73,7 @@ public class GamesController(IGameService gamesService,
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest(ex.Message);
+                    return StatusCode(500, ex.Message);
                 }
             }
             else
@@ -123,7 +123,7 @@ public class GamesController(IGameService gamesService,
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest(ex.Message);
+                    return StatusCode(500, ex.Message);
                 }
             }
             else
@@ -142,9 +142,35 @@ public class GamesController(IGameService gamesService,
     [HttpDelete("{key}")]
     public async Task<IActionResult> DeleteGame([FromRoute] string key)
     {
-        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.DeleteGame })
-            ? Ok(await _gamesService.DeleteGame(key))
-            : Unauthorized();
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.DeleteGame }))
+        {
+            var imageId = await _gamesService.GetGameImageId(key);
+
+            if (imageId != null)
+            {
+                try
+                {
+                    var deleteTasks = new List<Task>() { _gamesService.DeleteGame(key), DeleteImage((Guid)imageId!) };
+
+                    await Task.WhenAll(deleteTasks);
+
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ex.Message);
+                }
+            }
+            else
+            {
+                await _gamesService.DeleteGame(key);
+                return Ok();
+            }
+        }
+        else
+        {
+            return Unauthorized();
+        }
     }
 
     [HttpGet]
@@ -160,7 +186,21 @@ public class GamesController(IGameService gamesService,
     {
         var imageId = await _gamesService.GetGameImageId(key);
 
-        return imageId != null ? File(await GetImage((Guid)imageId!), "image/png") : NotFound();
+        if (imageId != null)
+        {
+            try
+            {
+                return File(await GetImage((Guid)imageId!), "image/png");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        else
+        {
+            return NotFound();
+        }
     }
 
     [HttpGet("{key}/file")]
@@ -299,13 +339,12 @@ public class GamesController(IGameService gamesService,
 
     private async Task<string> UploadImage(string image, string imageName)
     {
-        _cache.Remove(imageName);
-
         byte[] imageData = Convert.FromBase64String(image.Split(",")[1]);
 
         CloudBlockBlob blob = GetCloudBlockBlob(imageName);
         await blob.UploadFromByteArrayAsync(imageData, 0, imageData.Length);
 
+        _cache.Remove(imageName);
         _cache.Set(imageName, imageData, TimeSpan.FromMinutes(30));
 
         return blob.Name;
@@ -326,6 +365,15 @@ public class GamesController(IGameService gamesService,
         }
 
         return imageData;
+    }
+
+    private async Task DeleteImage(Guid imageId)
+    {
+        var imageName = imageId.ToString();
+        CloudBlockBlob blob = GetCloudBlockBlob(imageName);
+        await blob.DeleteAsync();
+
+        _cache.Remove(imageName);
     }
 
     private CloudBlockBlob GetCloudBlockBlob(string imageName)
