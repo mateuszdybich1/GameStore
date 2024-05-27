@@ -12,6 +12,7 @@ using GameStore.Infrastructure.Repositories;
 using GameStore.Infrastructure.SearchCriteria;
 using GameStore.Users;
 using GameStore.Users.Repositories;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace GameStore.Web;
@@ -20,7 +21,12 @@ internal static class Bootstrapper
 {
     internal static void RegisterServices(this IServiceCollection services)
     {
-        services.AddSingleton<IMongoClient, MongoClient>();
+        services.AddSingleton<IMongoClient, MongoClient>(serivceProvider =>
+        {
+            var settings = serivceProvider.GetRequiredService<IOptions<MongoDbSettings>>()?.Value;
+            return settings != null ? new MongoClient(settings.ConnectionString) : new MongoClient();
+        });
+
         services.AddScoped<IChangeLogService, ChangeLogService>();
 
         services.AddScoped<IGameRepository, GameRepository>();

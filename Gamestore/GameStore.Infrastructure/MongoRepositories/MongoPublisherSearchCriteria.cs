@@ -21,31 +21,45 @@ public class MongoPublisherSearchCriteria : IPublisherSearchCriteria
 
     public async Task<Publisher> GetPublisherByCompanyName(string companyName)
     {
-        if (int.TryParse(companyName, out var result))
+        try
         {
-            MongoPublisher mongoPublisher = await _publisherCollection.Find(x => (x.CompanyName as int?) == result).SingleOrDefaultAsync();
-            return mongoPublisher != null ? new(mongoPublisher) : null;
+            if (int.TryParse(companyName, out var result))
+            {
+                MongoPublisher mongoPublisher = await _publisherCollection.Find(x => (x.CompanyName as int?) == result).SingleOrDefaultAsync();
+                return mongoPublisher != null ? new(mongoPublisher) : null;
+            }
+            else
+            {
+                MongoPublisher mongoPublisher = await _publisherCollection.Find(x => (x.CompanyName as string) == companyName).SingleOrDefaultAsync();
+                return mongoPublisher != null ? new(mongoPublisher) : null;
+            }
         }
-        else
+        catch
         {
-            MongoPublisher mongoPublisher = await _publisherCollection.Find(x => (x.CompanyName as string) == companyName).SingleOrDefaultAsync();
-            return mongoPublisher != null ? new(mongoPublisher) : null;
+            return null;
         }
     }
 
     public async Task<Publisher> GetPublisherByGameKey(string gameKey)
     {
-        MongoGame mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).SingleOrDefaultAsync();
-
-        if (mongoGame != null && mongoGame.SupplierID is int)
+        try
         {
-            MongoPublisher mongoPublisher = _publisherCollection
-            .AsQueryable()
-            .Where(x => x.SupplierID == (mongoGame.SupplierID as int?))
-            .FirstOrDefault();
-            return mongoPublisher != null ? new(mongoPublisher) : null;
-        }
+            MongoGame mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).SingleOrDefaultAsync();
 
-        return null;
+            if (mongoGame != null && mongoGame.SupplierID is int)
+            {
+                MongoPublisher mongoPublisher = _publisherCollection
+                .AsQueryable()
+                .Where(x => x.SupplierID == (mongoGame.SupplierID as int?))
+                .FirstOrDefault();
+                return mongoPublisher != null ? new(mongoPublisher) : null;
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

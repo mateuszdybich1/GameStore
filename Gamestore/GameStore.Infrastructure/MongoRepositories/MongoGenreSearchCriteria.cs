@@ -22,37 +22,51 @@ public class MongoGenreSearchCriteria : IGenresSearchCriteria
 
     public async Task<IEnumerable<Genre>> GetByGameKey(string gameKey)
     {
-        MongoGame mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).SingleOrDefaultAsync();
-
-        if (mongoGame == null)
+        try
         {
-            return Enumerable.Empty<Genre>();
-        }
+            MongoGame mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).SingleOrDefaultAsync();
 
-        var mongoGameGenres = await _gameGenresCollection.Find(x => x.ProductID == mongoGame.ProductID).ToListAsync();
-
-        var genres = new List<Genre>();
-        foreach (var mongoGameGenre in mongoGameGenres)
-        {
-            if (mongoGameGenre.CategoryID is int)
+            if (mongoGame == null)
             {
-                var tempGenre = await _genreCollection.Find(x => x.CategoryID == (mongoGameGenre.CategoryID as int?)).FirstOrDefaultAsync();
+                return Enumerable.Empty<Genre>();
+            }
 
-                if (tempGenre != null)
+            var mongoGameGenres = await _gameGenresCollection.Find(x => x.ProductID == mongoGame.ProductID).ToListAsync();
+
+            var genres = new List<Genre>();
+            foreach (var mongoGameGenre in mongoGameGenres)
+            {
+                if (mongoGameGenre.CategoryID is int)
                 {
-                    genres.Add(new(tempGenre));
+                    var tempGenre = await _genreCollection.Find(x => x.CategoryID == (mongoGameGenre.CategoryID as int?)).FirstOrDefaultAsync();
+
+                    if (tempGenre != null)
+                    {
+                        genres.Add(new(tempGenre));
+                    }
                 }
             }
-        }
 
-        return genres;
+            return genres;
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     public async Task<Genre> GetByGenreName(string name)
     {
-        var mongoGenre = await _genreCollection.Find(x => x.CategoryName == name).FirstOrDefaultAsync();
+        try
+        {
+            var mongoGenre = await _genreCollection.Find(x => x.CategoryName == name).FirstOrDefaultAsync();
 
-        return new(mongoGenre);
+            return new(mongoGenre);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public Task<IEnumerable<Genre>> GetByParentId(Guid parentId)

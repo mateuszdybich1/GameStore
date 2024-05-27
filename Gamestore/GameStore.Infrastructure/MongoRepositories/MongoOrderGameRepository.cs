@@ -43,24 +43,31 @@ public class MongoOrderGameRepository : IOrderGameRepository
 
     public async Task<IEnumerable<OrderGame>> GetOrderGames(Guid orderId)
     {
-        var order = await _ordersCollection.Find(x => x.Id == orderId.AsObjectId()).FirstOrDefaultAsync();
-        var orderGames = new List<OrderGame>();
-
-        if (order != null)
+        try
         {
-            var mongoOrderGames = await _orderGamesCollection.Find(x => x.OrderID == order.OrderID).ToListAsync();
+            var order = await _ordersCollection.Find(x => x.Id == orderId.AsObjectId()).FirstOrDefaultAsync();
+            var orderGames = new List<OrderGame>();
 
-            foreach (var mongoOrderGame in mongoOrderGames)
+            if (order != null)
             {
-                var product = await _gamesCollection.Find(x => x.ProductID == mongoOrderGame.ProductID).FirstOrDefaultAsync();
-                if (product != null)
+                var mongoOrderGames = await _orderGamesCollection.Find(x => x.OrderID == order.OrderID).ToListAsync();
+
+                foreach (var mongoOrderGame in mongoOrderGames)
                 {
-                    orderGames.Add(new OrderGame(mongoOrderGame.Id.AsGuid(), orderId, product.Id.AsGuid(), mongoOrderGame.UnitPrice, mongoOrderGame.Quantity, mongoOrderGame.Discount));
+                    var product = await _gamesCollection.Find(x => x.ProductID == mongoOrderGame.ProductID).FirstOrDefaultAsync();
+                    if (product != null)
+                    {
+                        orderGames.Add(new OrderGame(mongoOrderGame.Id.AsGuid(), orderId, product.Id.AsGuid(), mongoOrderGame.UnitPrice, mongoOrderGame.Quantity, mongoOrderGame.Discount));
+                    }
                 }
             }
-        }
 
-        return orderGames;
+            return orderGames;
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     public Task Update(OrderGame entity)

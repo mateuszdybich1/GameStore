@@ -20,17 +20,24 @@ public class ChangeLogService : IChangeLogService
 
     public async Task LogEntityChanges(LogActionType action, EntityType entityType, object oldVersion, object newVersion)
     {
-        var logEntry = new BsonDocument
+        try
+        {
+            var logEntry = new BsonDocument
         {
             { "Timestamp", DateTime.UtcNow },
             { "Action", action.ToString() },
             { "EntityType", entityType.ToString() },
         };
 
-        AddProperties(oldVersion, logEntry, "Old");
-        AddProperties(newVersion, logEntry, "New");
+            AddProperties(oldVersion, logEntry, "Old");
+            AddProperties(newVersion, logEntry, "New");
 
-        await _collection.InsertOneAsync(logEntry);
+            await _collection.InsertOneAsync(logEntry);
+        }
+        catch
+        {
+            return;
+        }
     }
 
     public static void AddProperties(object entity, BsonDocument logEntry, string entityKind)
@@ -47,10 +54,10 @@ public class ChangeLogService : IChangeLogService
                 {
                     logEntry.Add($"{entityKind}.{property.Name}", value.ToString());
                 }
-                else if (value is IEnumerable)
+                else if (value is IEnumerable list)
                 {
                     var i = 1;
-                    foreach (var currentItem in value as IEnumerable)
+                    foreach (var currentItem in list)
                     {
                         var itemProps = currentItem.GetType().Name;
                         var itemId = currentItem.GetType().GetProperty("Id").GetValue(currentItem);

@@ -24,32 +24,60 @@ public class MongoGenreRepository : IGenreRepository
 
     public async Task Delete(Genre entity)
     {
-        var filter = Builders<MongoGenre>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
-        await _genreCollection.DeleteOneAsync(filter);
+        try
+        {
+            var filter = Builders<MongoGenre>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
+            await _genreCollection.DeleteOneAsync(filter);
+        }
+        catch
+        {
+            return;
+        }
     }
 
     public async Task<Genre> Get(Guid id)
     {
-        MongoGenre mongoGenre = await _genreCollection.Find(x => x.Id == IDConverter.AsObjectId(id)).SingleOrDefaultAsync();
-        return mongoGenre != null ? new(mongoGenre) : null;
+        try
+        {
+            MongoGenre mongoGenre = await _genreCollection.Find(x => x.Id == IDConverter.AsObjectId(id)).SingleOrDefaultAsync();
+            return mongoGenre != null ? new(mongoGenre) : null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<IEnumerable<Genre>> GetAllGenre()
     {
-        var categories = await _genreCollection.Find(_ => true).ToListAsync();
+        try
+        {
+            var categories = await _genreCollection.Find(_ => true).ToListAsync();
 
-        return categories.Select(x => new Genre(x));
+            return categories.Select(x => new Genre(x));
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     public async Task Update(Genre entity)
     {
-        var filter = Builders<MongoGenre>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
+        try
+        {
+            var filter = Builders<MongoGenre>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
 
-        UpdateDefinition<MongoGenre> update = Builders<MongoGenre>.Update
-            .Set(x => x.CategoryName, entity.Name)
-            .Set(x => x.Description, entity.Description)
-            .Set(x => x.Picture, entity.Picture);
+            UpdateDefinition<MongoGenre> update = Builders<MongoGenre>.Update
+                .Set(x => x.CategoryName, entity.Name)
+                .Set(x => x.Description, entity.Description)
+                .Set(x => x.Picture, entity.Picture);
 
-        await _genreCollection.UpdateOneAsync(filter, update);
+            await _genreCollection.UpdateOneAsync(filter, update);
+        }
+        catch
+        {
+            return;
+        }
     }
 }

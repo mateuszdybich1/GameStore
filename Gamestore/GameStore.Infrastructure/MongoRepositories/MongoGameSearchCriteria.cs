@@ -25,89 +25,110 @@ public class MongoGameSearchCriteria : IGamesSearchCriteria
 
     public async Task<IEnumerable<Game>> GetByGenreId(Guid genreId)
     {
-        var mongoGenre = await _genreCollection.Find(x => x.Id == IDConverter.AsObjectId(genreId)).SingleOrDefaultAsync();
-
-        if (mongoGenre != null)
+        try
         {
-            var gameGenres = await _gameGenresCollection.Find(x => (x.CategoryID as int?) == mongoGenre.CategoryID).ToListAsync();
+            var mongoGenre = await _genreCollection.Find(x => x.Id == IDConverter.AsObjectId(genreId)).SingleOrDefaultAsync();
 
-            var games = new List<Game>();
-            foreach (var gameGenre in gameGenres)
+            if (mongoGenre != null)
             {
-                var localGame = await _gameCollection.Find(x => x.ProductID == gameGenre.ProductID).SingleOrDefaultAsync();
+                var gameGenres = await _gameGenresCollection.Find(x => (x.CategoryID as int?) == mongoGenre.CategoryID).ToListAsync();
 
-                if (localGame != null)
+                var games = new List<Game>();
+                foreach (var gameGenre in gameGenres)
                 {
-                    games.Add(new(localGame));
+                    var localGame = await _gameCollection.Find(x => x.ProductID == gameGenre.ProductID).SingleOrDefaultAsync();
+
+                    if (localGame != null)
+                    {
+                        games.Add(new(localGame));
+                    }
                 }
+
+                return games;
             }
 
-            return games;
+            return null;
         }
-
-        return null;
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<Game> GetByKey(string key)
     {
-        var game = await _gameCollection.Find(x => x.ProductKey == key).FirstOrDefaultAsync();
-        return game != null ? new(game) : null;
+        try
+        {
+            var game = await _gameCollection.Find(x => x.ProductKey == key).FirstOrDefaultAsync();
+            return game != null ? new(game) : null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<object> GetByKeyWithRelations(string key)
     {
-        var game = await _gameCollection.Find(x => x.ProductKey == key).FirstOrDefaultAsync();
-        var genreGames = await _gameGenresCollection.Find(x => x.ProductID == game.ProductID).ToListAsync();
-        var publisher = new Publisher(Guid.Empty, string.Empty, string.Empty, string.Empty);
-        if (game.SupplierID is int)
+        try
         {
-            var mongoPublisher = await _publisherCollection.Find(x => x.SupplierID == (game.SupplierID as int?)).FirstOrDefaultAsync();
-
-            if (mongoPublisher != null)
+            var game = await _gameCollection.Find(x => x.ProductKey == key).FirstOrDefaultAsync();
+            var genreGames = await _gameGenresCollection.Find(x => x.ProductID == game.ProductID).ToListAsync();
+            var publisher = new Publisher(Guid.Empty, string.Empty, string.Empty, string.Empty);
+            if (game.SupplierID is int)
             {
-                publisher = new(mongoPublisher);
-            }
-        }
+                var mongoPublisher = await _publisherCollection.Find(x => x.SupplierID == (game.SupplierID as int?)).FirstOrDefaultAsync();
 
-        var genres = new List<Genre>();
-
-        foreach (var gameGenre in genreGames)
-        {
-            if (gameGenre.CategoryID is int)
-            {
-                var tempGenre = await _genreCollection.Find(x => x.CategoryID == (gameGenre.CategoryID as int?)).FirstOrDefaultAsync();
-                if (tempGenre != null)
+                if (mongoPublisher != null)
                 {
-                    genres.Add(new(tempGenre));
+                    publisher = new(mongoPublisher);
                 }
             }
-        }
 
-        return new
+            var genres = new List<Genre>();
+
+            foreach (var gameGenre in genreGames)
+            {
+                if (gameGenre.CategoryID is int)
+                {
+                    var tempGenre = await _genreCollection.Find(x => x.CategoryID == (gameGenre.CategoryID as int?)).FirstOrDefaultAsync();
+                    if (tempGenre != null)
+                    {
+                        genres.Add(new(tempGenre));
+                    }
+                }
+            }
+
+            return new
+            {
+                Game = new
+                {
+                    Id = IDConverter.AsGuid(game.Id),
+                    Name = game.ProductName,
+                    Key = game.ProductKey,
+                    Description = game.QuantityPerUnit,
+                    Price = game.UnitPrice,
+                    UnitInStock = game.UnitsInStock,
+                    Discount = game.Discontinued,
+                },
+                Genres = genres.Select(genre => new
+                {
+                    Id = genre.Id,
+                    Name = genre.Name,
+                }),
+                Publisher = new
+                {
+                    Id = publisher.Id,
+                    Name = publisher.CompanyName,
+                    HomePage = publisher.HomePage,
+                    Description = publisher.Description,
+                },
+            };
+        }
+        catch
         {
-            Game = new
-            {
-                Id = IDConverter.AsGuid(game.Id),
-                Name = game.ProductName,
-                Key = game.ProductKey,
-                Description = game.QuantityPerUnit,
-                Price = game.UnitPrice,
-                UnitInStock = game.UnitsInStock,
-                Discount = game.Discontinued,
-            },
-            Genres = genres.Select(genre => new
-            {
-                Id = genre.Id,
-                Name = genre.Name,
-            }),
-            Publisher = new
-            {
-                Id = publisher.Id,
-                Name = publisher.CompanyName,
-                HomePage = publisher.HomePage,
-                Description = publisher.Description,
-            },
-        };
+            return null;
+        }
     }
 
     public Task<IEnumerable<Game>> GetByPlatformId(Guid platformId)
