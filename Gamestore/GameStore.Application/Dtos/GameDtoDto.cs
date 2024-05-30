@@ -15,4 +15,6 @@ public class GameDtoDto
 
     [Required]
     public Guid? Publisher { get; set; }
+
+    public string? Image { get; set; }
 }

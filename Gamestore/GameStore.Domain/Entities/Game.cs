@@ -50,7 +50,7 @@ public class Game : Entity
     {
     }
 
-    public Game(Guid id, string name, string key, double price, int unitInStock, double discount, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
+    public Game(Guid id, string name, string key, double price, int unitInStock, double discount, Guid? imageId, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
         : base(id)
     {
         Name = name;
@@ -58,13 +58,14 @@ public class Game : Entity
         Price = price;
         UnitInStock = unitInStock;
         Discount = discount;
+        ImageId = imageId;
         PublisherId = publisherId;
         Genres = genres;
         Platforms = platforms;
         Publisher = publisher;
     }
 
-    public Game(Guid id, string name, string key, double price, int unitInStock, double discount, string description, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
+    public Game(Guid id, string name, string key, double price, int unitInStock, double discount, string description, Guid? imageId, Guid publisherId, List<Genre> genres, List<Platform> platforms, Publisher publisher)
         : base(id)
     {
         Name = name;
@@ -73,6 +74,7 @@ public class Game : Entity
         UnitInStock = unitInStock;
         Discount = discount;
         Description = description;
+        ImageId = imageId;
         PublisherId = publisherId;
         Genres = genres;
         Platforms = platforms;
@@ -88,6 +90,7 @@ public class Game : Entity
         UnitInStock = game.UnitInStock;
         Discount = game.Discount;
         Description = game.Key;
+        ImageId = game.ImageId;
         PublisherId = game.PublisherId;
         Genres = game.Genres;
         Platforms = game.Platforms;
@@ -104,6 +107,7 @@ public class Game : Entity
         UnitInStock = mongoGame.UnitsInStock;
         Discount = mongoGame.Discontinued;
         NumberOfViews = (ulong)mongoGame.NumberOfViews;
+        ImageId = null;
     }
 
     public string Name { get; set; }
@@ -119,6 +123,8 @@ public class Game : Entity
     public double Discount { get; set; }
 
     public ulong NumberOfViews { get; set; }
+
+    public Guid? ImageId { get; set; }
 
     public Guid PublisherId { get; set; }
 

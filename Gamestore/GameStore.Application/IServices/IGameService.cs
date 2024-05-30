@@ -16,6 +16,10 @@ public interface IGameService
 
     Task<object> GetGameByKeyWithRelations(string gameKey);
 
+    Task<Guid?> GetGameImageId(string gameKey);
+
+    Task<Guid?> GetGameImageId(Guid gameId);
+
     Task<GameDto> GetGameById(Guid gameId);
 
     Task<GameListDto> GetGames();

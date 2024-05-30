@@ -17,6 +17,8 @@ var services = builder.Services;
 
 services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
+services.Configure<BlobStorageConfiguration>(builder.Configuration.GetSection("BlobStorage"));
+
 services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("GameStoreDatabase"));
@@ -48,7 +50,6 @@ services.AddHttpClient("AuthMicroservice", client =>
     client.BaseAddress = new Uri(connString);
 });
 
-var xd = builder.Configuration.GetSection("JwtSettings:SecretKey");
 services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,7 +60,7 @@ services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(xd.Value!)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSettings:SecretKey").Value!)),
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
@@ -73,6 +74,8 @@ services.AddHostedService(provider =>
 {
     return new UserUnbanService(builder.Configuration.GetConnectionString("GameStoreUsers")!);
 });
+
+services.AddMemoryCache();
 
 services.AddCors();
 services.AddControllers().AddNewtonsoftJson();

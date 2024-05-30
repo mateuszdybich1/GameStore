@@ -15,7 +15,7 @@ public partial class GameTests
         {
             var genres = new List<Genre>();
             var platforms = new List<Platform>();
-            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms, new()));
+            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, null, Guid.NewGuid(), genres, platforms, new()));
         }
 
         var mongoGames = new List<Game>();
@@ -24,7 +24,7 @@ public partial class GameTests
         {
             var genres = new List<Genre>();
             var platforms = new List<Platform>();
-            mongoGames.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms, new()));
+            mongoGames.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, null, Guid.NewGuid(), genres, platforms, new()));
         }
 
         _gameRepositoryMock.Setup(x => x.GetAllGames()).ReturnsAsync(games.AsEnumerable);
@@ -54,7 +54,7 @@ public partial class GameTests
         {
             var genres = new List<Genre>();
             var platforms = new List<Platform>();
-            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms, new()));
+            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, null, Guid.NewGuid(), genres, platforms, new()));
         }
 
         _gamesSearchCriteriaMock.Setup(x => x.GetByPlatformId(platformId)).ReturnsAsync(games.AsEnumerable);
@@ -83,7 +83,7 @@ public partial class GameTests
         {
             var genres = new List<Genre>();
             var platforms = new List<Platform>();
-            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, Guid.NewGuid(), genres, platforms, new()));
+            games.Add(new Game(Guid.NewGuid(), $"Name-{i}", $"Key-{i}", i, i, i, null, Guid.NewGuid(), genres, platforms, new()));
         }
 
         _mongoGameRepositoryMock.Setup(x => x.GetAllGames()).ReturnsAsync(games.AsEnumerable);
