@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using GameStore.Domain.Dtos;
 using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
         return await _appDbContext.Games.ToListAsync();
     }
 
-    public async Task<IEnumerable<Game>> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
+    public async Task<GameModelsDto> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
     {
         var watch = Stopwatch.StartNew();
         IQueryable<Game>? games = _appDbContext.Games.Where(x => x.Price >= minPrice && x.Price <= maxPrice);
@@ -93,38 +94,15 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
             games = games.Include(x => x.Platforms).Where(x => x.Platforms.Any(p => platformIds.Contains(p.Id)));
         }
 
-        if (sortMode != null)
-        {
-            switch (sortMode)
-            {
-                case GameSortingMode.MostPopular:
-                    games = games.OrderByDescending(x => x.NumberOfViews);
-                    break;
-                case GameSortingMode.MostCommented:
-                    foreach (var game in games)
-                    {
-                        game.Comments ??= [];
-                    }
-
-                    games = games.OrderByDescending(x => x.Comments.Count);
-                    break;
-                case GameSortingMode.PriceASC:
-                    games = games.OrderBy(x => x.Price);
-                    break;
-                case GameSortingMode.PriceDESC:
-                    games = games.OrderByDescending(x => x.Price);
-                    break;
-                case GameSortingMode.New:
-                    games = games.OrderByDescending(x => x.CreationDate);
-                    break;
-                default:
-                    break;
-            }
-        }
-
+        var totalPages = 1;
         if (numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All)
         {
-            games = games.Skip(((int)page - 1) * (int)numberOfGamesOnPage).Take((int)numberOfGamesOnPage);
+            var gamesCount = games.Count();
+            totalPages = gamesCount / (int)numberOfGamesOnPage;
+            if (gamesCount % (int)numberOfGamesOnPage > 0)
+            {
+                totalPages += 1;
+            }
         }
 
         var downloadedGames = await games.Include(x => x.Comments).ToListAsync();
@@ -132,7 +110,7 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
         watch.Stop();
 
         Debug.WriteLine($"Get Games: {watch.ElapsedMilliseconds} ms");
-        return downloadedGames;
+        return new GameModelsDto(downloadedGames, totalPages, (int)page);
     }
 
     public async Task<int> GetAllGamesCount()

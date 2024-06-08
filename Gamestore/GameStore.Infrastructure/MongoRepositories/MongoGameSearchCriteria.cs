@@ -25,7 +25,7 @@ public class MongoGameSearchCriteria : IGamesSearchCriteria
 
     public async Task<IEnumerable<Game>> GetByGenreId(Guid genreId)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var mongoGenre = await _genreCollection.Find(x => x.Id == IDConverter.AsObjectId(genreId)).SingleOrDefaultAsync();
 
@@ -49,7 +49,7 @@ public class MongoGameSearchCriteria : IGamesSearchCriteria
 
             return null;
         }
-        catch
+        else
         {
             return null;
         }
@@ -57,12 +57,12 @@ public class MongoGameSearchCriteria : IGamesSearchCriteria
 
     public async Task<Game> GetByKey(string key)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var game = await _gameCollection.Find(x => x.ProductKey == key).FirstOrDefaultAsync();
             return game != null ? new(game) : null;
         }
-        catch
+        else
         {
             return null;
         }
@@ -70,7 +70,7 @@ public class MongoGameSearchCriteria : IGamesSearchCriteria
 
     public async Task<object> GetByKeyWithRelations(string key)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var game = await _gameCollection.Find(x => x.ProductKey == key).FirstOrDefaultAsync();
             var genreGames = await _gameGenresCollection.Find(x => x.ProductID == game.ProductID).ToListAsync();
@@ -125,7 +125,7 @@ public class MongoGameSearchCriteria : IGamesSearchCriteria
                 },
             };
         }
-        catch
+        else
         {
             return null;
         }
@@ -138,15 +138,22 @@ public class MongoGameSearchCriteria : IGamesSearchCriteria
 
     public async Task<IEnumerable<Game>> GetByPublisherName(string companyName)
     {
-        var mongoPublisher = await _publisherCollection.Find(x => (x.CompanyName as string) == companyName).FirstOrDefaultAsync();
-
-        if (mongoPublisher != null)
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
-            var mongoGames = await _gameCollection.Find(x => (x.SupplierID as int?) == mongoPublisher.SupplierID).ToListAsync();
+            var mongoPublisher = await _publisherCollection.Find(x => (x.CompanyName as string) == companyName).FirstOrDefaultAsync();
 
-            return mongoGames.Select(x => new Game(x));
+            if (mongoPublisher != null)
+            {
+                var mongoGames = await _gameCollection.Find(x => (x.SupplierID as int?) == mongoPublisher.SupplierID).ToListAsync();
+
+                return mongoGames.Select(x => new Game(x));
+            }
+
+            return null;
         }
-
-        return null;
+        else
+        {
+            return null;
+        }
     }
 }

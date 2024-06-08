@@ -50,13 +50,13 @@ public class MongoPublisherRepository : IPublisherRepository
 
     public async Task<IEnumerable<Publisher>> GetAllPublishers()
     {
-        try
+        if (_publisherCollection != null && _publisherCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var suppliers = await _publisherCollection.Find(_ => true).ToListAsync();
 
             return suppliers.Where(x => !string.IsNullOrEmpty(x.CompanyName)).Select(x => new Publisher(x));
         }
-        catch
+        else
         {
             return [];
         }
@@ -64,7 +64,7 @@ public class MongoPublisherRepository : IPublisherRepository
 
     public async Task Update(Publisher entity)
     {
-        try
+        if (_publisherCollection != null && _publisherCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var filter = Builders<MongoPublisher>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
 
@@ -135,7 +135,7 @@ public class MongoPublisherRepository : IPublisherRepository
 
             await _publisherCollection.UpdateOneAsync(filter, finalUpd);
         }
-        catch
+        else
         {
             return;
         }

@@ -1,8 +1,9 @@
-﻿namespace GameStore.Application.Dtos;
+﻿using GameStore.Domain.Entities;
 
-public class GameListDto
+namespace GameStore.Domain.Dtos;
+public class GameModelsDto
 {
-    public GameListDto()
+    public GameModelsDto()
     {
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         Games = [];
@@ -11,14 +12,14 @@ public class GameListDto
         CurrentPage = 1;
     }
 
-    public GameListDto(List<GameDto> games, int totalPages, int currentPage)
+    public GameModelsDto(List<Game> games, int totalPages, int currentPage)
     {
         Games = games;
         TotalPages = totalPages;
         CurrentPage = currentPage;
     }
 
-    public List<GameDto> Games { get; set; }
+    public IEnumerable<Game> Games { get; set; }
 
     public int TotalPages { get; set; }
 

@@ -22,7 +22,7 @@ public class MongoGenreSearchCriteria : IGenresSearchCriteria
 
     public async Task<IEnumerable<Genre>> GetByGameKey(string gameKey)
     {
-        try
+        if (_genreCollection != null && _genreCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             MongoGame mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).SingleOrDefaultAsync();
 
@@ -49,7 +49,7 @@ public class MongoGenreSearchCriteria : IGenresSearchCriteria
 
             return genres;
         }
-        catch
+        else
         {
             return [];
         }
@@ -57,13 +57,13 @@ public class MongoGenreSearchCriteria : IGenresSearchCriteria
 
     public async Task<Genre> GetByGenreName(string name)
     {
-        try
+        if (_genreCollection != null && _genreCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var mongoGenre = await _genreCollection.Find(x => x.CategoryName == name).FirstOrDefaultAsync();
 
             return new(mongoGenre);
         }
-        catch
+        else
         {
             return null;
         }

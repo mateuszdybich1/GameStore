@@ -345,6 +345,21 @@ public class GamesController(IGameService gamesService,
         return Ok(publishDateList);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("100KGames")]
+    public async Task<IActionResult> Add100kGames()
+    {
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.AddGame }))
+        {
+            await _gamesService.Generate100kGames();
+            return Ok();
+        }
+        else
+        {
+            return Unauthorized();
+        }
+    }
+
     private async Task<string> UploadImage(string image, string imageName)
     {
         byte[] imageData = Convert.FromBase64String(image.Split(",")[1]);

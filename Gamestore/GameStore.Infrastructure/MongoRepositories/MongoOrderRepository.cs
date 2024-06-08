@@ -32,13 +32,13 @@ public class MongoOrderRepository : IOrderRepository
 
     public async Task<Order> Get(Guid id)
     {
-        try
+        if (_orderCollection != null && _orderCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var mongoOrder = await _orderCollection.Find(x => x.Id == id.AsObjectId()).FirstOrDefaultAsync();
             var orderCustomer = await _customerCollection.Find(x => x.CustomerID == mongoOrder.CustomerID).FirstOrDefaultAsync();
             return mongoOrder != null ? new Order(mongoOrder.Id.AsGuid(), orderCustomer.Id.AsGuid(), OrderStatus.Paid) : null;
         }
-        catch
+        else
         {
             return null;
         }
@@ -46,7 +46,7 @@ public class MongoOrderRepository : IOrderRepository
 
     public async Task<IEnumerable<Order>> GetAllOrders(DateTime startDate, DateTime dateTo)
     {
-        try
+        if (_customerCollection != null && _customerCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var filter = new BsonDocument
         {
@@ -75,7 +75,7 @@ public class MongoOrderRepository : IOrderRepository
 
             return orders;
         }
-        catch
+        else
         {
             return [];
         }
@@ -88,7 +88,7 @@ public class MongoOrderRepository : IOrderRepository
 
     public async Task<IEnumerable<Order>> GetOrdersByCustomerId(Guid customerId)
     {
-        try
+        if (_customerCollection != null && _customerCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var orderCustomer = await _customerCollection.Find(x => x.Id == customerId.AsObjectId()).FirstOrDefaultAsync();
             var orders = new List<Order>();
@@ -102,7 +102,7 @@ public class MongoOrderRepository : IOrderRepository
 
             return orders;
         }
-        catch
+        else
         {
             return [];
         }

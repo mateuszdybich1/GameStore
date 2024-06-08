@@ -1,4 +1,5 @@
 ﻿using GameStore.Domain;
+using GameStore.Domain.Dtos;
 using GameStore.Domain.Entities;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.MongoEntities;
@@ -31,12 +32,12 @@ public class MongoGameRepository : IGameRepository
 
     public async Task Delete(Game entity)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var filter = Builders<MongoGame>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
             await _gameCollection.DeleteOneAsync(filter);
         }
-        catch
+        else
         {
             return;
         }
@@ -44,12 +45,12 @@ public class MongoGameRepository : IGameRepository
 
     public async Task<Game> Get(Guid id)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             MongoGame mongoGame = await _gameCollection.Find(x => x.Id == IDConverter.AsObjectId(id)).SingleOrDefaultAsync();
             return mongoGame != null ? new(mongoGame) : null;
         }
-        catch
+        else
         {
             return null;
         }
@@ -57,21 +58,14 @@ public class MongoGameRepository : IGameRepository
 
     public async Task<IEnumerable<Game>> GetAllGames()
     {
-        try
-        {
-            var products = await _gameCollection.Find(_ => true).ToListAsync();
+        var products = _gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected ? await _gameCollection.Find(_ => true).ToListAsync() : [];
 
-            return products.Select(x => new Game(x));
-        }
-        catch
-        {
-            return [];
-        }
+        return products.Select(x => new Game(x));
     }
 
-    public async Task<IEnumerable<Game>> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
+    public async Task<GameModelsDto> GetAllGames(List<Guid>? genreIds, List<Guid>? platformIds, List<Guid>? publisherIds, string? name, PublishDateFilteringMode? publishDate, GameSortingMode? sortMode, uint page, NumberOfGamesOnPageFilteringMode numberOfGamesOnPage, int minPrice, int maxPrice)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var filters = new List<FilterDefinition<MongoGame>>() { Builders<MongoGame>.Filter.Gte(game => game.UnitPrice, minPrice), Builders<MongoGame>.Filter.Lte(game => game.UnitPrice, maxPrice) };
 
@@ -137,43 +131,45 @@ public class MongoGameRepository : IGameRepository
             List<MongoGame> filteredMongoGames;
             var filter = Builders<MongoGame>.Filter.And(filters);
 
-            filteredMongoGames = sortDefinition != null
-                ? numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All
-                    ? await _gameCollection.Find(filter).Sort(sortDefinition).Skip(((int)page - 1) * (int)numberOfGamesOnPage).Limit((int)numberOfGamesOnPage).ToListAsync()
-                    : await _gameCollection.Find(filter).Sort(sortDefinition).ToListAsync()
-                : numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All
-                    ? await _gameCollection.Find(filter).Skip(((int)page - 1) * (int)numberOfGamesOnPage).Limit((int)numberOfGamesOnPage).ToListAsync()
-                    : await _gameCollection.Find(filter).ToListAsync();
+            int totalPages = 1;
+            var gamesCount = 0;
+            if (numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All)
+            {
+                gamesCount = (int)await _gameCollection.Find(filter).CountDocumentsAsync();
+                totalPages = gamesCount / (int)numberOfGamesOnPage;
+                if (gamesCount % (int)numberOfGamesOnPage > 0)
+                {
+                    totalPages += 1;
+                }
+            }
 
-            return filteredMongoGames.Select(x => new Game(x));
+            filteredMongoGames = await _gameCollection.Find(filter).ToListAsync();
+            var games = filteredMongoGames.Select(x => new Game(x)).ToList();
+
+            return new GameModelsDto(games, totalPages, (int)page);
         }
-        catch
+        else
         {
-            return [];
+            return new GameModelsDto();
         }
     }
 
     public async Task<int> GetAllGamesCount()
     {
-        try
-        {
-            return (int)await _gameCollection.CountDocumentsAsync(FilterDefinition<MongoGame>.Empty);
-        }
-        catch
-        {
-            return 0;
-        }
+        return _gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected
+            ? (int)await _gameCollection.CountDocumentsAsync(FilterDefinition<MongoGame>.Empty)
+            : 0;
     }
 
     public async Task<Game> GetGameWithRelations(Guid gameId)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var mongoGame = await _gameCollection.Find(x => x.Id == IDConverter.AsObjectId(gameId)).SingleOrDefaultAsync();
 
             return await GetWithRelationsFromMongoGame(mongoGame);
         }
-        catch
+        else
         {
             return null;
         }
@@ -181,12 +177,12 @@ public class MongoGameRepository : IGameRepository
 
     public async Task<Game> GetGameWithRelations(string gameKey)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).FirstOrDefaultAsync();
             return await GetWithRelationsFromMongoGame(mongoGame);
         }
-        catch
+        else
         {
             return null;
         }
@@ -194,7 +190,7 @@ public class MongoGameRepository : IGameRepository
 
     public async Task<int> GetNumberOfPages(NumberOfGamesOnPageFilteringMode numberOfGamesOnPage)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             int gamesCount = (int)await _gameCollection.CountDocumentsAsync(FilterDefinition<MongoGame>.Empty);
             int numberOfPages = gamesCount / (int)numberOfGamesOnPage;
@@ -205,7 +201,7 @@ public class MongoGameRepository : IGameRepository
 
             return numberOfPages;
         }
-        catch
+        else
         {
             return 0;
         }
@@ -213,7 +209,7 @@ public class MongoGameRepository : IGameRepository
 
     public async Task Update(Game entity)
     {
-        try
+        if (_gameCollection != null && _gameCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var filter = Builders<MongoGame>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
             var mongoGame = await _gameCollection.Find(x => x.Id == IDConverter.AsObjectId(entity.Id)).SingleOrDefaultAsync();
@@ -255,7 +251,7 @@ public class MongoGameRepository : IGameRepository
                 await _gameCollection.UpdateOneAsync(filter, publisherUpdate);
             }
         }
-        catch
+        else
         {
             return;
         }

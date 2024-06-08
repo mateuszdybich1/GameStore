@@ -43,7 +43,7 @@ public class MongoOrderGameRepository : IOrderGameRepository
 
     public async Task<IEnumerable<OrderGame>> GetOrderGames(Guid orderId)
     {
-        try
+        if (_ordersCollection != null && _ordersCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var order = await _ordersCollection.Find(x => x.Id == orderId.AsObjectId()).FirstOrDefaultAsync();
             var orderGames = new List<OrderGame>();
@@ -64,7 +64,7 @@ public class MongoOrderGameRepository : IOrderGameRepository
 
             return orderGames;
         }
-        catch
+        else
         {
             return [];
         }

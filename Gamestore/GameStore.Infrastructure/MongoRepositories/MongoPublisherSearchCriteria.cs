@@ -21,7 +21,7 @@ public class MongoPublisherSearchCriteria : IPublisherSearchCriteria
 
     public async Task<Publisher> GetPublisherByCompanyName(string companyName)
     {
-        try
+        if (_publisherCollection != null && _publisherCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             if (int.TryParse(companyName, out var result))
             {
@@ -34,7 +34,7 @@ public class MongoPublisherSearchCriteria : IPublisherSearchCriteria
                 return mongoPublisher != null ? new(mongoPublisher) : null;
             }
         }
-        catch
+        else
         {
             return null;
         }
@@ -42,7 +42,7 @@ public class MongoPublisherSearchCriteria : IPublisherSearchCriteria
 
     public async Task<Publisher> GetPublisherByGameKey(string gameKey)
     {
-        try
+        if (_publisherCollection != null && _publisherCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             MongoGame mongoGame = await _gameCollection.Find(x => x.ProductKey == gameKey).SingleOrDefaultAsync();
 
@@ -57,7 +57,7 @@ public class MongoPublisherSearchCriteria : IPublisherSearchCriteria
 
             return null;
         }
-        catch
+        else
         {
             return null;
         }

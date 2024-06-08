@@ -1,6 +1,7 @@
 ﻿using GameStore.Application.Dtos;
 using GameStore.Application.IServices;
 using GameStore.Domain;
+using GameStore.Domain.Dtos;
 using GameStore.Domain.Entities;
 using GameStore.Domain.Exceptions;
 using GameStore.Domain.Extensions;
@@ -199,8 +200,16 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
 
     public async Task<GameListDto> GetGames()
     {
-        var games = await _sqlGameRepository.GetAllGames();
-        var mongoGames = await _mongoGameRepository.GetAllGames();
+        var tasks = new List<Task<IEnumerable<Game>>>
+        {
+        _sqlGameRepository.GetAllGames(),
+        _mongoGameRepository.GetAllGames(),
+        };
+
+        await Task.WhenAll(tasks);
+
+        var games = tasks[0].Result;
+        var mongoGames = tasks[1].Result;
         mongoGames = mongoGames.Where(x => !games.Any(y => y.Key == x.Key));
 
         GameListDto returnObj = new()
@@ -242,15 +251,23 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
         NumberOfGamesOnPageFilteringMode? numberOfGamesOnPage = EnumExtensions.GetEnumValueFromDescription<NumberOfGamesOnPageFilteringMode>(pageCount);
         numberOfGamesOnPage ??= NumberOfGamesOnPageFilteringMode.All;
 
-        var games = await _sqlGameRepository.GetAllGames(genreIds, platformIds, publisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice);
-        var mongoGames = await _mongoGameRepository.GetAllGames(genreIds, platformIds, publisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice);
-
-        if (mongoGames != null)
+        var tasks = new List<Task<GameModelsDto>>
         {
-            games = games.Concat(mongoGames);
-        }
+        _sqlGameRepository.GetAllGames(genreIds, platformIds, publisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice),
+        _mongoGameRepository.GetAllGames(genreIds, platformIds, publisherIds, name, publishDate, sortMode, page, (NumberOfGamesOnPageFilteringMode)numberOfGamesOnPage!, minPrice, maxPrice),
+        };
 
-        games = games.ToList();
+        await Task.WhenAll(tasks);
+
+        var games = tasks[0].Result;
+        var mongoGames = tasks[1].Result;
+
+        if (mongoGames != null && mongoGames.Games.Any())
+        {
+            games.Games = games.Games.Concat(mongoGames.Games);
+
+            games.TotalPages += mongoGames.TotalPages;
+        }
 
         if (publishDate != null)
         {
@@ -277,7 +294,7 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
                     break;
             }
 
-            games = games.Where(x => x.CreationDate >= from);
+            games.Games = games.Games.Where(x => x.CreationDate >= from);
         }
 
         if (sortMode != null)
@@ -285,24 +302,24 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
             switch (sortMode)
             {
                 case GameSortingMode.MostPopular:
-                    games = games.OrderByDescending(x => x.NumberOfViews);
+                    games.Games = games.Games.OrderByDescending(x => x.NumberOfViews);
                     break;
                 case GameSortingMode.MostCommented:
-                    foreach (var game in games)
+                    foreach (var game in games.Games)
                     {
                         game.Comments ??= [];
                     }
 
-                    games = games.OrderByDescending(x => x.Comments.Count);
+                    games.Games = games.Games.OrderByDescending(x => x.Comments.Count);
                     break;
                 case GameSortingMode.PriceASC:
-                    games = games.OrderBy(x => x.Price);
+                    games.Games = games.Games.OrderBy(x => x.Price);
                     break;
                 case GameSortingMode.PriceDESC:
-                    games = games.OrderByDescending(x => x.Price);
+                    games.Games = games.Games.OrderByDescending(x => x.Price);
                     break;
                 case GameSortingMode.New:
-                    games = games.OrderByDescending(x => x.CreationDate);
+                    games.Games = games.Games.OrderByDescending(x => x.CreationDate);
                     break;
                 default:
                     break;
@@ -311,33 +328,20 @@ public class GameService(Func<RepositoryTypes, IGameRepository> gameRepositoryFa
 
         if (numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All)
         {
-            games = games.Skip(((int)page - 1) * (int)numberOfGamesOnPage).Take((int)numberOfGamesOnPage);
-        }
-
-        var gameDtos = games.Select(x => new GameDto(x));
-
-        int numberOfPages = 1;
-        if (numberOfGamesOnPage != NumberOfGamesOnPageFilteringMode.All)
-        {
-            var sqlGamesCount = await _sqlGameRepository.GetAllGames();
-            var mongoGamesCount = await _mongoGameRepository.GetAllGames();
-            if (mongoGamesCount != null)
+            if (page > games.TotalPages)
             {
-                mongoGamesCount = mongoGamesCount.Where(x => !sqlGamesCount.Any(y => y.Key == x.Key));
-                sqlGamesCount = sqlGamesCount.Concat(mongoGamesCount).ToList();
+                page = (uint)games.TotalPages;
             }
 
-            numberOfPages = sqlGamesCount.Count() / (int)numberOfGamesOnPage;
-            if (numberOfPages % (int)numberOfGamesOnPage > 0)
-            {
-                numberOfPages += 1;
-            }
+            games.Games = games.Games.Skip(((int)page - 1) * (int)numberOfGamesOnPage).Take((int)numberOfGamesOnPage);
         }
+
+        var gameDtos = games.Games.Select(x => new GameDto(x));
 
         GameListDto returnObj = new()
         {
             Games = gameDtos.ToList(),
-            TotalPages = numberOfPages,
+            TotalPages = games.TotalPages,
             CurrentPage = (int)page,
         };
 

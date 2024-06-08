@@ -98,6 +98,9 @@ QuestPDF.Settings.License = LicenseType.Community;
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    string infoLogsPath = builder.Configuration.GetValue("FilePaths:InfoLogs", "default/path.log");
+    string errorLogsPath = builder.Configuration.GetValue("FilePaths:ErrorLogs", "default/error.log");
+    app.UseMiddleware<LoggingMiddleware>(infoLogsPath, errorLogsPath);
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -120,10 +123,6 @@ using (var scope = app.Services.CreateScope())
 
 app.UseDeveloperExceptionPage();
 
-string infoLogsPath = builder.Configuration.GetValue("FilePaths:InfoLogs", "default/path.log");
-string errorLogsPath = builder.Configuration.GetValue("FilePaths:ErrorLogs", "default/error.log");
-
-app.UseMiddleware<LoggingMiddleware>(infoLogsPath, errorLogsPath);
 app.UseMiddleware<TotalGamesMiddleware>();
 
 app.UseHttpsRedirection();

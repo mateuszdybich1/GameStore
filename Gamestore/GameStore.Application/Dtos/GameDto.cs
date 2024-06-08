@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GameStore.Domain;
 using GameStore.Domain.Entities;
+using GameStore.Domain.MongoEntities;
 
 namespace GameStore.Application.Dtos;
 
@@ -19,6 +21,18 @@ public class GameDto
         UnitInStock = game.UnitInStock;
         Discount = game.Discount;
         NumberOfViews = game.NumberOfViews;
+    }
+
+    public GameDto(MongoGame mongoGame)
+    {
+        Id = mongoGame.Id.AsGuid();
+        Name = mongoGame.ProductName;
+        Key = mongoGame.ProductKey;
+        Description = mongoGame.QuantityPerUnit;
+        Price = mongoGame.UnitPrice;
+        UnitInStock = mongoGame.UnitsInStock;
+        Discount = mongoGame.Discontinued;
+        NumberOfViews = (ulong)mongoGame.NumberOfViews;
     }
 
     public Guid? Id { get; set; }

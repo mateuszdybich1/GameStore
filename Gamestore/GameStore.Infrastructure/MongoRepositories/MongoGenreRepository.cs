@@ -24,12 +24,12 @@ public class MongoGenreRepository : IGenreRepository
 
     public async Task Delete(Genre entity)
     {
-        try
+        if (_genreCollection != null && _genreCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var filter = Builders<MongoGenre>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
             await _genreCollection.DeleteOneAsync(filter);
         }
-        catch
+        else
         {
             return;
         }
@@ -37,12 +37,12 @@ public class MongoGenreRepository : IGenreRepository
 
     public async Task<Genre> Get(Guid id)
     {
-        try
+        if (_genreCollection != null && _genreCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             MongoGenre mongoGenre = await _genreCollection.Find(x => x.Id == IDConverter.AsObjectId(id)).SingleOrDefaultAsync();
             return mongoGenre != null ? new(mongoGenre) : null;
         }
-        catch
+        else
         {
             return null;
         }
@@ -50,13 +50,13 @@ public class MongoGenreRepository : IGenreRepository
 
     public async Task<IEnumerable<Genre>> GetAllGenre()
     {
-        try
+        if (_genreCollection != null && _genreCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var categories = await _genreCollection.Find(_ => true).ToListAsync();
 
             return categories.Select(x => new Genre(x));
         }
-        catch
+        else
         {
             return [];
         }
@@ -64,7 +64,7 @@ public class MongoGenreRepository : IGenreRepository
 
     public async Task Update(Genre entity)
     {
-        try
+        if (_genreCollection != null && _genreCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
         {
             var filter = Builders<MongoGenre>.Filter.Eq("_id", IDConverter.AsObjectId(entity.Id));
 
@@ -75,7 +75,7 @@ public class MongoGenreRepository : IGenreRepository
 
             await _genreCollection.UpdateOneAsync(filter, update);
         }
-        catch
+        else
         {
             return;
         }

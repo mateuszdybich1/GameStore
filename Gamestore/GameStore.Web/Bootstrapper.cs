@@ -24,7 +24,13 @@ internal static class Bootstrapper
         services.AddSingleton<IMongoClient, MongoClient>(serivceProvider =>
         {
             var settings = serivceProvider.GetRequiredService<IOptions<MongoDbSettings>>()?.Value;
-            return settings != null ? new MongoClient(settings.ConnectionString) : new MongoClient();
+            var mongoClientSettings = settings != null
+            ? MongoClientSettings.FromConnectionString(settings.ConnectionString)
+            : new MongoClientSettings();
+
+            mongoClientSettings.ConnectTimeout = TimeSpan.FromSeconds(1);
+            mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1);
+            return settings != null ? new MongoClient(mongoClientSettings) : new MongoClient();
         });
 
         services.AddScoped<IChangeLogService, ChangeLogService>();

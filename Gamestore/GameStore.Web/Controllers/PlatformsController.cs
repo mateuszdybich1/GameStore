@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameStore.Web.Controllers;
+
 [Route("api/platforms")]
 [ApiController]
 public class PlatformsController(IPlatformService platformService, IGameService gameService, IUserCheckService userCheckService) : ControllerBase
