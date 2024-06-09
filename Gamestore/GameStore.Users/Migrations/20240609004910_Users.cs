@@ -29,10 +29,8 @@ public partial class Users : Migration
             columns: table => new
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 IsBanned = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                 BanTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                 BanDuration = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: string.Empty),
@@ -162,30 +160,6 @@ public partial class Users : Migration
                     onDelete: ReferentialAction.Cascade);
             });
 
-        migrationBuilder.CreateTable(
-            name: "PersonModelRoleModel",
-            columns: table => new
-            {
-                RolesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                UsersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_PersonModelRoleModel", x => new { x.RolesId, x.UsersId });
-                table.ForeignKey(
-                    name: "FK_PersonModelRoleModel_AspNetRoles_RolesId",
-                    column: x => x.RolesId,
-                    principalTable: "AspNetRoles",
-                    principalColumn: "Id",
-                    onDelete: ReferentialAction.Cascade);
-                table.ForeignKey(
-                    name: "FK_PersonModelRoleModel_AspNetUsers_UsersId",
-                    column: x => x.UsersId,
-                    principalTable: "AspNetUsers",
-                    principalColumn: "Id",
-                    onDelete: ReferentialAction.Cascade);
-            });
-
         migrationBuilder.CreateIndex(
             name: "IX_AspNetRoleClaims_RoleId",
             table: "AspNetRoleClaims",
@@ -196,6 +170,13 @@ public partial class Users : Migration
             table: "AspNetRoles",
             column: "Id",
             unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_AspNetRoles_Name",
+            table: "AspNetRoles",
+            column: "Name",
+            unique: true,
+            filter: "[Name] IS NOT NULL");
 
         migrationBuilder.CreateIndex(
             name: "RoleNameIndex",
@@ -231,16 +212,18 @@ public partial class Users : Migration
             unique: true);
 
         migrationBuilder.CreateIndex(
+            name: "IX_AspNetUsers_UserName",
+            table: "AspNetUsers",
+            column: "UserName",
+            unique: true,
+            filter: "[UserName] IS NOT NULL");
+
+        migrationBuilder.CreateIndex(
             name: "UserNameIndex",
             table: "AspNetUsers",
             column: "NormalizedUserName",
             unique: true,
             filter: "[NormalizedUserName] IS NOT NULL");
-
-        migrationBuilder.CreateIndex(
-            name: "IX_PersonModelRoleModel_UsersId",
-            table: "PersonModelRoleModel",
-            column: "UsersId");
     }
 
     /// <inheritdoc />
@@ -260,9 +243,6 @@ public partial class Users : Migration
 
         migrationBuilder.DropTable(
             name: "AspNetUserTokens");
-
-        migrationBuilder.DropTable(
-            name: "PersonModelRoleModel");
 
         migrationBuilder.DropTable(
             name: "AspNetRoles");

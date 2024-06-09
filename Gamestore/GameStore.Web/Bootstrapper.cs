@@ -6,12 +6,14 @@ using GameStore.Domain;
 using GameStore.Domain.IRepositories;
 using GameStore.Domain.ISearchCriterias;
 using GameStore.Domain.IUserRepositories;
+using GameStore.Domain.UserEntities;
 using GameStore.Infrastructure;
 using GameStore.Infrastructure.MongoRepositories;
 using GameStore.Infrastructure.Repositories;
 using GameStore.Infrastructure.SearchCriteria;
 using GameStore.Users;
 using GameStore.Users.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -21,6 +23,9 @@ internal static class Bootstrapper
 {
     internal static void RegisterServices(this IServiceCollection services)
     {
+        services.AddScoped<UserManager<PersonModel>>();
+        services.AddScoped<RoleManager<RoleModel>>();
+
         services.AddSingleton<IMongoClient, MongoClient>(serivceProvider =>
         {
             var settings = serivceProvider.GetRequiredService<IOptions<MongoDbSettings>>()?.Value;
@@ -149,7 +154,7 @@ internal static class Bootstrapper
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IUserContext, HttpUserContext>();
-        services.AddScoped<IAuthRepository, AuthRepository>();
+        services.AddScoped<IAuthService, AuthService>();
 
         services.AddScoped<IFakeDataGenerator, FakeDataGenerator>();
 

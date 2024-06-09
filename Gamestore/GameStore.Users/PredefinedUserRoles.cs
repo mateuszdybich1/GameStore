@@ -1,16 +1,22 @@
 ﻿using System.Security.Claims;
 using GameStore.Domain.UserEntities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Users;
 
-public class PredefinedUserRoles(IdentityDbContext identityDbContext)
+public class PredefinedUserRoles(RoleManager<RoleModel> roleManager)
 {
-    private readonly IdentityDbContext _identityDbContext = identityDbContext;
+    private readonly RoleManager<RoleModel> _roleManager = roleManager;
 
-    public void AddDefaultUserRoles()
+    public async Task AddDefaultUserRoles()
     {
-        var existingRoleNames = _identityDbContext.Roles.Select(x => x.Name!).ToList();
+        var existingRoleNames = await _roleManager.Roles.Select(x => x.Name).ToListAsync();
+
+        if (existingRoleNames == null)
+        {
+            return;
+        }
 
         var missing = Enum.GetValues(typeof(DefaultRoles))
                  .Cast<DefaultRoles>()
@@ -19,22 +25,16 @@ public class PredefinedUserRoles(IdentityDbContext identityDbContext)
 
         foreach (var role in missing)
         {
+            var roleTasks = new List<Task>();
             var newRole = new RoleModel(role.ToString());
-            _identityDbContext.Roles.Add(newRole);
+            await _roleManager.CreateAsync(newRole);
 
             var permissions = GetDefaultPermissions(role);
             foreach (var permission in permissions)
             {
-                _identityDbContext.RoleClaims.Add(new IdentityRoleClaim<Guid>
-                {
-                    RoleId = newRole.Id,
-                    ClaimType = permission.Type,
-                    ClaimValue = permission.Value,
-                });
+                await _roleManager.AddClaimAsync(newRole, new Claim(permission.Type, permission.Value));
             }
         }
-
-        _identityDbContext.SaveChanges();
     }
 
     private static List<Claim> GetDefaultPermissions(DefaultRoles defaultRole)

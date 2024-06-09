@@ -2,7 +2,9 @@
 
 namespace GameStore.Domain;
 
-public interface IAuthRepository
+public interface IAuthService
 {
+    Task<string> LoginUser(string username, string password);
+
     Task<TokenData> GetJwtToken(PersonModel userModel);
 }

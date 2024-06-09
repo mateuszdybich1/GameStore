@@ -16,7 +16,7 @@ public class UserModelDto
     public UserModelDto(PersonModel personModel)
     {
         ID = personModel.Id;
-        Name = personModel.Name;
+        Name = personModel.UserName.ToString();
     }
 
     public UserModelDto(UserModelMicroserviceDto userModelMicroserviceDto)

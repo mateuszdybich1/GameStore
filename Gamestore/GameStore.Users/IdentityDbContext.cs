@@ -6,10 +6,6 @@ namespace GameStore.Users;
 
 public class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : IdentityDbContext<PersonModel, RoleModel, Guid>(options)
 {
-    public override DbSet<PersonModel> Users { get; set; }
-
-    public override DbSet<RoleModel> Roles { get; set; }
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -23,9 +19,7 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : Id
         builder.Entity<PersonModel>().Property(p => p.NormalizedEmail).IsRequired(false);
         builder.Entity<PersonModel>().Property(p => p.IsBanned).HasDefaultValue(false);
         builder.Entity<PersonModel>().Property(p => p.BanDuration).HasDefaultValue(string.Empty);
-        builder.Entity<PersonModel>().HasIndex(p => p.Name).IsUnique();
-
-        builder.Entity<PersonModel>().HasMany(x => x.Roles).WithMany(x => x.Users);
+        builder.Entity<PersonModel>().HasIndex(p => p.UserName).IsUnique();
 
         builder.Entity<RoleModel>().HasKey(p => p.Id);
         builder.Entity<RoleModel>().HasIndex(p => p.Id).IsUnique();

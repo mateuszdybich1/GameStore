@@ -31,10 +31,9 @@ services.AddDbContext<IdentityDbContext>(options =>
 
 services.AddIdentity<PersonModel, RoleModel>(options =>
 {
-    options.User.RequireUniqueEmail = true;
+    options.User.RequireUniqueEmail = false;
 })
-.AddEntityFrameworkStores<IdentityDbContext>()
-.AddDefaultTokenProviders();
+.AddEntityFrameworkStores<IdentityDbContext>();
 
 services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 
@@ -117,8 +116,9 @@ using (var scope = app.Services.CreateScope())
     var identityDbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     identityDbContext.Database.Migrate();
 
-    PredefinedUserRoles predefinedUserRoles = new(identityDbContext);
-    predefinedUserRoles.AddDefaultUserRoles();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<RoleModel>>();
+    PredefinedUserRoles predefinedUserRoles = new(roleManager);
+    await predefinedUserRoles.AddDefaultUserRoles();
 }
 
 app.UseDeveloperExceptionPage();

@@ -5,9 +5,15 @@ namespace GameStore.Domain.IUserRepositories;
 
 public interface IRoleRepository : IRepository<RoleModel>
 {
-    public Task<IEnumerable<RoleModel>> GetAllRoles();
+    Task<IEnumerable<RoleModel>> GetAllRoles();
 
-    public Task<IEnumerable<RoleModel>> GetUserRoles(Guid userId);
+    Task<IEnumerable<RoleModel>> GetUserRoles(Guid userId);
 
-    public Task<RoleModel> GetDefaultRole(DefaultRoles defaultRole);
+    Task<RoleModel> GetDefaultRole(DefaultRoles defaultRole);
+
+    Task<RoleModel?> GetRole(string roleName);
+
+    Task AddUserRoles(PersonModel user, List<RoleModel> roles);
+
+    Task UpdateUserRoles(PersonModel user, List<RoleModel> roles);
 }

@@ -7,11 +7,11 @@ using GameStore.Domain.UserEntities;
 
 namespace GameStore.Application.UserServices;
 
-public class UserService(IRoleRepository roleRepository, IUserRepository userRepository, IAuthRepository authRepository) : IUserService
+public class UserService(IRoleRepository roleRepository, IUserRepository userRepository, IAuthService authService) : IUserService
 {
     private readonly IRoleRepository _roleRepository = roleRepository;
     private readonly IUserRepository _userRepository = userRepository;
-    private readonly IAuthRepository _authRepository = authRepository;
+    private readonly IAuthService _authService = authService;
 
     public async Task<UserModelDto> GetUser(Guid userId)
     {
@@ -20,44 +20,48 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
 
     public async Task<IEnumerable<RoleModelDto>> GetUserRoles(Guid userId)
     {
-        var userModel = await _userRepository.GetUserWithRoles(userId) ?? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}");
+        var userModel = await _roleRepository.GetUserRoles(userId) ?? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}");
 
-        return userModel.Roles.Select(x => new RoleModelDto(x)).ToList();
+        return userModel.Select(x => new RoleModelDto(x)).ToList();
     }
 
     public async Task<string> LoginUser(string username, string password)
     {
-        var userModel = await _userRepository.GetUserWithRoles(username, password) ?? throw new EntityNotFoundException("Incorrect username or password");
-
-        return (await _authRepository.GetJwtToken(userModel)).AccessToken;
+        return await _authService.LoginUser(username, password);
     }
 
     public async Task<string> RegisterUser(UserRegisterDto userRegisterDto)
     {
+        if (userRegisterDto == null || (userRegisterDto != null && (await _userRepository.GetUser(userRegisterDto.User.Name)) != null))
+        {
+            throw new ExistingFieldException("User exists");
+        }
+
         var roles = new List<RoleModel>();
         foreach (var role in userRegisterDto.Roles)
         {
             roles.Add(await _roleRepository.Get(role) ?? throw new EntityNotFoundException($"Couldn't find role by ID: {role}"));
         }
 
-        PersonModel userModel = new(userRegisterDto.User.Name, userRegisterDto.Password, roles);
+        PersonModel userModel = new(userRegisterDto.User.Name, userRegisterDto.Password);
 
         try
         {
             await _userRepository.Add(userModel);
+
+            await _roleRepository.AddUserRoles(userModel, roles);
         }
         catch (Exception ex)
         {
             throw new EntityNotFoundException(ex.Message);
         }
 
-        return (await _authRepository.GetJwtToken(userModel)).AccessToken;
+        return (await _authService.GetJwtToken(userModel)).AccessToken;
     }
 
     public async Task<Guid> RemoveUser(Guid userId)
     {
-        var userModel = await Get(userId);
-
+        var userModel = await Get(userId) ?? throw new EntityNotFoundException("User not found");
         await _userRepository.Delete(userModel);
 
         return userModel.Id;
@@ -65,23 +69,14 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
 
     public async Task<Guid> UpdateUser(UserRegisterDto userRegisterDto)
     {
-        var userModel = await Get(userRegisterDto.User.ID);
-
-        userModel.Name = userRegisterDto.User.Name;
-        userModel.Password = userRegisterDto.Password;
-
-        var rolesList = new List<RoleModel>();
-
-        foreach (var roleId in userRegisterDto.Roles)
+        if (userRegisterDto.User.ID == null)
         {
-            rolesList.Add(await _roleRepository.Get(roleId) ?? throw new EntityNotFoundException($"Couldn't find role by ID: {roleId}"));
+            throw new Exception("User ID is null");
         }
 
-        userModel.Roles = rolesList;
-
-        await _userRepository.Update(userModel);
-
-        return userModel.Id;
+        await RemoveUser((Guid)userRegisterDto.User.ID);
+        await RegisterUser(userRegisterDto);
+        return (Guid)userRegisterDto.User.ID!;
     }
 
     public async Task<bool> UserExists(string username)

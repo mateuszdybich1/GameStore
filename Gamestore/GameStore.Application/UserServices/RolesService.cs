@@ -14,31 +14,26 @@ public class RolesService(IRoleRepository roleRepository, IPermissionsRepository
 
     public async Task<Guid> AddRole(RoleModelDtoDto roleModelDto)
     {
+        if (await _roleRepository.GetRole(roleModelDto.Role.Name) != null)
+        {
+            throw new Exception("Role Exists");
+        }
+
         RoleModel roleModel = new(roleModelDto.Role.Name);
-        var roleTasks = new List<Task>() { _roleRepository.Add(roleModel) };
+        await _roleRepository.Add(roleModel);
 
         foreach (var permission in roleModelDto.Permissions)
         {
-            roleTasks.Add(_permissionsRepository.AddPermission(CreateIdentityRoleClaim(roleModel.Id, permission)));
+            await _permissionsRepository.AddPermission(CreateIdentityRoleClaim(roleModel.Id, permission));
         }
-
-        await Task.WhenAll(roleTasks);
 
         return roleModel.Id;
     }
 
     public async Task<Guid> DeleteRole(Guid id)
     {
-        var role = await _roleRepository.Get(id);
-        var rolePermissions = await _permissionsRepository.GetRolesPermissions(role.Id);
-
-        var roleTasks = new List<Task>() { _roleRepository.Delete(role) };
-        foreach (var permission in rolePermissions)
-        {
-            roleTasks.Add(_permissionsRepository.RemovePermission(permission));
-        }
-
-        await Task.WhenAll(roleTasks);
+        var role = await _roleRepository.Get(id) ?? throw new EntityNotFoundException("Role not found");
+        await _roleRepository.Delete(role);
 
         return role.Id;
     }
@@ -63,26 +58,9 @@ public class RolesService(IRoleRepository roleRepository, IPermissionsRepository
             throw new ArgumentNullException("RoleID mustn't be null");
         }
 
-        var existingRole = await Get((Guid)roleModelDto.Role.ID);
-
-        existingRole.Name = roleModelDto.Role.Name;
-
-        var existingPerimssions = await _permissionsRepository.GetRolesPermissions(existingRole.Id);
-        var updateRoleTasks = new List<Task>() { _roleRepository.Update(existingRole) };
-
-        foreach (var existingPermission in existingPerimssions)
-        {
-            updateRoleTasks.Add(_permissionsRepository.RemovePermission(existingPermission));
-        }
-
-        foreach (var permission in roleModelDto.Permissions)
-        {
-            var permissionModel = CreateIdentityRoleClaim(existingRole.Id, permission);
-
-            updateRoleTasks.Add(_permissionsRepository.AddPermission(permissionModel));
-        }
-
-        await Task.WhenAll(updateRoleTasks);
+        var existingRole = await Get((Guid)roleModelDto.Role.ID) ?? throw new EntityNotFoundException("Role not found");
+        await DeleteRole((Guid)roleModelDto.Role.ID);
+        await AddRole(roleModelDto);
 
         return existingRole.Id;
     }

@@ -1,35 +1,22 @@
-﻿namespace GameStore.Domain.UserEntities;
-public class PersonModel : Microsoft.AspNetCore.Identity.IdentityUser<Guid>
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace GameStore.Domain.UserEntities;
+public class PersonModel : IdentityUser<Guid>
 {
     public PersonModel()
     {
     }
 
-    public PersonModel(string name, string password, List<RoleModel> roles)
-    {
-        Id = Guid.NewGuid();
-        Name = name;
-        Password = password;
-        Roles = roles;
-    }
-
     public PersonModel(string name, string password)
     {
         Id = Guid.NewGuid();
-        Name = name;
-        Password = password;
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-        Roles = [new RoleModel(DefaultRoles.User.ToString())];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
+        UserName = name;
+        SetPassword(password);
     }
-
-    public string Name { get; set; }
 
     public string FirstName { get; set; }
 
     public string LastName { get; set; }
-
-    public string Password { get; set; }
 
     public bool IsBanned { get; set; }
 
@@ -37,5 +24,9 @@ public class PersonModel : Microsoft.AspNetCore.Identity.IdentityUser<Guid>
 
     public string BanDuration { get; set; }
 
-    public List<RoleModel> Roles { get; set; }
+    public void SetPassword(string password)
+    {
+        var passwordHasher = new PasswordHasher<PersonModel>();
+        PasswordHash = passwordHasher.HashPassword(this, password);
+    }
 }
