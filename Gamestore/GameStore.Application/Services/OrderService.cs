@@ -8,9 +8,10 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<RepositoryTypes, IOrderRepository> orderRepositoryFactory, Func<RepositoryTypes, IOrderGameRepository> orderGameRepositoryFactory, IGameRepository gameRepository, IChangeLogService changeLogService) : IOrderService
+public class OrderService(Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteriaFactory, Func<RepositoryTypes, IOrderRepository> orderRepositoryFactory, Func<RepositoryTypes, IOrderGameRepository> orderGameRepositoryFactory, IGameRepository gameRepository, IChangeLogService changeLogService) : IOrderService
 {
-    private readonly IGamesSearchCriteria _gameSearchCriteria = gameSearchCriteria;
+    private readonly IGamesSearchCriteria _sqlGameSearchCriteria = gameSearchCriteriaFactory(RepositoryTypes.Sql);
+    private readonly IGamesSearchCriteria _mongoGameSearchCriteria = gameSearchCriteriaFactory(RepositoryTypes.Mongo);
     private readonly IOrderRepository _sqlOrderRepository = orderRepositoryFactory(RepositoryTypes.Sql);
     private readonly IOrderRepository _mongoOrderRepository = orderRepositoryFactory(RepositoryTypes.Mongo);
     private readonly IOrderGameRepository _sqlOrderGameRepository = orderGameRepositoryFactory(RepositoryTypes.Sql);
@@ -20,7 +21,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
 
     public async Task<Guid> AddOrder(Guid customerId, string gameKey)
     {
-        Game game = await _gameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        Game game = await _sqlGameSearchCriteria.GetByKey(gameKey) ?? await _mongoGameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
 
         int gamesInStock = game.UnitInStock < 1 ? throw new InvalidOperationException("Game has no stock") : game.UnitInStock;
 
@@ -131,7 +132,7 @@ public class OrderService(IGamesSearchCriteria gameSearchCriteria, Func<Reposito
 
     public async Task<Guid> RemoveOrder(Guid customerId, string gameKey)
     {
-        Game game = await _gameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+        Game game = await _sqlGameSearchCriteria.GetByKey(gameKey) ?? await _mongoGameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
 
         Order order = await GetOpenOrder(customerId);
 

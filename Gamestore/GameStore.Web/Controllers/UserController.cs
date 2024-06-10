@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using GameStore.Application.Dtos;
 using GameStore.Application.IUserServices;
 using GameStore.Domain.Exceptions;
@@ -109,7 +110,16 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     {
         if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Users }))
         {
-            IEnumerable<UserModelMicroserviceDto> response = await _httpClient.GetFromJsonAsync<IEnumerable<UserModelMicroserviceDto>>($"{_httpClient.BaseAddress}/users");
+            IEnumerable<UserModelMicroserviceDto> response = null;
+            try
+            {
+                response = await _httpClient.GetFromJsonAsync<IEnumerable<UserModelMicroserviceDto>>($"{_httpClient.BaseAddress}/users");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+
             try
             {
                 var users = await _userService.GetAllUsers();
