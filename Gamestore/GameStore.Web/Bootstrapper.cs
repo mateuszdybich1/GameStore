@@ -150,8 +150,6 @@ internal static class Bootstrapper
             };
         });
         services.AddScoped<IPermissionsRepository, PermissionsRepository>();
-        services.AddScoped<IRoleRepository, RolesRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IUserContext, HttpUserContext>();
         services.AddScoped<IAuthService, AuthService>();

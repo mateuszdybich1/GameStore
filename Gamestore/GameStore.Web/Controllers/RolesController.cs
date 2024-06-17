@@ -96,10 +96,10 @@ public class RolesController(IRolesService rolesService, IUserCheckService userC
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetRoles()
+    public IActionResult GetRoles()
     {
         return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Roles })
-            ? Ok(await _rolesService.GetAllRoles())
+            ? Ok(_rolesService.GetAllRoles())
             : Unauthorized();
     }
 

@@ -12,7 +12,7 @@ public interface IUserService
 
     Task<UserModelDto> GetUser(Guid userId);
 
-    Task<IEnumerable<UserModelDto>> GetAllUsers();
+    IEnumerable<UserModelDto> GetAllUsers();
 
     Task<Guid> RemoveUser(Guid userId);
 

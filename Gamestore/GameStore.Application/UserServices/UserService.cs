@@ -2,16 +2,16 @@
 using GameStore.Application.IUserServices;
 using GameStore.Domain;
 using GameStore.Domain.Exceptions;
-using GameStore.Domain.IUserRepositories;
 using GameStore.Domain.UserEntities;
+using Microsoft.AspNetCore.Identity;
 
 namespace GameStore.Application.UserServices;
 
-public class UserService(IRoleRepository roleRepository, IUserRepository userRepository, IAuthService authService) : IUserService
+public class UserService(RoleManager<RoleModel> roleManager, UserManager<PersonModel> userManager, IAuthService authService) : IUserService
 {
-    private readonly IRoleRepository _roleRepository = roleRepository;
-    private readonly IUserRepository _userRepository = userRepository;
     private readonly IAuthService _authService = authService;
+    private readonly RoleManager<RoleModel> _roleManager = roleManager;
+    private readonly UserManager<PersonModel> _userManager = userManager;
 
     public async Task<UserModelDto> GetUser(Guid userId)
     {
@@ -20,9 +20,27 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
 
     public async Task<IEnumerable<RoleModelDto>> GetUserRoles(Guid userId)
     {
-        var userModel = await _roleRepository.GetUserRoles(userId) ?? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}");
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user != null)
+        {
+            var roleNames = await _userManager.GetRolesAsync(user);
+            var roles = new List<RoleModel>();
 
-        return userModel.Select(x => new RoleModelDto(x)).ToList();
+            foreach (var roleName in roleNames)
+            {
+                var role = await _roleManager.FindByNameAsync(roleName);
+                if (role != null)
+                {
+                    roles.Add(role);
+                }
+            }
+
+            return roles.Select(x => new RoleModelDto(x)).ToList();
+        }
+        else
+        {
+            return Enumerable.Empty<RoleModelDto>();
+        }
     }
 
     public async Task<string> LoginUser(string username, string password)
@@ -32,7 +50,7 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
 
     public async Task<string> RegisterUser(UserRegisterDto userRegisterDto)
     {
-        if (userRegisterDto == null || (userRegisterDto != null && (await _userRepository.GetUser(userRegisterDto.User.Name)) != null))
+        if (userRegisterDto == null || (userRegisterDto != null && (await _userManager.FindByNameAsync(userRegisterDto.User.Name)) != null))
         {
             throw new ExistingFieldException("User exists");
         }
@@ -40,16 +58,16 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
         var roles = new List<RoleModel>();
         foreach (var role in userRegisterDto.Roles)
         {
-            roles.Add(await _roleRepository.Get(role) ?? throw new EntityNotFoundException($"Couldn't find role by ID: {role}"));
+            roles.Add(await _roleManager.FindByIdAsync(role.ToString()) ?? throw new EntityNotFoundException($"Couldn't find role by ID: {role}"));
         }
 
         PersonModel userModel = new(userRegisterDto.User.Name, userRegisterDto.Password);
 
         try
         {
-            await _userRepository.Add(userModel);
+            await _userManager.CreateAsync(userModel);
 
-            await _roleRepository.AddUserRoles(userModel, roles);
+            await _userManager.AddToRolesAsync(userModel, roles.Select(x => x.Name.ToString()));
         }
         catch (Exception ex)
         {
@@ -62,7 +80,7 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
     public async Task<Guid> RemoveUser(Guid userId)
     {
         var userModel = await Get(userId) ?? throw new EntityNotFoundException("User not found");
-        await _userRepository.Delete(userModel);
+        await _userManager.DeleteAsync(userModel);
 
         return userModel.Id;
     }
@@ -81,22 +99,22 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
 
     public async Task<bool> UserExists(string username)
     {
-        return await _userRepository.UserExists(username);
+        return await _userManager.FindByNameAsync(username) != null;
     }
 
-    public async Task<IEnumerable<UserModelDto>> GetAllUsers()
+    public IEnumerable<UserModelDto> GetAllUsers()
     {
-        return (await _userRepository.GetAllUsers()).Select(x => new UserModelDto(x)).ToList();
+        return _userManager.Users.ToList().Select(x => new UserModelDto(x)).ToList();
     }
 
     public async Task<Guid> BanUser(UserBanDto userBanDto)
     {
-        var user = await _userRepository.GetUser(userBanDto.User) ?? throw new EntityNotFoundException($"Couldn't find user: {userBanDto.User}");
+        var user = await _userManager.FindByNameAsync(userBanDto.User) ?? throw new EntityNotFoundException($"Couldn't find user: {userBanDto.User}");
 
         user.IsBanned = true;
         user.BanTime = DateTime.UtcNow;
         user.BanDuration = userBanDto.Duration;
-        await _userRepository.Update(user);
+        await _userManager.UpdateAsync(user);
 
         return user.Id;
     }
@@ -109,7 +127,7 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
         user.BanTime = null;
         user.BanDuration = string.Empty;
 
-        await _userRepository.Update(user);
+        await _userManager.UpdateAsync(user);
 
         return user.Id;
     }
@@ -118,6 +136,6 @@ public class UserService(IRoleRepository roleRepository, IUserRepository userRep
     {
         return userId == Guid.Empty
             ? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}")
-            : await _userRepository.Get((Guid)userId!) ?? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}");
+            : await _userManager.FindByIdAsync(((Guid)userId!).ToString()) ?? throw new EntityNotFoundException($"Couldn't find user by ID: {userId}");
     }
 }

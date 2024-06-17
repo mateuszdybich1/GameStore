@@ -5,7 +5,7 @@ namespace GameStore.Application.IUserServices;
 
 public interface IRolesService
 {
-    Task<IEnumerable<RoleModelDto>> GetAllRoles();
+    IEnumerable<RoleModelDto> GetAllRoles();
 
     Task<RoleModelDto> GetRole(Guid id);
 

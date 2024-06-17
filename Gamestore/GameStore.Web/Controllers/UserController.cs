@@ -122,7 +122,7 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
 
             try
             {
-                var users = await _userService.GetAllUsers();
+                var users = _userService.GetAllUsers();
 
                 if (response != null)
                 {
