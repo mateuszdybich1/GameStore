@@ -39,6 +39,7 @@ public enum Permissions
     Order,
     Orders,
     UpdateOrder,
+    ShipOrder,
 
     AddComment,
     QuoteComment,

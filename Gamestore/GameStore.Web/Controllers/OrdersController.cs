@@ -227,4 +227,36 @@ public class OrdersController(IOrderService orderService, IHttpClientFactory htt
             return Unauthorized();
         }
     }
+
+    [HttpPost("{orderId}/ship")]
+    public async Task<IActionResult> ShipOrder([FromRoute] Guid orderId)
+    {
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateOrder })
+            ? Ok(await _orderService.ShipOrder(orderId))
+            : Unauthorized();
+    }
+
+    [HttpPatch("details/{id}/quantity")]
+    public async Task<IActionResult> UpdateOrderDetailsQuantity([FromRoute] Guid id, [FromBody] OrderDetailsQuantityDto detailsQuantityDto)
+    {
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateOrder })
+            ? Ok(await _orderService.UpdateOrderDetailQuantity(id, detailsQuantityDto.Count))
+            : Unauthorized();
+    }
+
+    [HttpDelete("details/{id}")]
+    public async Task<IActionResult> DeleteOrderDetails([FromRoute] Guid id)
+    {
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateOrder })
+            ? Ok(await _orderService.DeleteOrderDetails(id))
+            : Unauthorized();
+    }
+
+    [HttpPost("{id}/details/{key}")]
+    public async Task<IActionResult> AddGameToOrderDetails([FromRoute] Guid id, [FromRoute] string key)
+    {
+        return _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateOrder })
+            ? Ok(await _orderService.AddGameToOrderDetails(id, key))
+            : Unauthorized();
+    }
 }

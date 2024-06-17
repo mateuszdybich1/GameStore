@@ -182,11 +182,17 @@ public class GamesController(IGameService gamesService,
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllGames([FromQuery] List<Guid> genres = null, [FromQuery] List<Guid> platforms = null, [FromQuery] List<Guid> publishers = null, [FromQuery] string name = null, [FromQuery] string datePublishing = null, [FromQuery] string sort = null, [FromQuery] uint page = 1, [FromQuery] string pageCount = "All", [FromQuery] int? minPrice = 0, [FromQuery] int? maxPrice = int.MaxValue)
+    public async Task<IActionResult> GetGames([FromQuery] List<Guid> genres = null, [FromQuery] List<Guid> platforms = null, [FromQuery] List<Guid> publishers = null, [FromQuery] string name = null, [FromQuery] string datePublishing = null, [FromQuery] string sort = null, [FromQuery] uint page = 1, [FromQuery] string pageCount = "100", [FromQuery] int? minPrice = 0, [FromQuery] int? maxPrice = int.MaxValue)
     {
         return genres == null && platforms == null && publishers == null && name == null && datePublishing == null && sort == null && page == 1 && pageCount == "All" && minPrice == 0 && maxPrice == int.MaxValue
             ? Ok(await _gamesService.GetGames())
             : Ok(await _gamesService.GetGames(genres, platforms, publishers, name, datePublishing, sort, page, pageCount, (int)minPrice!, (int)maxPrice!));
+    }
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllGames()
+    {
+        return Ok(await _gamesService.GetGames());
     }
 
     [HttpGet("{key}/image")]

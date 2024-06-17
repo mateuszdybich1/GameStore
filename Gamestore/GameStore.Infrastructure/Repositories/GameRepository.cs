@@ -105,7 +105,7 @@ public class GameRepository(AppDbContext appDbContext) : Repository<Game>(appDbC
             }
         }
 
-        var downloadedGames = await games.Include(x => x.Comments).ToListAsync();
+        var downloadedGames = sortMode == GameSortingMode.MostCommented ? await games.Include(x => x.Comments).ToListAsync() : await games.ToListAsync();
 
         watch.Stop();
 

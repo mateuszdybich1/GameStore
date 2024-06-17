@@ -6,6 +6,7 @@ public enum OrderStatus
     Open,
     Checkout,
     Paid,
+    Shipped,
 }
 
 public class Order : Entity

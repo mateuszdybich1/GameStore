@@ -31,14 +31,54 @@ public class MongoOrderGameRepository : IOrderGameRepository
         throw new NotImplementedException();
     }
 
-    public Task<OrderGame> Get(Guid id)
+    public async Task<OrderGame> Get(Guid id)
     {
-        throw new NotImplementedException();
+        if (_orderGamesCollection != null && _orderGamesCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
+        {
+            var orderGame = await _orderGamesCollection.Find(x => x.Id == id.AsObjectId()).FirstOrDefaultAsync();
+
+            if (orderGame != null)
+            {
+                var order = await _ordersCollection.Find(x => x.OrderID == orderGame.OrderID).FirstOrDefaultAsync();
+                var game = await _gamesCollection.Find(x => x.ProductID == orderGame.ProductID).FirstOrDefaultAsync();
+                return order != null && game != null
+                    ? new OrderGame(id, order.Id.AsGuid(), game.Id.AsGuid(), orderGame.UnitPrice, orderGame.Quantity, orderGame.Discount)
+                    : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    public Task<OrderGame> GetOrderGame(Guid orderId, Guid gameId)
+    public async Task<OrderGame> GetOrderGame(Guid orderId, Guid gameId)
     {
-        throw new NotImplementedException();
+        if (_orderGamesCollection != null && _orderGamesCollection.Database.Client.Cluster.Description.State == MongoDB.Driver.Core.Clusters.ClusterState.Connected)
+        {
+            var order = await _ordersCollection.Find(x => x.Id == orderId.AsObjectId()).FirstOrDefaultAsync();
+            var game = await _gamesCollection.Find(x => x.Id == gameId.AsObjectId()).FirstOrDefaultAsync();
+
+            if (order != null && game != null)
+            {
+                var orderGame = await _orderGamesCollection.Find(x => x.OrderID == order.OrderID && x.ProductID == game.ProductID).FirstOrDefaultAsync();
+                return game != null
+                    ? new OrderGame(orderGame.Id.AsGuid(), orderId, gameId, orderGame.UnitPrice, orderGame.Quantity, orderGame.Discount)
+                    : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public async Task<IEnumerable<OrderGame>> GetOrderGames(Guid orderId)

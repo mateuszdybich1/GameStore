@@ -22,4 +22,12 @@ public interface IOrderService
     Task<OrderInformation> GetOrderInformation(Guid customerId);
 
     Task<IEnumerable<OrderDto>> GetOrderHistory(DateTime? startDate, DateTime? dateTo);
+
+    Task<Guid> UpdateOrderDetailQuantity(Guid orderDetailID, int quantity);
+
+    Task<Guid> ShipOrder(Guid orderId);
+
+    Task<Guid> AddGameToOrderDetails(Guid orderId, string gameKey);
+
+    Task<Guid> DeleteOrderDetails(Guid orderDetailsID);
 }

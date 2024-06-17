@@ -36,7 +36,7 @@ public class MongoOrderRepository : IOrderRepository
         {
             var mongoOrder = await _orderCollection.Find(x => x.Id == id.AsObjectId()).FirstOrDefaultAsync();
             var orderCustomer = await _customerCollection.Find(x => x.CustomerID == mongoOrder.CustomerID).FirstOrDefaultAsync();
-            return mongoOrder != null ? new Order(mongoOrder.Id.AsGuid(), orderCustomer.Id.AsGuid(), OrderStatus.Paid) : null;
+            return mongoOrder != null ? new Order(mongoOrder.Id.AsGuid(), orderCustomer.Id.AsGuid(), OrderStatus.Shipped) : null;
         }
         else
         {
@@ -69,7 +69,7 @@ public class MongoOrderRepository : IOrderRepository
 
                 if (customer != null)
                 {
-                    orders.Add(new Order(mongoOrder.Id.AsGuid(), customer.Id.AsGuid(), DateTime.Parse(mongoOrder.OrderDate), OrderStatus.Paid));
+                    orders.Add(new Order(mongoOrder.Id.AsGuid(), customer.Id.AsGuid(), DateTime.Parse(mongoOrder.OrderDate), OrderStatus.Shipped));
                 }
             }
 
@@ -97,7 +97,7 @@ public class MongoOrderRepository : IOrderRepository
             {
                 var mongoOrders = await _orderCollection.Find(x => x.CustomerID == orderCustomer.CustomerID).ToListAsync();
 
-                mongoOrders.ForEach(x => orders.Add(new Order(x.Id.AsGuid(), orderCustomer.Id.AsGuid(), OrderStatus.Paid)));
+                mongoOrders.ForEach(x => orders.Add(new Order(x.Id.AsGuid(), orderCustomer.Id.AsGuid(), OrderStatus.Shipped)));
             }
 
             return orders;

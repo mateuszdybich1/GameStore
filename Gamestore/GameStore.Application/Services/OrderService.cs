@@ -196,6 +196,138 @@ public class OrderService(Func<RepositoryTypes, IGamesSearchCriteria> gameSearch
         return order.Id;
     }
 
+    public async Task<Guid> UpdateOrderDetailQuantity(Guid orderDetailID, int quantity)
+    {
+        OrderGame orderGame = await _sqlOrderGameRepository.Get(orderDetailID);
+        OrderGame oldOrderGame;
+        if (orderGame == null)
+        {
+            orderGame = await _mongoOrderGameRepository.Get(orderDetailID);
+            if (orderGame == null)
+            {
+                throw new EntityNotFoundException($"Couldn't find order details by ID: {orderDetailID}");
+            }
+
+            oldOrderGame = new(orderGame);
+            orderGame.Quantity = quantity;
+
+            Order order = await _sqlOrderRepository.Get(orderGame.OrderId);
+            if (order == null)
+            {
+                order = await _mongoOrderRepository.Get(orderGame.OrderId) ?? throw new EntityNotFoundException($"Order with Id: {orderGame.OrderId} not found");
+                await _sqlOrderRepository.Add(order);
+            }
+
+            await _sqlOrderGameRepository.Add(orderGame);
+        }
+        else
+        {
+            oldOrderGame = new(orderGame);
+            orderGame.Quantity = quantity;
+            await _sqlOrderGameRepository.Update(orderGame);
+        }
+
+        await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.OrderGame, oldOrderGame, orderGame);
+        return orderDetailID;
+    }
+
+    public async Task<Guid> ShipOrder(Guid orderId)
+    {
+        Order order = await _sqlOrderRepository.Get(orderId) ?? throw new EntityNotFoundException($"Couldn't find order by ID: {orderId}");
+
+        if (order.Status == OrderStatus.Paid)
+        {
+            Order oldOrder = new(order);
+
+            order.Status = OrderStatus.Shipped;
+            order.ModificationDate = DateTime.Now;
+
+            await _sqlOrderRepository.Update(order);
+
+            await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Order, oldOrder, order);
+            return order.Id;
+        }
+        else
+        {
+            throw new ArgumentException("Only paid orders can be shipped");
+        }
+    }
+
+    public async Task<Guid> AddGameToOrderDetails(Guid orderId, string gameKey)
+    {
+        Order order = await _sqlOrderRepository.Get(orderId);
+
+        var game = await _sqlGameSearchCriteria.GetByKey(gameKey) ?? await _mongoGameSearchCriteria.GetByKey(gameKey) ?? throw new EntityNotFoundException($"Couldn't find game by key: {gameKey}");
+
+        if (order == null)
+        {
+            order = await _mongoOrderRepository.Get(orderId) ?? throw new EntityNotFoundException($"Couldn't find order by ID: {orderId}");
+
+            await _sqlOrderRepository.Add(order);
+
+            var orderGame = await _mongoOrderGameRepository.GetOrderGame(order.Id, game.Id);
+
+            if (orderGame == null)
+            {
+                orderGame = new OrderGame(Guid.NewGuid(), order.Id, game.Id, game.Price, 1, game.Discount);
+            }
+            else
+            {
+                OrderGame oldOrderGame = new(orderGame);
+                orderGame.Quantity += 1;
+
+                await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.OrderGame, oldOrderGame, orderGame);
+            }
+
+            await _sqlOrderGameRepository.Add(orderGame);
+        }
+        else
+        {
+            var orderGame = await _sqlOrderGameRepository.GetOrderGame(order.Id, game.Id);
+
+            if (orderGame == null)
+            {
+                orderGame = new OrderGame(Guid.NewGuid(), order.Id, game.Id, game.Price, 1, game.Discount);
+
+                await _sqlOrderGameRepository.Add(orderGame);
+            }
+            else
+            {
+                OrderGame oldOrderGame = new(orderGame);
+                orderGame.Quantity += 1;
+                await _sqlOrderGameRepository.Update(orderGame);
+
+                await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.OrderGame, oldOrderGame, orderGame);
+            }
+        }
+
+        return order.Id;
+    }
+
+    public async Task<Guid> DeleteOrderDetails(Guid orderDetailsID)
+    {
+        OrderGame orderGame = await _sqlOrderGameRepository.Get(orderDetailsID);
+
+        if (orderGame == null)
+        {
+            orderGame = await _mongoOrderGameRepository.Get(orderDetailsID) ?? throw new EntityNotFoundException($"Couldn't find order details by ID: {orderDetailsID}");
+
+            await _mongoOrderGameRepository.Delete(orderGame);
+        }
+        else
+        {
+            await _sqlOrderGameRepository.Delete(orderGame);
+
+            var mongoOrderGame = await _mongoOrderGameRepository.Get(orderDetailsID);
+            if (mongoOrderGame != null)
+            {
+                await _mongoOrderGameRepository.Delete(mongoOrderGame);
+            }
+        }
+
+        return orderDetailsID;
+    }
+
     private async Task<Order> GetOpenOrder(Guid customerId)
     {
         return await _sqlOrderRepository.GetCustomerOpenOrder(customerId) ?? throw new EntityNotFoundException($"Customer: {customerId} does not have a cart");

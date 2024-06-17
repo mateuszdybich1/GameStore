@@ -115,6 +115,7 @@ public class PredefinedUserRoles(RoleManager<RoleModel> roleManager)
             new(ClaimType.Permission.ToString(), Permissions.AddPublisher.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.DeletePublisher.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.UpdatePublisher.ToString()),
+            new(ClaimType.Permission.ToString(), Permissions.ShipOrder.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.UpdateOrder.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.History.ToString()),
         };
