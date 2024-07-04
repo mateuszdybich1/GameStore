@@ -21,10 +21,10 @@ public class UserService(RoleManager<RoleModel> roleManager, UserManager<PersonM
     public async Task<IEnumerable<RoleModelDto>> GetUserRoles(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
+        var roles = new List<RoleModel>();
         if (user != null)
         {
             var roleNames = await _userManager.GetRolesAsync(user);
-            var roles = new List<RoleModel>();
 
             foreach (var roleName in roleNames)
             {
@@ -34,13 +34,9 @@ public class UserService(RoleManager<RoleModel> roleManager, UserManager<PersonM
                     roles.Add(role);
                 }
             }
+        }
 
-            return roles.Select(x => new RoleModelDto(x)).ToList();
-        }
-        else
-        {
-            return [];
-        }
+        return roles.Select(x => new RoleModelDto(x)).ToList();
     }
 
     public async Task<string> LoginUser(string username, string password)
