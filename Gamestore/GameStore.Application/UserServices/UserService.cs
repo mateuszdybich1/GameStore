@@ -39,7 +39,7 @@ public class UserService(RoleManager<RoleModel> roleManager, UserManager<PersonM
         }
         else
         {
-            return Enumerable.Empty<RoleModelDto>();
+            return [];
         }
     }
 
