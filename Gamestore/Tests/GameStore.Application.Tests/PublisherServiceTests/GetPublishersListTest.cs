@@ -16,7 +16,7 @@ public partial class PublisherTests
         }
 
         _publisherRepositoryMock.Setup(x => x.GetAllPublishers()).ReturnsAsync(publishers.AsEnumerable);
-        _mongoPublisherRepositoryMock.Setup(x => x.GetAllPublishers()).ReturnsAsync(new List<Publisher>());
+        _mongoPublisherRepositoryMock.Setup(x => x.GetAllPublishers()).ReturnsAsync([]);
 
         var result = await _publisherService.GetAll();
         var publishersDto = result.ToList();

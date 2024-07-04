@@ -19,7 +19,7 @@ public partial class GenreTests
         }
 
         _genreRepositoryMock.Setup(x => x.GetAllGenre()).ReturnsAsync(genres.AsEnumerable);
-        _mongoGenreRepositoryMock.Setup(x => x.GetAllGenre()).ReturnsAsync(new List<Genre>());
+        _mongoGenreRepositoryMock.Setup(x => x.GetAllGenre()).ReturnsAsync([]);
 
         // Act
         var result = await _genreService.GetAll();
@@ -48,7 +48,7 @@ public partial class GenreTests
         }
 
         _genresSearchCriteriaMock.Setup(x => x.GetByParentId(parentGenre.Id)).ReturnsAsync(genres.AsEnumerable);
-        _mongoGenresSearchCriteriaMock.Setup(x => x.GetByParentId(parentGenre.Id)).ReturnsAsync(new List<Genre>());
+        _mongoGenresSearchCriteriaMock.Setup(x => x.GetByParentId(parentGenre.Id)).ReturnsAsync([]);
 
         // Act
         var result = await _genreService.GetSubGenres(parentGenre.Id);
@@ -79,7 +79,7 @@ public partial class GenreTests
         }
 
         _genresSearchCriteriaMock.Setup(x => x.GetByGameKey(gameKey)).ReturnsAsync(genres.AsEnumerable);
-        _mongoGenresSearchCriteriaMock.Setup(x => x.GetByGameKey(gameKey)).ReturnsAsync(new List<Genre>());
+        _mongoGenresSearchCriteriaMock.Setup(x => x.GetByGameKey(gameKey)).ReturnsAsync([]);
 
         // Act
         var result = await _genreService.GetGamesGenres(gameKey);
