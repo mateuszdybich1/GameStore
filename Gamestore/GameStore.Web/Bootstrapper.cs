@@ -1,5 +1,6 @@
 ﻿using GameStore.Application.IServices;
 using GameStore.Application.IUserServices;
+using GameStore.Application.NotificationServices;
 using GameStore.Application.Services;
 using GameStore.Application.UserServices;
 using GameStore.Domain;
@@ -166,5 +167,8 @@ internal static class Bootstrapper
         services.AddScoped<IPermissionsService, PermissionsService>();
         services.AddScoped<IRolesService, RolesService>();
         services.AddScoped<IUserService, UserService>();
+
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<INotificationService, NotificationService>();
     }
 }

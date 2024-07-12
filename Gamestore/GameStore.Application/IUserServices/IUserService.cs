@@ -1,4 +1,5 @@
 ﻿using GameStore.Application.Dtos;
+using GameStore.Domain.UserEntities;
 
 namespace GameStore.Application.IUserServices;
 
@@ -23,4 +24,8 @@ public interface IUserService
     Task<Guid> BanUser(UserBanDto userBanDto);
 
     Task<Guid> UnBanUser(Guid id);
+
+    Task<IEnumerable<UserNotificationType>> GetUserNotifications(Guid userId);
+
+    Task<Guid> ChangeUserNotifications(UserNotificationDto userNotificationDto);
 }

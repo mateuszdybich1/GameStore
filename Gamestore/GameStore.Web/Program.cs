@@ -1,4 +1,5 @@
 using System.Text;
+using GameStore.Application.NotificationServices;
 using GameStore.Domain.UserEntities;
 using GameStore.Infrastructure;
 using GameStore.Infrastructure.MongoRepositories;
@@ -16,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
 services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+services.Configure<AzureServiceBusSettings>(builder.Configuration.GetSection("Values:AzureWebJobsServiceBus"));
+services.Configure<SmtpSettings>(builder.Configuration.GetSection("Values:SmtpSettings"));
 
 services.Configure<BlobStorageConfiguration>(builder.Configuration.GetSection("BlobStorage"));
 

@@ -75,7 +75,7 @@ public class UserService(RoleManager<RoleModel> roleManager, UserManager<PersonM
 
     public async Task<Guid> RemoveUser(Guid userId)
     {
-        var userModel = await Get(userId) ?? throw new EntityNotFoundException("User not found");
+        var userModel = await Get(userId);
         await _userManager.DeleteAsync(userModel);
 
         return userModel.Id;
@@ -125,6 +125,22 @@ public class UserService(RoleManager<RoleModel> roleManager, UserManager<PersonM
 
         await _userManager.UpdateAsync(user);
 
+        return user.Id;
+    }
+
+    public async Task<IEnumerable<UserNotificationType>> GetUserNotifications(Guid userId)
+    {
+        var user = await Get(userId);
+
+        return user.NotificationTypes.Select(Enum.Parse<UserNotificationType>);
+    }
+
+    public async Task<Guid> ChangeUserNotifications(UserNotificationDto userNotificationDto)
+    {
+        var user = await Get(userNotificationDto.UserId);
+
+        user.NotificationTypes = userNotificationDto.Notifications.Select(x => x.ToString()).ToList();
+        await _userManager.UpdateAsync(user);
         return user.Id;
     }
 

@@ -70,8 +70,11 @@ public class ChangeLogService : IChangeLogService
                 {
                     if (value is not null)
                     {
-                        var objectId = value.GetType().GetProperty("Id").GetValue(value);
-                        logEntry.Add($"{entityKind}.{property.Name}", objectId.ToString());
+                        var valuePropId = value.GetType().GetProperty("Id");
+                        if (valuePropId != null)
+                        {
+                            logEntry.Add($"{entityKind}.{property.Name}", valuePropId.GetValue(value).ToString());
+                        }
                     }
                     else if (value is null)
                     {

@@ -213,7 +213,7 @@ public class GamesController(IGameService gamesService,
         }
         else
         {
-            return NotFound();
+            return StatusCode(StatusCodes.Status404NotFound);
         }
     }
 
@@ -303,52 +303,25 @@ public class GamesController(IGameService gamesService,
     [HttpGet("pagination-options")]
     public IActionResult GetNumberOfGamesForPage()
     {
-        var numberOfGames = new List<string>();
         var values = Enum.GetValues(typeof(NumberOfGamesOnPageFilteringMode));
 
-        foreach (var value in values)
-        {
-            if (value is NumberOfGamesOnPageFilteringMode enumValue)
-            {
-                numberOfGames.Add(EnumExtensions.GetEnumDescription(enumValue));
-            }
-        }
-
-        return Ok(numberOfGames);
+        return Ok(EnumExtensions.GetListEnumDesctiptions((NumberOfGamesOnPageFilteringMode[])values));
     }
 
     [HttpGet("sorting-options")]
     public IActionResult GetSortingOptions()
     {
-        var sortingOptions = new List<string>();
         var values = Enum.GetValues(typeof(GameSortingMode));
 
-        foreach (var value in values)
-        {
-            if (value is GameSortingMode enumValue)
-            {
-                sortingOptions.Add(EnumExtensions.GetEnumDescription(enumValue));
-            }
-        }
-
-        return Ok(sortingOptions);
+        return Ok(EnumExtensions.GetListEnumDesctiptions((GameSortingMode[])values));
     }
 
     [HttpGet("publish-date-options")]
     public IActionResult GetPublishDateOptions()
     {
-        var publishDateList = new List<string>();
         var values = Enum.GetValues(typeof(PublishDateFilteringMode));
 
-        foreach (var value in values)
-        {
-            if (value is PublishDateFilteringMode enumValue)
-            {
-                publishDateList.Add(EnumExtensions.GetEnumDescription(enumValue));
-            }
-        }
-
-        return Ok(publishDateList);
+        return Ok((PublishDateFilteringMode[])values);
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

@@ -8,7 +8,7 @@ using GameStore.Domain.ISearchCriterias;
 
 namespace GameStore.Application.Services;
 
-public class OrderService(Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteriaFactory, Func<RepositoryTypes, IOrderRepository> orderRepositoryFactory, Func<RepositoryTypes, IOrderGameRepository> orderGameRepositoryFactory, IGameRepository gameRepository, IChangeLogService changeLogService) : IOrderService
+public class OrderService(Func<RepositoryTypes, IGamesSearchCriteria> gameSearchCriteriaFactory, Func<RepositoryTypes, IOrderRepository> orderRepositoryFactory, Func<RepositoryTypes, IOrderGameRepository> orderGameRepositoryFactory, IGameRepository gameRepository, IChangeLogService changeLogService, INotificationService notificationService) : IOrderService
 {
     private readonly IGamesSearchCriteria _sqlGameSearchCriteria = gameSearchCriteriaFactory(RepositoryTypes.Sql);
     private readonly IGamesSearchCriteria _mongoGameSearchCriteria = gameSearchCriteriaFactory(RepositoryTypes.Mongo);
@@ -18,6 +18,7 @@ public class OrderService(Func<RepositoryTypes, IGamesSearchCriteria> gameSearch
     private readonly IOrderGameRepository _mongoOrderGameRepository = orderGameRepositoryFactory(RepositoryTypes.Mongo);
     private readonly IGameRepository _gameRepository = gameRepository;
     private readonly IChangeLogService _changeLogService = changeLogService;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<Guid> AddOrder(Guid customerId, string gameKey)
     {
@@ -184,6 +185,7 @@ public class OrderService(Func<RepositoryTypes, IGamesSearchCriteria> gameSearch
                 await _gameRepository.Update(game);
 
                 await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Game, oldGame, game);
+                await _notificationService.NotifyOrderStatusChange(orderId, orderStatus.ToString());
             }
         }
 
@@ -245,6 +247,7 @@ public class OrderService(Func<RepositoryTypes, IGamesSearchCriteria> gameSearch
             await _sqlOrderRepository.Update(order);
 
             await _changeLogService.LogEntityChanges(LogActionType.Update, EntityType.Order, oldOrder, order);
+            await _notificationService.NotifyOrderStatusChange(orderId, OrderStatus.Shipped.ToString());
             return order.Id;
         }
         else

@@ -30,6 +30,11 @@ public class UserCheckService(IUserContext userContext) : IUserCheckService
         return userId != null && _userContext.IsAuthenticated && _userContext.CurrentUserId == userId;
     }
 
+    public Guid GetCurrentUserId()
+    {
+        return _userContext.CurrentUserId;
+    }
+
     private static bool CanAnonymousAccess(Permissions targetPage)
     {
         return targetPage is Permissions.Games or Permissions.Game or

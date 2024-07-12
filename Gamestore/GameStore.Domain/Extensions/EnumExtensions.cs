@@ -35,4 +35,16 @@ public static class EnumExtensions
         var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field!, typeof(DescriptionAttribute));
         return attribute == null ? value.ToString() : attribute.Description;
     }
+
+    public static List<string> GetListEnumDesctiptions<T>(T[] values)
+        where T : Enum
+    {
+        var returnList = new List<string>();
+        foreach (var value in values)
+        {
+            returnList.Add(GetEnumDescription(value));
+        }
+
+        return returnList;
+    }
 }

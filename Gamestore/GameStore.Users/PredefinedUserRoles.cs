@@ -83,6 +83,7 @@ public class PredefinedUserRoles(RoleManager<RoleModel> roleManager)
             new(ClaimType.Permission.ToString(), Permissions.AddComment.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.QuoteComment.ToString()),
             new(ClaimType.Permission.ToString(), Permissions.ReplyComment.ToString()),
+            new(ClaimType.Permission.ToString(), Permissions.Notifications.ToString()),
         };
         return permissions;
     }

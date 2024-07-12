@@ -3,6 +3,7 @@ using System.Text;
 using GameStore.Application.Dtos;
 using GameStore.Application.IUserServices;
 using GameStore.Domain.Exceptions;
+using GameStore.Domain.UserEntities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +49,7 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
                         }
                         else
                         {
-                            var roleId = await _rolesService.GetDefaultRole(Domain.UserEntities.DefaultRoles.User);
+                            var roleId = await _rolesService.GetDefaultRole(DefaultRoles.User);
                             var roles = new List<Guid> { roleId };
                             var token = await _userService.RegisterUser(new(microserviceUserModel.Email, model.Model.Password, roles));
                             return Ok(new { Token = token });
@@ -87,7 +88,7 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     [HttpPut]
     public async Task<IActionResult> UpdateUser(UserRegisterDto userRegisterDto)
     {
-        if (_userCheckService.IsCurrentUser(userRegisterDto.User.ID) || _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.UpdateUser }))
+        if (_userCheckService.IsCurrentUser(userRegisterDto.User.ID) || _userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Permissions.UpdateUser }))
         {
             try
             {
@@ -108,7 +109,7 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Users }))
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Permissions.Users }))
         {
             IEnumerable<UserModelMicroserviceDto> response = null;
             try
@@ -147,7 +148,7 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser([FromRoute] Guid id)
     {
-        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.User }))
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Permissions.User }))
         {
             try
             {
@@ -168,7 +169,7 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
     {
-        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.DeleteUser }))
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Permissions.DeleteUser }))
         {
             try
             {
@@ -189,7 +190,7 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     [HttpGet("{id}/roles")]
     public async Task<IActionResult> GetUserRoles([FromRoute] Guid id)
     {
-        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Domain.UserEntities.Permissions.Roles }))
+        if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Permissions.Roles }))
         {
             try
             {
@@ -212,5 +213,27 @@ public class UserController(IHttpClientFactory httpClientFactory, IUserService u
     public IActionResult CheckAccess(AccessPageDto accessPageDto)
     {
         return Ok(_userCheckService.CanUserAccess(accessPageDto));
+    }
+
+    [HttpGet("notifications")]
+    public IActionResult NotificationMethods()
+    {
+        return Ok(Enum.GetNames(typeof(UserNotificationType)));
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpGet("my/notifications")]
+    public async Task<IActionResult> MyNotificationMethods()
+    {
+        var values = (await _userService.GetUserNotifications(_userCheckService.GetCurrentUserId())).Select(x => x.ToString());
+        return Ok(values);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPut("notifications")]
+    public async Task<IActionResult> ChangeUserNotifications(UserNotificationDto userNotificationDto)
+    {
+        userNotificationDto.UserId = _userCheckService.GetCurrentUserId();
+        return Ok(await _userService.ChangeUserNotifications(userNotificationDto));
     }
 }

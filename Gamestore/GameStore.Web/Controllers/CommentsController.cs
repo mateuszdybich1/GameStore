@@ -35,18 +35,9 @@ public class CommentsController(IUserCheckService userCheckService, IUserService
     {
         if (_userCheckService.CanUserAccess(new AccessPageDto() { TargetPage = Permissions.BanUser }))
         {
-            var banDurations = new List<string>();
             var values = Enum.GetValues(typeof(BanDurations));
 
-            foreach (var value in values)
-            {
-                if (value is BanDurations enumValue)
-                {
-                    banDurations.Add(EnumExtensions.GetEnumDescription(enumValue));
-                }
-            }
-
-            return Ok(banDurations);
+            return Ok(EnumExtensions.GetListEnumDesctiptions((BanDurations[])values));
         }
         else
         {

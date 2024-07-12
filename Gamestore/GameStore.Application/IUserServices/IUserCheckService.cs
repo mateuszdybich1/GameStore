@@ -7,4 +7,6 @@ public interface IUserCheckService
     bool CanUserAccess(AccessPageDto accessPageDto);
 
     bool IsCurrentUser(Guid? userId);
+
+    Guid GetCurrentUserId();
 }

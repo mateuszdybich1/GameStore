@@ -50,6 +50,8 @@ public enum Permissions
     BanUser,
     BanComment,
 
+    Notifications,
+
     Users,
     User,
     AddUser,

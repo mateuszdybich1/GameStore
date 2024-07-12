@@ -24,6 +24,10 @@ public class PersonModel : IdentityUser<Guid>
 
     public string BanDuration { get; set; }
 
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
+    public List<string> NotificationTypes { get; set; } = [];
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
+
     public void SetPassword(string password)
     {
         var passwordHasher = new PasswordHasher<PersonModel>();
