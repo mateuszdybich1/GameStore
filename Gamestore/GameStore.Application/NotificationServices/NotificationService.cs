@@ -31,24 +31,24 @@ public class NotificationService(UserManager<PersonModel> userManager, RoleManag
             }
         }
 
-        var usersToInfrom = new HashSet<PersonModel>();
+        var usersToInform = new HashSet<PersonModel>();
 
         foreach (var selectedRole in selectedRoles)
         {
             var managerForRole = await _userManager.GetUsersInRoleAsync(selectedRole.Name.ToString());
             foreach (var manager in managerForRole)
             {
-                usersToInfrom.Add(manager);
+                usersToInform.Add(manager);
             }
         }
 
         var orderCustomer = await _userManager.FindByIdAsync(order.CustomerId.ToString());
         if (orderCustomer != null)
         {
-            usersToInfrom.Add(orderCustomer);
+            usersToInform.Add(orderCustomer);
         }
 
-        await NotifyUsers(usersToInfrom, order);
+        await NotifyUsers(usersToInform, order);
     }
 
     private async Task NotifyUsers(IEnumerable<PersonModel> users, Order order)
