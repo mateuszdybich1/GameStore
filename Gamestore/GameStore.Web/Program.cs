@@ -18,7 +18,6 @@ var services = builder.Services;
 
 services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 services.Configure<AzureServiceBusSettings>(builder.Configuration.GetSection("Values:AzureWebJobsServiceBus"));
-services.Configure<SmtpSettings>(builder.Configuration.GetSection("Values:SmtpSettings"));
 
 services.Configure<BlobStorageConfiguration>(builder.Configuration.GetSection("BlobStorage"));
 
